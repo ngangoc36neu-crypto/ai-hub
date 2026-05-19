@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apero AI Knowledge Hub</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#F4F5F7;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px}
+  .app{display:flex;width:100%;max-width:1100px;min-height:calc(100vh - 48px);border-radius:12px;overflow:hidden;border:1px solid #e0e0e0;box-shadow:0 2px 12px rgba(0,0,0,0.08)}
+  .sidebar{width:200px;background:#1B3358;flex-shrink:0;display:flex;flex-direction:column}
+  .sidebar-header{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.1)}
+  .sidebar-header p{margin:0;font-size:13px;font-weight:600;color:#fff}
+  .sidebar-header span{display:block;margin-top:3px;font-size:11px;color:rgba(255,255,255,0.45)}
+  .nav{padding:10px 0;flex:1}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;font-size:13px;color:rgba(255,255,255,0.65);cursor:pointer;border-radius:6px;margin:2px 8px;transition:background .15s,color .15s}
+  .nav-item:hover{background:rgba(255,255,255,0.09);color:#fff}
+  .nav-item.active{background:rgba(255,255,255,0.16);color:#fff;font-weight:600}
+  .nav-item i{font-size:16px}
+  .sidebar-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,0.1)}
+  .sync-btn{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.5);cursor:pointer;background:none;border:none;padding:0}
+  .sync-btn:hover{color:rgba(255,255,255,0.8)}
+  .content{flex:1;background:#F4F5F7;padding:24px;overflow-y:auto}
+  .page{display:none}
+  .page.active{display:block}
+  .page-title{font-size:18px;font-weight:600;color:#1a1a2e;margin-bottom:16px}
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+  .stat-card{background:#fff;border-radius:10px;padding:16px;border:1px solid #e8e8e8}
+  .stat-card .label{font-size:12px;color:#888;display:flex;align-items:center;gap:5px;margin-bottom:8px}
+  .stat-card .value{font-size:24px;font-weight:700;color:#1a1a2e}
+  .stat-card .value.small{font-size:16px}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .card{background:#fff;border-radius:10px;border:1px solid #e8e8e8;padding:16px 20px}
+  .card-title{font-size:13px;font-weight:600;color:#888;margin-bottom:12px}
+  .asset-row{padding:10px 0;border-bottom:1px solid #f0f0f0}
+  .asset-row:last-child{border-bottom:none}
+  .asset-name{font-size:13px;font-weight:600;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .asset-meta{font-size:12px;color:#888;margin-top:2px}
+  .tag{font-size:11px;padding:2px 8px;border-radius:20px;display:inline-block;font-weight:500}
+  .tag.verified{background:#e6f9f0;color:#0a7a4b}
+  .tag.draft{background:#f0f0f0;color:#666}
+  .action-btn{font-size:12px;padding:5px 10px;border-radius:6px;cursor:pointer;border:1px solid #ddd;background:#fff;color:#666;display:inline-flex;align-items:center;gap:4px;transition:all .15s}
+  .action-btn:hover{border-color:#1B3358;color:#1B3358;background:#eef2f8}
+  .action-btn.star:hover{border-color:#EF9F27;color:#854F0B;background:#FEF8EC}
+  .action-btn.fork:hover{border-color:#378ADD;color:#0C447C;background:#EEF4FC}
+  .form-group{margin-bottom:16px}
+  .form-label{display:block;font-size:12px;font-weight:600;color:#555;margin-bottom:5px}
+  .form-group input,.form-group select,.form-group textarea{width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border .15s}
+  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#1B3358}
+  .form-group textarea{resize:vertical}
+  .check-row{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+  .check-row input{width:16px;height:16px;cursor:pointer}
+  .check-row label{font-size:13px;cursor:pointer;color:#444}
+  .submit-btn{width:100%;padding:10px;background:#1B3358;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s}
+  .submit-btn:hover{background:#244070}
+  .alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;display:none}
+  .alert.error{background:#fef2f2;color:#c0392b;border:1px solid #fbb}
+  .alert.success{background:#f0faf5;color:#0a7a4b;border:1px solid #b3e6cc}
+  .hint{font-size:12px;color:#999;margin-top:8px}
+  .lb-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f0f0f0}
+  .lb-row:last-child{border-bottom:none}
+  .medal{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+  .search-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .search-bar input{flex:1;padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;outline:none}
+  .search-bar input:focus{border-color:#1B3358}
+  .err-banner{background:#fef2f2;color:#c0392b;border:1px solid #fbb;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none}
+  .rls-banner{background:#fffbeb;color:#854F0B;border:1px solid #fcd;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none}
+  .success-reward{font-size:20px;font-weight:700;color:#0a7a4b}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <p>Apero AI Hub</p>
+      <span>Knowledge Platform</span>
+    </div>
+    <div class="nav">
+      <div class="nav-item active" onclick="nav('dashboard')"><i class="ti ti-home"></i>Dashboard</div>
+      <div class="nav-item" onclick="nav('assets')"><i class="ti ti-file"></i>Danh sách asset</div>
+      <div class="nav-item" onclick="nav('star')"><i class="ti ti-star"></i>Thêm star</div>
+      <div class="nav-item" onclick="nav('fork')"><i class="ti ti-copy"></i>Thêm fork</div>
+      <div class="nav-item" onclick="nav('leaderboard')"><i class="ti ti-chart-bar"></i>Leaderboard</div>
+    </div>
+    <div class="sidebar-footer">
+      <button class="sync-btn" onclick="loadAll()">
+        <i class="ti ti-refresh"></i><span id="sync-label">Làm mới dữ liệu</span>
+      </button>
+      <p id="last-sync" style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:6px"></p>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div id="err-banner" class="err-banner"></div>
+    <div id="rls-banner" class="rls-banner">
+      <strong>Lưu ý RLS:</strong> Dữ liệu trống. Vào Supabase → Table Editor → từng bảng → tắt RLS, sau đó nhấn Làm mới.
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="p-dashboard" class="page active">
+      <p class="page-title">Dashboard</p>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="label"><i class="ti ti-file"></i>Tổng asset</div><div class="value" id="d-assets">—</div></div>
+        <div class="stat-card"><div class="label"><i class="ti ti-star"></i>Stars hợp lệ</div><div class="value" id="d-stars">—</div></div>
+        <div class="stat-card"><div class="label"><i class="ti ti-copy"></i>Forks hợp lệ</div><div class="value" id="d-forks">—</div></div>
+        <div class="stat-card"><div class="label"><i class="ti ti-chart-bar"></i>Tổng thưởng</div><div class="value small" id="d-reward">—</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card"><p class="card-title">Top 5 asset</p><div id="d-top"></div></div>
+        <div class="card"><p class="card-title">Leaderboard nhanh</p><div id="d-lb"></div></div>
+      </div>
+    </div>
+
+    <!-- ASSETS -->
+    <div id="p-assets" class="page">
+      <p class="page-title">Danh sách asset</p>
+      <div class="search-bar">
+        <i class="ti ti-search" style="color:#aaa;font-size:16px"></i>
+        <input id="search-input" oninput="filterAssets()" placeholder="Tìm theo tên, domain, loại...">
+      </div>
+      <div class="card" style="padding:0 20px">
+        <div id="assets-list"><p style="padding:16px 0;font-size:13px;color:#aaa">Đang tải...</p></div>
+      </div>
+    </div>
+
+    <!-- STAR -->
+    <div id="p-star" class="page">
+      <p class="page-title">Thêm star</p>
+      <div class="card" style="max-width:500px">
+        <div id="star-err" class="alert error"></div>
+        <div id="star-ok" class="alert success"></div>
+        <div class="form-group">
+          <label class="form-label">Chọn asset</label>
+          <select id="star-asset"><option value="">-- Chọn asset --</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Người star</label>
+          <select id="star-user"><option value="">-- Chọn tên --</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Lý do star (bắt buộc)</label>
+          <textarea id="star-reason" rows="3" placeholder="Tại sao asset này hữu ích với bạn?"></textarea>
+        </div>
+        <div class="check-row">
+          <input type="checkbox" id="star-cross">
+          <label for="star-cross">Star từ team khác (cross-team — tính thưởng đầy đủ)</label>
+        </div>
+        <button class="submit-btn" onclick="submitStar()">
+          <i class="ti ti-star"></i>Xác nhận star
+        </button>
+      </div>
+      <p class="hint" style="margin-top:10px">1 valid star = 200.000 ₫ &nbsp;·&nbsp; Star phải có lý do &nbsp;·&nbsp; Mỗi người chỉ star 1 asset 1 lần</p>
+    </div>
+
+    <!-- FORK -->
+    <div id="p-fork" class="page">
+      <p class="page-title">Thêm fork</p>
+      <div class="card" style="max-width:500px">
+        <div id="fork-err" class="alert error"></div>
+        <div id="fork-ok" class="alert success"></div>
+        <div class="form-group">
+          <label class="form-label">Chọn asset gốc</label>
+          <select id="fork-asset"><option value="">-- Chọn asset --</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Người fork</label>
+          <select id="fork-user"><option value="">-- Chọn tên --</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mô tả use case — dùng vào việc gì</label>
+          <textarea id="fork-desc" rows="2" placeholder="Mô tả bạn sẽ dùng asset này vào việc gì..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Thay đổi so với bản gốc</label>
+          <textarea id="fork-changes" rows="2" placeholder="Bạn đã chỉnh sửa hoặc thêm gì?"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Link output / bản fork (không bắt buộc)</label>
+          <input id="fork-link" type="text" placeholder="https://...">
+        </div>
+        <button class="submit-btn" onclick="submitFork()">
+          <i class="ti ti-copy"></i>Xác nhận fork
+        </button>
+      </div>
+      <p class="hint" style="margin-top:10px">1 valid fork = 500.000 ₫ &nbsp;·&nbsp; Phải có mô tả use case và thay đổi</p>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div id="p-leaderboard" class="page">
+      <p class="page-title">Leaderboard</p>
+      <div class="card" style="padding:0 20px">
+        <div id="lb-full"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const SB="https://oaedfqlvbsnlwizdmhkj.supabase.co";
+const KEY="sb_publishable_5Y_cXwgxziFm4cymOgGynQ_3pqkdwtO";
+const H={"apikey":KEY,"Authorization":"Bearer "+KEY};
+const HP={...H,"Content-Type":"application/json","Prefer":"return=minimal"};
+let DB={assets:[],users:[],stars:[],forks:[]};
+
+const fmt=n=>new Intl.NumberFormat("vi-VN").format(n)+" ₫";
+const esc=s=>String(s||"").replace(/[<>&"]/g,c=>({"<":"&lt;",">":`&gt;`,"&":"&amp;",'"':"&quot;"}[c]));
+
+async function get(t){
+  const r=await fetch(SB+"/rest/v1/"+t+"?select=*",{headers:H});
+  if(!r.ok)throw new Error("Lỗi "+r.status+" khi tải bảng "+t+". Kiểm tra RLS đã tắt chưa.");
+  return r.json();
+}
+async function post(t,body){
+  const r=await fetch(SB+"/rest/v1/"+t,{method:"POST",headers:HP,body:JSON.stringify(body)});
+  if(!r.ok){const e=await r.text();throw new Error("Lỗi "+r.status+": "+e);}
+}
+
+function nav(page){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+  document.getElementById("p-"+page).classList.add("active");
+  const idx={dashboard:0,assets:1,star:2,fork:3,leaderboard:4};
+  document.querySelectorAll(".nav-item")[idx[page]].classList.add("active");
+}
+
+function filterAssets(){
+  const q=document.getElementById("search-input").value.toLowerCase();
+  renderAssets(DB.assets.filter(a=>[a.asset_name,a.domain,a.asset_type,a.owner_name].some(v=>(v||"").toLowerCase().includes(q))));
+}
+
+function renderAssets(list){
+  const sC={},fC={};
+  DB.stars.filter(s=>s.is_valid).forEach(s=>{sC[s.asset_id]=(sC[s.asset_id]||0)+1;});
+  DB.forks.filter(f=>f.is_valid).forEach(f=>{fC[f.original_asset_id]=(fC[f.original_asset_id]||0)+1;});
+  const el=document.getElementById("assets-list");
+  if(!list.length){el.innerHTML='<p style="padding:16px 0;font-size:13px;color:#aaa">Không tìm thấy asset nào</p>';return;}
+  el.innerHTML=list.map(a=>`
+    <div class="asset-row">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <div style="flex:1;min-width:0">
+          <p class="asset-name">${esc(a.asset_name)}</p>
+          <p class="asset-meta">${esc(a.domain||"—")} · ${esc(a.asset_type||"—")} · ${esc(a.owner_name||"—")}</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <span style="font-size:12px;color:#888"><i class="ti ti-star" style="font-size:12px"></i> ${sC[a.id]||0}</span>
+          <span style="font-size:12px;color:#888"><i class="ti ti-copy" style="font-size:12px"></i> ${fC[a.id]||0}</span>
+          <span class="tag ${a.status==="Verified"?"verified":"draft"}">${esc(a.status||"Draft")}</span>
+          <button class="action-btn star" onclick="quickStar(${a.id})"><i class="ti ti-star" style="font-size:13px"></i>Star</button>
+          <button class="action-btn fork" onclick="quickFork(${a.id})"><i class="ti ti-copy" style="font-size:13px"></i>Fork</button>
+        </div>
+      </div>
+    </div>`).join("");
+}
+
+function quickStar(id){nav("star");setTimeout(()=>{document.getElementById("star-asset").value=id;},50);}
+function quickFork(id){nav("fork");setTimeout(()=>{document.getElementById("fork-asset").value=id;},50);}
+
+function populateSelects(){
+  const ao='<option value="">-- Chọn asset --</option>'+DB.assets.map(a=>`<option value="${a.id}">${esc(a.asset_name)}</option>`).join("");
+  const uo='<option value="">-- Chọn tên --</option>'+DB.users.map(u=>`<option value="${u.id}">${esc(u.full_name)}</option>`).join("");
+  ["star-asset","fork-asset"].forEach(id=>{document.getElementById(id).innerHTML=ao;});
+  ["star-user","fork-user"].forEach(id=>{document.getElementById(id).innerHTML=uo;});
+}
+
+function renderDashboard(){
+  const vS=DB.stars.filter(s=>s.is_valid),vF=DB.forks.filter(f=>f.is_valid);
+  const tot=vS.reduce((s,x)=>s+(x.reward_amount||0),0)+vF.reduce((s,x)=>s+(x.reward_amount||0),0);
+  document.getElementById("d-assets").textContent=DB.assets.length;
+  document.getElementById("d-stars").textContent=vS.length;
+  document.getElementById("d-forks").textContent=vF.length;
+  document.getElementById("d-reward").textContent=fmt(tot);
+  const sC={},fC={};
+  vS.forEach(s=>{sC[s.asset_id]=(sC[s.asset_id]||0)+1;});
+  vF.forEach(f=>{fC[f.original_asset_id]=(fC[f.original_asset_id]||0)+1;});
+  const top=[...DB.assets].map(a=>({...a,sc:sC[a.id]||0,fc:fC[a.id]||0})).sort((a,b)=>(b.sc+b.fc)-(a.sc+a.fc)).slice(0,5);
+  document.getElementById("d-top").innerHTML=top.length?top.map((a,i)=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;${i>0?"border-top:1px solid #f0f0f0":""}">
+      <p style="margin:0;font-size:13px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:8px">${esc(a.asset_name)}</p>
+      <span style="font-size:12px;color:#888;flex-shrink:0"><i class="ti ti-star" style="font-size:12px"></i>${a.sc} <i class="ti ti-copy" style="font-size:12px;margin-left:4px"></i>${a.fc}</span>
+    </div>`).join(""):'<p style="font-size:13px;color:#aaa">Chưa có asset</p>';
+  const oR={};
+  vS.forEach(s=>{const a=DB.assets.find(x=>x.id===s.asset_id);if(a){oR[a.owner_name]=(oR[a.owner_name]||0)+(s.reward_amount||0);}});
+  vF.forEach(f=>{const a=DB.assets.find(x=>x.id===f.original_asset_id);if(a){oR[a.owner_name]=(oR[a.owner_name]||0)+(f.reward_amount||0);}});
+  const lb=Object.entries(oR).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const medals=[{bg:"#FAC775",c:"#1B3358"},{bg:"#E0E0E0",c:"#444"},{bg:"#EF9F27",c:"#1B3358"}];
+  document.getElementById("d-lb").innerHTML=lb.length?lb.map(([name,r],i)=>{
+    const m=medals[i]||{bg:"#f0f0f0",c:"#666"};
+    return`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;${i>0?"border-top:1px solid #f0f0f0":""}">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="medal" style="background:${m.bg};color:${m.c}">${i+1}</span>
+        <p style="margin:0;font-size:13px;font-weight:600">${esc(name)}</p>
+      </div>
+      <p style="margin:0;font-size:13px;font-weight:700;color:#0a7a4b">${fmt(r)}</p>
+    </div>`;}).join(""):'<p style="font-size:13px;color:#aaa">Chưa có dữ liệu</p>';
+}
+
+function renderLeaderboard(){
+  const vS=DB.stars.filter(s=>s.is_valid),vF=DB.forks.filter(f=>f.is_valid);
+  const oR={},oA={};
+  DB.assets.forEach(a=>{oA[a.owner_name]=(oA[a.owner_name]||0)+1;});
+  vS.forEach(s=>{const a=DB.assets.find(x=>x.id===s.asset_id);if(a){if(!oR[a.owner_name])oR[a.owner_name]={s:0,f:0,r:0};oR[a.owner_name].r+=(s.reward_amount||0);oR[a.owner_name].s++;}});
+  vF.forEach(f=>{const a=DB.assets.find(x=>x.id===f.original_asset_id);if(a){if(!oR[a.owner_name])oR[a.owner_name]={s:0,f:0,r:0};oR[a.owner_name].r+=(f.reward_amount||0);oR[a.owner_name].f++;}});
+  const lb=Object.entries(oR).sort((a,b)=>b[1].r-a[1].r);
+  const medals=[{bg:"#FAC775",c:"#1B3358"},{bg:"#E0E0E0",c:"#444"},{bg:"#EF9F27",c:"#1B3358"}];
+  document.getElementById("lb-full").innerHTML=lb.length?lb.map(([name,d],i)=>{
+    const m=medals[i]||{bg:"#f0f0f0",c:"#666"};
+    return`<div class="lb-row">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="medal" style="background:${m.bg};color:${m.c}">${i+1}</span>
+        <div>
+          <p style="margin:0;font-size:14px;font-weight:600;color:#1a1a2e">${esc(name)}</p>
+          <p style="margin:2px 0 0;font-size:12px;color:#888">${oA[name]||0} asset · ${d.s} star · ${d.f} fork</p>
+        </div>
+      </div>
+      <p style="margin:0;font-size:15px;font-weight:700;color:#0a7a4b">${fmt(d.r)}</p>
+    </div>`;}).join(""):'<p style="padding:16px 0;font-size:13px;color:#aaa">Chưa có dữ liệu</p>';
+}
+
+function showMsg(errId,okId,msg,isOk){
+  const e=document.getElementById(errId),o=document.getElementById(okId);
+  e.style.display="none";o.style.display="none";
+  if(isOk){o.style.display="block";o.textContent=msg;}
+  else{e.style.display="block";e.textContent=msg;}
+}
+
+async function submitStar(){
+  const aId=parseInt(document.getElementById("star-asset").value);
+  const uId=parseInt(document.getElementById("star-user").value);
+  const reason=document.getElementById("star-reason").value.trim();
+  const cross=document.getElementById("star-cross").checked;
+  if(!aId){showMsg("star-err","star-ok","Hãy chọn asset",false);return;}
+  if(!uId){showMsg("star-err","star-ok","Hãy chọn tên người star",false);return;}
+  if(!reason){showMsg("star-err","star-ok","Lý do star là bắt buộc",false);return;}
+  try{
+    await post("Stars",{asset_id:aId,user_id:uId,reason,is_cross_team:cross,is_valid:true,reward_amount:200000});
+    showMsg("star-err","star-ok","Star thành công! +200.000 ₫",true);
+    document.getElementById("star-reason").value="";
+    document.getElementById("star-cross").checked=false;
+    loadAll();
+  }catch(e){showMsg("star-err","star-ok",e.message,false);}
+}
+
+async function submitFork(){
+  const aId=parseInt(document.getElementById("fork-asset").value);
+  const uId=parseInt(document.getElementById("fork-user").value);
+  const desc=document.getElementById("fork-desc").value.trim();
+  const chg=document.getElementById("fork-changes").value.trim();
+  const link=document.getElementById("fork-link").value.trim();
+  if(!aId){showMsg("fork-err","fork-ok","Hãy chọn asset gốc",false);return;}
+  if(!uId){showMsg("fork-err","fork-ok","Hãy chọn tên người fork",false);return;}
+  if(!desc){showMsg("fork-err","fork-ok","Mô tả use case là bắt buộc",false);return;}
+  if(!chg){showMsg("fork-err","fork-ok","Mô tả thay đổi là bắt buộc",false);return;}
+  try{
+    await post("Forks",{original_asset_id:aId,forked_by_user_id:uId,fork_description:desc,changes_made:chg,output_link:link||null,is_valid:true,reward_amount:500000});
+    showMsg("fork-err","fork-ok","Fork thành công! +500.000 ₫",true);
+    document.getElementById("fork-desc").value="";
+    document.getElementById("fork-changes").value="";
+    document.getElementById("fork-link").value="";
+    loadAll();
+  }catch(e){showMsg("fork-err","fork-ok",e.message,false);}
+}
+
+async function loadAll(){
+  document.getElementById("sync-label").textContent="Đang tải...";
+  document.getElementById("err-banner").style.display="none";
+  document.getElementById("rls-banner").style.display="none";
+  try{
+    const [a,u,s,f]=await Promise.all([get("Assets"),get("Users"),get("Stars"),get("Forks")]);
+    DB={assets:a,users:u,stars:s,forks:f};
+    if(!a.length&&!s.length&&!f.length)document.getElementById("rls-banner").style.display="block";
+    renderDashboard();
+    renderAssets(a);
+    renderLeaderboard();
+    populateSelects();
+    document.getElementById("last-sync").textContent="Cập nhật "+new Date().toLocaleTimeString("vi-VN");
+  }catch(e){
+    const el=document.getElementById("err-banner");
+    el.style.display="block";
+    el.textContent=e.message;
+  }
+  document.getElementById("sync-label").textContent="Làm mới dữ liệu";
+}
+
+loadAll();
+</script>
+</body>
+</html>
