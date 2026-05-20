@@ -25,11 +25,12 @@
   --apero-danger:#E53935;
   --apero-danger-bg:#FEF2F2;
 }
-body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif;background:var(--apero-gray);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:0}
-.app{display:flex;width:100%;min-height:100vh}
+body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif;background:linear-gradient(145deg,#1e0038 0%,#4a0080 35%,#7b2fbe 70%,#a855f7 100%);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:0}
+html{background:linear-gradient(145deg,#1e0038 0%,#4a0080 35%,#7b2fbe 70%,#a855f7 100%);min-height:100%}
+.app{display:flex;width:100%;min-height:100vh;background:transparent}
 
 /* SIDEBAR */
-.sidebar{width:220px;background:linear-gradient(160deg,#1e0038 0%,#4a0080 35%,#7b2fbe 70%,#a855f7 100%);flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
+.sidebar{width:220px;background:rgba(0,0,0,0.35);backdrop-filter:blur(20px);border-right:0.5px solid rgba(255,255,255,0.12);flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
 .sidebar-header{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,0.1)}
 .brand-logo{display:flex;align-items:center;gap:10px;margin-bottom:6px}
 .brand-icon{width:32px;height:32px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#7b2fbe;letter-spacing:-1px}
@@ -49,104 +50,102 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif;
 .sync-btn:hover{color:rgba(255,255,255,0.8)}
 
 /* CONTENT */
-.content{flex:1;margin-left:220px;background:var(--apero-gray);padding:28px 32px;min-height:100vh;overflow-y:auto}
+.content{flex:1;margin-left:220px;background:transparent;padding:28px 32px;min-height:100vh;overflow-y:auto}
 .page{display:none}.page.active{display:block}
 .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.page-title{font-size:20px;font-weight:700;color:var(--apero-text);letter-spacing:-0.3px}
+.page-title{font-size:20px;font-weight:700;color:#fff;letter-spacing:-0.3px}
 
 /* STAT CARDS */
 .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-.stat-card{background:#fff;border-radius:12px;padding:18px 20px;border:1px solid var(--apero-border);position:relative;overflow:hidden;transition:all .2s}
-.stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7b2fbe,#a855f7);opacity:0;transition:opacity .2s}
-.stat-card:hover{box-shadow:0 4px 16px rgba(123,47,190,0.1)}
-.stat-card:hover::after{opacity:1}
-.stat-card .label{font-size:11px;font-weight:600;color:var(--apero-text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;display:flex;align-items:center;gap:5px}
-.stat-card .value{font-size:26px;font-weight:800;color:var(--apero-text);letter-spacing:-1px}
+.stat-card{background:rgba(255,255,255,0.12);backdrop-filter:blur(12px);border-radius:12px;padding:18px 20px;border:0.5px solid rgba(255,255,255,0.2);position:relative;overflow:hidden;transition:all .2s}
+.stat-card:hover{background:rgba(255,255,255,0.18);border-color:rgba(255,255,255,0.35)}
+.stat-card .label{font-size:11px;font-weight:600;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.stat-card .value{font-size:26px;font-weight:800;color:#fff;letter-spacing:-1px}
 .stat-card .value.small{font-size:18px;font-weight:700}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.card{background:#fff;border-radius:12px;border:1px solid var(--apero-border);padding:18px 20px}
-.card-title{font-size:12px;font-weight:700;color:var(--apero-text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px}
+.card{background:rgba(255,255,255,0.12);backdrop-filter:blur(12px);border-radius:12px;border:0.5px solid rgba(255,255,255,0.2);padding:18px 20px}
+.card-title{font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px}
 
 /* TAGS */
 .tag{font-size:11px;padding:3px 9px;border-radius:20px;display:inline-block;font-weight:600}
-.tag.verified{background:#E6F9F2;color:#00875A}
-.tag.draft{background:#F3E8FF;color:#7b2fbe}
-.tag.deprecated{background:#FAFAFA;color:#999}
+.tag.verified{background:rgba(0,184,122,0.2);color:#00E5A0;border:0.5px solid rgba(0,229,160,0.3)}
+.tag.draft{background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);border:0.5px solid rgba(255,255,255,0.2)}
+.tag.deprecated{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35)}
 
 /* ERROR */
-.err-banner{background:var(--apero-danger-bg);color:var(--apero-danger);border:1px solid #FFCDD2;padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:16px;display:none}
+.err-banner{background:rgba(229,57,53,0.15);color:#FF8A80;border:0.5px solid rgba(229,57,53,0.3);padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:16px;display:none}
 .medal{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
 
 /* ASSET CARDS */
-.asset-card{background:#fff;border-radius:12px;border:1px solid var(--apero-border);margin-bottom:10px;overflow:hidden;transition:all .2s}
-.asset-card:hover{border-color:#C4A8E8;box-shadow:0 4px 16px rgba(123,47,190,0.08)}
+.asset-card{background:rgba(255,255,255,0.1);backdrop-filter:blur(12px);border-radius:12px;border:0.5px solid rgba(255,255,255,0.18);margin-bottom:10px;overflow:hidden;transition:all .2s}
+.asset-card:hover{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.3)}
 .asset-header{padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
 .asset-info{flex:1;min-width:0}
-.asset-name{font-size:14px;font-weight:700;color:var(--apero-text);margin-bottom:3px;letter-spacing:-0.2px}
-.asset-meta{font-size:12px;color:var(--apero-text3)}
+.asset-name{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px;letter-spacing:-0.2px}
+.asset-meta{font-size:12px;color:rgba(255,255,255,0.5)}
 .asset-counts{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .count-badge{display:flex;align-items:center;gap:3px;font-size:13px;font-weight:600}
-.star-count{color:#C17700}
-.fork-count{color:#1565C0}
+.star-count{color:#FFD166}
+.fork-count{color:#90CAF9}
 
 /* ACTION BUTTONS */
 .asset-actions{display:flex;gap:7px;flex-shrink:0}
-.gh-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid;transition:all .15s}
-.gh-star-btn{background:#fff;border-color:var(--apero-border);color:var(--apero-text2)}
-.gh-star-btn:hover,.gh-star-btn.active{background:#FFF8E6;border-color:#F5C842;color:#8A6500}
-.gh-fork-btn{background:#fff;border-color:var(--apero-border);color:var(--apero-text2)}
-.gh-fork-btn:hover,.gh-fork-btn.active{background:#EEF4FC;border-color:#90CAF9;color:#1565C0}
-.gh-save-btn{background:#fff;border-color:var(--apero-border);color:var(--apero-text2)}
-.gh-save-btn:hover{background:#F3E8FF;border-color:#C4A8E8;color:#7b2fbe}
-.gh-save-btn.saved{background:#F3E8FF;border-color:#C4A8E8;color:#7b2fbe}
-.gh-link-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;background:#F3E8FF;color:#7b2fbe;border:1px solid #C4A8E8;text-decoration:none;transition:all .15s}
-.gh-link-btn:hover{background:#7b2fbe;color:#fff;border-color:#7b2fbe}
+.gh-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:0.5px solid;transition:all .15s}
+.gh-star-btn{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.8)}
+.gh-star-btn:hover,.gh-star-btn.active{background:rgba(255,209,102,0.2);border-color:#FFD166;color:#FFD166}
+.gh-fork-btn{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.8)}
+.gh-fork-btn:hover,.gh-fork-btn.active{background:rgba(144,202,249,0.2);border-color:#90CAF9;color:#90CAF9}
+.gh-save-btn{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.8)}
+.gh-save-btn:hover{background:rgba(0,229,160,0.15);border-color:#00E5A0;color:#00E5A0}
+.gh-save-btn.saved{background:rgba(0,229,160,0.15);border-color:#00E5A0;color:#00E5A0}
+.gh-link-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;background:rgba(255,255,255,0.15);color:#fff;border:0.5px solid rgba(255,255,255,0.3);text-decoration:none;transition:all .15s}
+.gh-link-btn:hover{background:rgba(255,255,255,0.25)}
 
 /* INLINE PANEL */
-.action-panel{display:none;border-top:1px solid var(--apero-border);padding:18px;background:#FAF7FF}
+.action-panel{display:none;border-top:0.5px solid rgba(255,255,255,0.1);padding:18px;background:rgba(0,0,0,0.15)}
 .action-panel.open{display:block}
 .panel-tabs{display:flex;gap:8px;margin-bottom:16px}
-.panel-tab{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--apero-border);background:#fff;color:var(--apero-text2);transition:all .15s}
-.panel-tab.active{background:linear-gradient(135deg,#7b2fbe,#a855f7);color:#fff;border-color:transparent}
+.panel-tab{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:0.5px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);transition:all .15s}
+.panel-tab.active{background:rgba(255,255,255,0.2);color:#fff;border-color:rgba(255,255,255,0.4)}
 .panel-form{display:none}.panel-form.active{display:block}
 .form-group{margin-bottom:14px}
-.form-label{display:block;font-size:12px;font-weight:600;color:var(--apero-text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 13px;border:1.5px solid var(--apero-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border .15s;background:#fff;color:var(--apero-text)}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#a855f7}
+.form-label{display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 13px;border:0.5px solid rgba(255,255,255,0.2);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border .15s;background:rgba(255,255,255,0.1);color:#fff}
+.form-group input::placeholder,.form-group textarea::placeholder{color:rgba(255,255,255,0.35)}
+.form-group select option{background:#4a0080;color:#fff}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.15)}
 .form-group textarea{resize:vertical}
 .check-row{display:flex;align-items:center;gap:8px;margin-bottom:14px}
-.check-row input{width:16px;height:16px;cursor:pointer;flex-shrink:0;accent-color:#7b2fbe}
-.check-row label{font-size:13px;cursor:pointer;color:var(--apero-text2)}
+.check-row input{width:16px;height:16px;cursor:pointer;flex-shrink:0;accent-color:#a855f7}
+.check-row label{font-size:13px;cursor:pointer;color:rgba(255,255,255,0.7)}
 .form-actions{display:flex;align-items:center;gap:8px}
-.submit-btn{padding:9px 20px;background:linear-gradient(135deg,#7b2fbe,#a855f7);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:opacity .15s}
-.submit-btn:hover{opacity:0.9}
-.cancel-btn{padding:9px 16px;background:#fff;color:var(--apero-text2);border:1.5px solid var(--apero-border);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer}
-.cancel-btn:hover{background:var(--apero-gray)}
+.submit-btn{padding:9px 20px;background:rgba(255,255,255,0.9);color:#7b2fbe;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.submit-btn:hover{background:#fff}
+.cancel-btn{padding:9px 16px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);border:0.5px solid rgba(255,255,255,0.2);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer}
+.cancel-btn:hover{background:rgba(255,255,255,0.15)}
 .inline-alert{padding:9px 13px;border-radius:8px;font-size:13px;margin-bottom:12px;display:none;font-weight:500}
-.inline-alert.error{background:var(--apero-danger-bg);color:var(--apero-danger);border:1px solid #FFCDD2}
-.inline-alert.success{background:var(--apero-success-bg);color:#00875A;border:1px solid #B2DFDB}
+.inline-alert.error{background:rgba(229,57,53,0.15);color:#FF8A80;border:0.5px solid rgba(229,57,53,0.3)}
+.inline-alert.success{background:rgba(0,229,160,0.15);color:#00E5A0;border:0.5px solid rgba(0,229,160,0.3)}
 
 /* LB */
-.lb-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--apero-border)}
+.lb-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:0.5px solid rgba(255,255,255,0.1)}
 .lb-row:last-child{border-bottom:none}
 
 /* SEARCH */
 .search-wrap{position:relative;margin-bottom:0}
-.search-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--apero-text3);font-size:16px;pointer-events:none}
-.search-wrap input{width:100%;padding:10px 14px 10px 38px;border:1.5px solid var(--apero-border);border-radius:10px;font-size:13px;outline:none;background:#fff;transition:border .15s;font-family:inherit}
-.search-wrap input:focus{border-color:#a855f7}
+.search-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);font-size:16px;pointer-events:none}
+.search-wrap input{width:100%;padding:10px 14px 10px 38px;border:0.5px solid rgba(255,255,255,0.2);border-radius:10px;font-size:13px;outline:none;background:rgba(255,255,255,0.1);color:#fff;transition:border .15s;font-family:inherit}
+.search-wrap input::placeholder{color:rgba(255,255,255,0.35)}
+.search-wrap input:focus{border-color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.15)}
 
 /* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(30,0,56,0.7);display:flex;align-items:center;justify-content:center;z-index:1000}
-.modal-box{background:#fff;border-radius:20px;padding:36px;width:400px;box-shadow:0 20px 60px rgba(123,47,190,0.3)}
-body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif;background:var(--apero-gray);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:0}
-.app{display:flex;width:100%;min-height:100vh}
-
+.modal-overlay{position:fixed;inset:0;background:rgba(10,0,20,0.8);display:flex;align-items:center;justify-content:center;z-index:1000}
+.modal-box{background:#fff;border-radius:20px;padding:36px;width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
 /* SIDEBAR */
-.sidebar{width:220px;background:var(--apero-black);flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
+.sidebar{width:220px;background:rgba(0,0,0,0.35);backdrop-filter:blur(20px);border-right:0.5px solid rgba(255,255,255,0.12);flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
 .sidebar-header{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,0.06)}
 .brand-logo{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.brand-icon{width:32px;height:32px;background:var(--apero-orange);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff;letter-spacing:-1px}
+.brand-icon{width:32px;height:32px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#7b2fbe !important;color:#fff;letter-spacing:-1px}
 .brand-name{font-size:14px;font-weight:700;color:#fff;letter-spacing:-0.3px}
 .brand-sub{font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px}
 .user-chip{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border-radius:8px;padding:7px 10px;margin-top:12px}
@@ -156,104 +155,42 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif;
 .nav-section{font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:1.5px;padding:10px 20px 6px;text-transform:uppercase}
 .nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:13px;color:rgba(255,255,255,0.5);cursor:pointer;border-radius:8px;margin:1px 10px;transition:all .15s}
 .nav-item:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85)}
-.nav-item.active{background:rgba(255,107,44,0.15);color:var(--apero-orange);font-weight:600}
-.nav-item.active i{color:var(--apero-orange)}
+.nav-item.active{background:rgba(255,255,255,0.18);color:#fff;font-weight:600;border-left:2px solid #fff}
+
 .nav-item i{font-size:16px;opacity:0.7}
 .nav-item.active i{opacity:1}
 .sidebar-footer{padding:14px 16px;border-top:1px solid rgba(255,255,255,0.06)}
 .sync-btn{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.35);cursor:pointer;background:none;border:none;padding:4px 4px;border-radius:6px;width:100%;transition:color .15s}
 .sync-btn:hover{color:rgba(255,255,255,0.7)}
 
-/* CONTENT */
-.content{flex:1;margin-left:220px;background:var(--apero-gray);padding:28px 32px;min-height:100vh;overflow-y:auto}
-.page{display:none}.page.active{display:block}
-.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.page-title{font-size:20px;font-weight:700;color:var(--apero-text);letter-spacing:-0.3px}
+/* ── LEADERBOARD REDESIGN ── */
+.lb-page-wrap{display:flex;flex-direction:column;gap:16px}
+.lb-main-card{background:linear-gradient(145deg,rgba(10,30,90,0.92),rgba(5,15,55,0.97));border:1px solid rgba(80,140,255,0.35);border-radius:20px;overflow:hidden;backdrop-filter:blur(20px);box-shadow:0 8px 40px rgba(0,50,200,0.25)}
+.lb-sub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.lb-sub-card{background:linear-gradient(145deg,rgba(10,30,90,0.85),rgba(5,15,55,0.95));border:1px solid rgba(80,140,255,0.25);border-radius:16px;overflow:hidden;backdrop-filter:blur(16px)}
+.lb-card-header{padding:14px 20px;border-bottom:1px solid rgba(80,140,255,0.2);display:flex;align-items:center;gap:10px;background:rgba(0,20,80,0.4)}
+.lb-card-title{font-size:13px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1.5px}
+.lb-podium-wrap{padding:24px 20px 0;display:flex;align-items:flex-end;justify-content:center;gap:10px}
+.lb-podium-col{flex:1;max-width:160px;display:flex;flex-direction:column;align-items:center}
+.lb-podium-avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0}
+.lb-podium-name{font-size:12px;font-weight:700;color:#fff;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:110px;margin:6px 0 2px}
+.lb-podium-score{font-size:12px;font-weight:700;margin:0 0 8px}
+.lb-podium-base{width:100%;border-radius:8px 8px 0 0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 0}
+.lb-table-header{display:flex;align-items:center;padding:10px 20px;border-bottom:1px solid rgba(80,140,255,0.15)}
+.lb-table-header span{font-size:10px;font-weight:700;color:rgba(150,180,255,0.6);text-transform:uppercase;letter-spacing:1.2px}
+.lb-table-row{display:flex;align-items:center;padding:10px 20px;border-bottom:0.5px solid rgba(255,255,255,0.05);transition:background .15s}
+.lb-table-row:last-child{border-bottom:none}
+.lb-table-row:hover{background:rgba(80,140,255,0.1)}
+.lb-rank-badge{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:rgba(200,220,255,0.7);flex-shrink:0;font-variant-numeric:tabular-nums}
+.lb-user-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.lb-user-name{font-size:13px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-user-sub{font-size:11px;color:rgba(150,180,255,0.6);margin-top:1px}
+.lb-score-val{font-size:14px;font-weight:800;margin-left:auto;flex-shrink:0}
+.lb-empty{padding:24px;text-align:center;color:rgba(150,180,255,0.4);font-size:13px}
+.lb-mode-toggle{display:flex;gap:6px;margin-left:auto}
+.lb-mode-btn{padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid rgba(80,140,255,0.35);background:transparent;color:rgba(150,180,255,0.7);transition:all .15s;letter-spacing:0.5px}
+.lb-mode-btn.active{background:rgba(80,140,255,0.3);color:#fff;border-color:rgba(120,170,255,0.6)}
 
-/* STAT CARDS */
-.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-.stat-card{background:#fff;border-radius:12px;padding:18px 20px;border:1px solid var(--apero-border);position:relative;overflow:hidden}
-.stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--apero-orange);opacity:0}
-.stat-card:hover::after{opacity:1}
-.stat-card .label{font-size:11px;font-weight:600;color:var(--apero-text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;display:flex;align-items:center;gap:5px}
-.stat-card .value{font-size:26px;font-weight:800;color:var(--apero-text);letter-spacing:-1px}
-.stat-card .value.small{font-size:18px;font-weight:700}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.card{background:#fff;border-radius:12px;border:1px solid var(--apero-border);padding:18px 20px}
-.card-title{font-size:12px;font-weight:700;color:var(--apero-text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px}
-
-/* TAGS */
-.tag{font-size:11px;padding:3px 9px;border-radius:20px;display:inline-block;font-weight:600}
-.tag.verified{background:#E6F9F2;color:#00875A}
-.tag.draft{background:#FFF3E0;color:#E65100}
-.tag.deprecated{background:#FAFAFA;color:#999}
-
-/* ERROR */
-.err-banner{background:var(--apero-danger-bg);color:var(--apero-danger);border:1px solid #FFCDD2;padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:16px;display:none}
-.medal{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
-
-/* ASSET CARDS */
-.asset-card{background:#fff;border-radius:12px;border:1px solid var(--apero-border);margin-bottom:10px;overflow:hidden;transition:all .2s}
-.asset-card:hover{border-color:#D0D0DC;box-shadow:0 4px 16px rgba(0,0,0,0.07)}
-.asset-header{padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
-.asset-info{flex:1;min-width:0}
-.asset-name{font-size:14px;font-weight:700;color:var(--apero-text);margin-bottom:3px;letter-spacing:-0.2px}
-.asset-meta{font-size:12px;color:var(--apero-text3)}
-.asset-counts{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.count-badge{display:flex;align-items:center;gap:3px;font-size:13px;font-weight:600}
-.star-count{color:#C17700}
-.fork-count{color:#1565C0}
-
-/* ACTION BUTTONS */
-.asset-actions{display:flex;gap:7px;flex-shrink:0}
-.gh-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid;transition:all .15s}
-.gh-star-btn{background:#fff;border-color:var(--apero-border);color:var(--apero-text2)}
-.gh-star-btn:hover,.gh-star-btn.active{background:#FFF8E6;border-color:#F5C842;color:#8A6500}
-.gh-fork-btn{background:#fff;border-color:var(--apero-border);color:var(--apero-text2)}
-.gh-fork-btn:hover,.gh-fork-btn.active{background:#EEF4FC;border-color:#90CAF9;color:#1565C0}
-.gh-save-btn{background:#fff;border-color:var(--apero-border);color:var(--apero-text2)}
-.gh-save-btn:hover{background:#E6F9F2;border-color:#81C784;color:#00875A}
-.gh-save-btn.saved{background:#E6F9F2;border-color:#81C784;color:#00875A}
-.gh-link-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;background:#FFF3EE;color:var(--apero-orange);border:1px solid #FFD0B8;text-decoration:none;transition:all .15s}
-.gh-link-btn:hover{background:var(--apero-orange);color:#fff}
-
-/* INLINE PANEL */
-.action-panel{display:none;border-top:1px solid var(--apero-border);padding:18px;background:#FAFAFA}
-.action-panel.open{display:block}
-.panel-tabs{display:flex;gap:8px;margin-bottom:16px}
-.panel-tab{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--apero-border);background:#fff;color:var(--apero-text2);transition:all .15s}
-.panel-tab.active{background:var(--apero-orange);color:#fff;border-color:var(--apero-orange)}
-.panel-form{display:none}.panel-form.active{display:block}
-.form-group{margin-bottom:14px}
-.form-label{display:block;font-size:12px;font-weight:600;color:var(--apero-text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 13px;border:1.5px solid var(--apero-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border .15s;background:#fff;color:var(--apero-text)}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--apero-orange)}
-.form-group textarea{resize:vertical}
-.check-row{display:flex;align-items:center;gap:8px;margin-bottom:14px}
-.check-row input{width:16px;height:16px;cursor:pointer;flex-shrink:0;accent-color:var(--apero-orange)}
-.check-row label{font-size:13px;cursor:pointer;color:var(--apero-text2)}
-.form-actions{display:flex;align-items:center;gap:8px}
-.submit-btn{padding:9px 20px;background:var(--apero-orange);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .15s}
-.submit-btn:hover{background:var(--apero-orange-light)}
-.cancel-btn{padding:9px 16px;background:#fff;color:var(--apero-text2);border:1.5px solid var(--apero-border);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer}
-.cancel-btn:hover{background:var(--apero-gray)}
-.inline-alert{padding:9px 13px;border-radius:8px;font-size:13px;margin-bottom:12px;display:none;font-weight:500}
-.inline-alert.error{background:var(--apero-danger-bg);color:var(--apero-danger);border:1px solid #FFCDD2}
-.inline-alert.success{background:var(--apero-success-bg);color:#00875A;border:1px solid #B2DFDB}
-
-/* LB */
-.lb-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--apero-border)}
-.lb-row:last-child{border-bottom:none}
-
-/* SEARCH */
-.search-wrap{position:relative;margin-bottom:0}
-.search-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--apero-text3);font-size:16px;pointer-events:none}
-.search-wrap input{width:100%;padding:10px 14px 10px 38px;border:1.5px solid var(--apero-border);border-radius:10px;font-size:13px;outline:none;background:#fff;transition:border .15s;font-family:inherit}
-.search-wrap input:focus{border-color:var(--apero-orange)}
-
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(4px)}
-.modal-box{background:#fff;border-radius:20px;padding:36px;width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
 </style>
 </head>
 <body>
@@ -313,13 +250,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif;
     <div id="p-dashboard" class="page active">
       <div class="page-header">
         <h1 class="page-title">Dashboard</h1>
-        <span style="font-size:12px;color:var(--apero-text3)" id="dash-date"></span>
+        <span style="font-size:12px;color:rgba(255,255,255,0.5)" id="dash-date"></span>
       </div>
       <div class="stat-grid">
-        <div class="stat-card"><div class="label"><i class="ti ti-package" style="color:#a855f7"></i>Tổng asset</div><div class="value" id="d-assets">—</div></div>
-        <div class="stat-card"><div class="label"><i class="ti ti-star" style="color:#C17700"></i>Stars hợp lệ</div><div class="value" id="d-stars">—</div></div>
-        <div class="stat-card"><div class="label"><i class="ti ti-copy" style="color:#1565C0"></i>Forks hợp lệ</div><div class="value" id="d-forks">—</div></div>
-        <div class="stat-card"><div class="label"><i class="ti ti-cash" style="color:var(--apero-success)"></i>Tổng thưởng</div><div class="value small" id="d-reward">—</div></div>
+        <div class="stat-card"><div class="label"><i class="ti ti-package" style="color:#E9D5FF"></i>Tổng asset</div><div class="value" id="d-assets">—</div></div>
+        <div class="stat-card"><div class="label"><i class="ti ti-star" style="color:#FFD166"></i>Stars hợp lệ</div><div class="value" id="d-stars">—</div></div>
+        <div class="stat-card"><div class="label"><i class="ti ti-copy" style="color:#90CAF9"></i>Forks hợp lệ</div><div class="value" id="d-forks">—</div></div>
+        <div class="stat-card"><div class="label"><i class="ti ti-cash" style="color:#00E5A0"></i>Tổng thưởng</div><div class="value small" id="d-reward">—</div></div>
       </div>
       <div class="two-col">
         <div class="card"><p class="card-title">Top 5 asset</p><div id="d-top"></div></div>
@@ -331,7 +268,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif;
     <div id="p-assets" class="page">
       <div class="page-header">
         <h1 class="page-title">Kho asset</h1>
-        <span id="assets-count" style="font-size:12px;color:var(--apero-text3)"></span>
+        <span id="assets-count" style="font-size:12px;color:rgba(255,255,255,0.5)"></span>
       </div>
       <div style="position:relative;margin-bottom:16px">
         <div class="search-wrap" style="margin-bottom:0">
@@ -350,13 +287,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif;
       <div id="saved-list"></div>
     </div>
 
-    <!-- LEADERBOARD -->    <div id="p-leaderboard" class="page">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <p class="page-title" style="margin:0">Leaderboard</p>
-        <div style="display:flex;gap:6px">
-          <button id="lb-tab-point" onclick="switchLbTab('point')" style="padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:linear-gradient(135deg,#7b2fbe,#a855f7);color:#fff">⭐ Theo điểm</button>
-          <button id="lb-tab-money" onclick="switchLbTab('money')" style="padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--apero-border);background:#fff;color:var(--apero-text2)">💰 Theo tiền</button>
-        </div>
+    <!-- LEADERBOARD -->
+    <div id="p-leaderboard" class="page">
+      <div class="page-header">
+        <h1 class="page-title">Leaderboard</h1>
       </div>
       <div id="lb-full"></div>
     </div>
@@ -486,6 +420,7 @@ function nav(page){
   const idx={dashboard:0,assets:1,saved:2,leaderboard:3};
   document.querySelectorAll(".nav-item")[idx[page]].classList.add("active");
   if(page==="saved") renderSaved();
+  if(page==="leaderboard") renderLeaderboard();
 }
 
 let searchKeyword='';
@@ -597,18 +532,18 @@ function renderAssets(list){
   DB.forks.filter(f=>f.is_valid).forEach(f=>{fC[f.original_asset_id]=(fC[f.original_asset_id]||0)+1;});
   const savedIds=new Set(DB.saved.filter(s=>s.saved_by===currentEmail).map(s=>s.asset_id));
   const userOpts=DB.users.map(u=>`<option value="${u.id}">${esc(u.full_name)}</option>`).join("");
-  const currentUserHint=currentEmail?`<p style="margin:0 0 8px;font-size:12px;color:#888">Đang dùng với: <strong>${esc(currentEmail)}</strong></p>`:'';
+  const currentUserHint=currentEmail?`<p style="margin:0 0 8px;font-size:12px;color:rgba(255,255,255,0.5)">Đang dùng với: <strong style="color:rgba(255,255,255,0.85)">${esc(currentEmail)}</strong></p>`:'';
   const el=document.getElementById("assets-list");
   const countEl=document.getElementById("assets-count");
   if(countEl) countEl.textContent=list.length+" asset";
-  if(!list.length){el.innerHTML='<div class="card"><p style="font-size:13px;color:var(--apero-text3);padding:8px 0">Không tìm thấy asset nào</p></div>';return;}
+  if(!list.length){el.innerHTML='<div style="padding:20px;text-align:center;color:rgba(255,255,255,0.4);font-size:13px">Không tìm thấy asset nào</div>';return;}
   el.innerHTML=list.map(a=>`
     <div class="asset-card">
       <div class="asset-header">
         <div class="asset-info" onclick="togglePanel(${a.id},'star')">
           <div class="asset-name">${esc(a.asset_name)}</div>
           <div class="asset-meta">${esc(a.domain||"—")} · ${esc(a.asset_type||"—")} · <span style="color:#1B3358;font-weight:500">${esc(a.owner_name||"—")}</span></div>
-          ${a.description?`<div style="font-size:12px;color:#999;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:480px">${esc(a.description)}</div>`:''}
+          ${a.description?`<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:480px">${esc(a.description)}</div>`:''}
         </div>
         <div class="asset-counts">
           <span class="count-badge star-count"><i class="ti ti-star" style="font-size:14px"></i>${sC[a.id]||0}</span>
@@ -758,222 +693,134 @@ function renderDashboard(){
     </div>`;}).join(""):'<p style="font-size:13px;color:#aaa">Chưa có dữ liệu</p>';
 }
 
-let lbMode='point';
-
-function switchLbTab(mode){
-  lbMode=mode;
-  document.getElementById("lb-tab-point").style.cssText=mode==='point'?'padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:linear-gradient(135deg,#7b2fbe,#a855f7);color:#fff':'padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--apero-border);background:#fff;color:var(--apero-text2)';
-  document.getElementById("lb-tab-money").style.cssText=mode==='money'?'padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:linear-gradient(135deg,#7b2fbe,#a855f7);color:#fff':'padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--apero-border);background:#fff;color:var(--apero-text2)';
-  renderLeaderboard();
-}
 
 function renderLeaderboard(){
   const vS=DB.stars.filter(s=>s.is_valid),vF=DB.forks.filter(f=>f.is_valid);
-  const oData={},oA={};
-  DB.assets.forEach(a=>{oA[a.owner_name]=(oA[a.owner_name]||0)+1;});
-  vS.forEach(s=>{
-    const a=DB.assets.find(x=>x.id===s.asset_id);if(!a)return;
-    const n=a.owner_name;
-    if(!oData[n])oData[n]={pts:0,money:0,s:0,f:0};
-    oData[n].pts+=1;oData[n].s++;
-    if(s.is_cross_team)oData[n].money+=(s.reward_amount||200000);
-  });
-  vF.forEach(f=>{
-    const a=DB.assets.find(x=>x.id===f.original_asset_id);if(!a)return;
-    const n=a.owner_name;
-    if(!oData[n])oData[n]={pts:0,money:0,s:0,f:0};
-    oData[n].pts+=1;oData[n].f++;
-    if(f.is_cross_team)oData[n].money+=(f.reward_amount||500000);
-  });
+  const aC=['#4F6AF5','#E8734A','#3BAD7A','#9B59B6','#E74C3C','#1ABC9C','#F39C12','#2980B9'];
+  const gi=name=>name?name.trim().split(' ').pop()[0].toUpperCase():'?';
 
-  const lb=Object.entries(oData)
-    .map(([name,d])=>({name,pts:d.pts,money:d.money,s:d.s,f:d.f,assets:oA[name]||0}))
-    .sort((a,b)=>lbMode==='point'?b.pts-a.pts:b.money-a.money);
+  // ── DATA: giữ nguyên logic cũ ──
+  const ownerPts={},ownerAssets={};
+  DB.assets.forEach(a=>{ownerAssets[a.owner_name]=(ownerAssets[a.owner_name]||0)+1;});
+  vS.forEach(s=>{const a=DB.assets.find(x=>x.id===s.asset_id);if(!a)return;if(!ownerPts[a.owner_name])ownerPts[a.owner_name]={name:a.owner_name,pts:0,money:0,s:0,f:0};ownerPts[a.owner_name].pts++;ownerPts[a.owner_name].s++;if(s.is_cross_team)ownerPts[a.owner_name].money+=(s.reward_amount||200000);});
+  vF.forEach(f=>{const a=DB.assets.find(x=>x.id===f.original_asset_id);if(!a)return;if(!ownerPts[a.owner_name])ownerPts[a.owner_name]={name:a.owner_name,pts:0,money:0,s:0,f:0};ownerPts[a.owner_name].pts++;ownerPts[a.owner_name].f++;if(f.is_cross_team)ownerPts[a.owner_name].money+=(f.reward_amount||500000);});
+  const ptsList=Object.values(ownerPts).sort((a,b)=>b.pts-a.pts);
+  const moneyList=[...ptsList].sort((a,b)=>b.money-a.money);
+  const actorData={};
+  vS.forEach(s=>{const name=s.submitted_by||s.user_id;if(!name)return;if(!actorData[name])actorData[name]={name:String(name),actions:0};actorData[name].actions++;});
+  vF.forEach(f=>{const name=f.submitted_by||f.forked_by_user_id;if(!name)return;if(!actorData[name])actorData[name]={name:String(name),actions:0};actorData[name].actions++;});
+  if(!Object.keys(actorData).length){const uidCount={};vS.forEach(s=>{uidCount[s.user_id]=(uidCount[s.user_id]||0)+1;});vF.forEach(f=>{uidCount[f.forked_by_user_id]=(uidCount[f.forked_by_user_id]||0)+1;});Object.entries(uidCount).forEach(([uid,cnt])=>{const u=DB.users.find(x=>x.id==uid);actorData[uid]={name:u?u.full_name:'User #'+uid,actions:cnt};});}
+  const actorList=Object.values(actorData).sort((a,b)=>b.actions-a.actions);
+  const assetOwners=Object.entries(ownerAssets).map(([name,count])=>({name,pts:count})).sort((a,b)=>b.pts-a.pts);
 
-  const avatarColors=['#4F6AF5','#E8734A','#3BAD7A','#9B59B6','#E74C3C','#1ABC9C','#F39C12','#2980B9'];
-  const getInit=name=>name?name.trim().split(' ').pop()[0].toUpperCase():'?';
-  const scoreVal=item=>lbMode==='point'?(item.pts+' điểm'):fmt(item.money);
-  const empty={name:null,pts:0,money:0,s:0,f:0,assets:0};
+  // ── HELPERS ──
+  const podiumColors=['#FFD700','#C0C0C0','#CD7F32'];
+  const podiumGlow=['rgba(255,215,0,0.3)','rgba(192,192,192,0.2)','rgba(205,127,50,0.2)'];
+  const trophyIcon=['🏆','🥈','🥉'];
 
-  const p1=lb[0]||empty, p2=lb[1]||empty, p3=lb[2]||empty;
-  const rest=lb.slice(3);
-
-  function avatar(item,idx,size,fontSize,borderColor){
-    if(!item.name) return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:rgba(255,255,255,0.1);border:3px dashed rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center"><span style="font-size:${fontSize-6}px;color:rgba(255,255,255,0.3)">?</span></div>`;
-    return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${avatarColors[idx%avatarColors.length]};display:flex;align-items:center;justify-content:center;font-size:${fontSize}px;font-weight:700;color:#fff;border:3px solid ${borderColor};box-shadow:0 0 0 3px rgba(255,255,255,0.15)">${getInit(item.name)}</div>`;
+  function avatarHtml(name,idx,size){
+    const fs=Math.floor(size/2.5);
+    const bg=name?aC[idx%aC.length]:'rgba(255,255,255,0.1)';
+    return `<div class="lb-user-avatar" style="width:${size}px;height:${size}px;background:${bg};font-size:${fs}px">${name?gi(name):'?'}</div>`;
   }
 
-  const podiumHTML=`
-  <div style="background:linear-gradient(145deg,#1e0038 0%,#4a0080 35%,#7b2fbe 70%,#a855f7 100%);border-radius:16px;padding:24px 20px 0;margin-bottom:16px;overflow:hidden">
-    <h3 style="text-align:center;color:#fff;font-size:16px;font-weight:700;letter-spacing:2px;margin:0 0 20px;text-transform:uppercase">🏆 LEADERBOARD</h3>
-
-    <!-- TOP 3 PODIUM -->
-    <div style="display:flex;align-items:flex-end;justify-content:center;gap:8px">
-
-      <!-- #2 -->
-      <div style="flex:1;max-width:180px;display:flex;flex-direction:column;align-items:center;padding-bottom:0">
-        <div style="margin-bottom:8px">${avatar(p2,1,56,20,'#C0C0C0')}</div>
-        <p style="margin:0 0 2px;color:#fff;font-size:13px;font-weight:600;text-align:center;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p2.name?esc(p2.name):'—'}</p>
-        <p style="margin:0 0 10px;color:#C0C0C0;font-size:13px;font-weight:700">${p2.name?scoreVal(p2):'—'}</p>
-        <div style="width:100%;background:linear-gradient(180deg,#4a4a8a,#35357a);border-radius:10px 10px 0 0;padding:16px 0;text-align:center;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center">
-          <p style="margin:0;color:#C0C0C0;font-size:13px;font-weight:600">#2</p>
-          <div style="font-size:22px;margin-top:4px">🥈</div>
+  function podiumHtml(sorted){
+    if(!sorted.length) return `<div class="lb-empty">Chưa có dữ liệu — hãy star hoặc fork asset đầu tiên!</div>`;
+    const order=[1,0,2]; // vị trí hiển thị: #2 trái, #1 giữa, #3 phải
+    const heights=['100px','140px','80px'];
+    let h=`<div class="lb-podium-wrap">`;
+    order.forEach((rank,pos)=>{
+      const item=sorted[rank];
+      const isFirst=pos===1;
+      if(!item){h+=`<div class="lb-podium-col"></div>`;return;}
+      h+=`<div class="lb-podium-col">
+        ${isFirst?`<div style="font-size:24px;margin-bottom:6px;text-align:center">👑</div>`:`<div style="height:30px"></div>`}
+        ${avatarHtml(item.name,rank,isFirst?56:44)}
+        <div class="lb-podium-name" style="font-size:${isFirst?13:11}px">${esc(item.name)}</div>
+        <div class="lb-podium-score" style="color:${podiumColors[rank]};font-size:${isFirst?13:11}px">${item.pts} điểm</div>
+        <div class="lb-podium-base" style="height:${heights[pos]};background:linear-gradient(180deg,${podiumGlow[rank]},rgba(0,20,80,0.4));box-shadow:0 0 20px ${podiumGlow[rank]}">
+          <div style="font-size:${isFirst?28:22}px">${trophyIcon[rank]}</div>
+          <div style="font-size:${isFirst?14:12}px;font-weight:800;color:${podiumColors[rank]};margin-top:4px">#${rank+1}</div>
         </div>
-      </div>
+      </div>`;
+    });
+    h+=`</div>`;
+    return h;
+  }
 
-      <!-- #1 -->
-      <div style="flex:1;max-width:200px;display:flex;flex-direction:column;align-items:center">
-        <div style="font-size:28px;margin-bottom:4px">👑</div>
-        <div style="margin-bottom:8px">${avatar(p1,0,70,24,'#FFD700')}</div>
-        <p style="margin:0 0 2px;color:#fff;font-size:14px;font-weight:700;text-align:center;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p1.name?esc(p1.name):'—'}</p>
-        <p style="margin:0 0 10px;color:#FAC775;font-size:15px;font-weight:700">${p1.name?scoreVal(p1):'—'}</p>
-        <div style="width:100%;background:linear-gradient(180deg,#5a4a9a,#453888);border-radius:10px 10px 0 0;padding:16px 0;text-align:center;min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 -4px 20px rgba(250,199,117,0.3)">
-          <p style="margin:0;color:#FAC775;font-size:14px;font-weight:700">#1</p>
-          <div style="font-size:28px;margin-top:4px">🏆</div>
+  function tableHtml(sorted,valueFn,startRank){
+    if(!sorted.length) return '';
+    let h=`<div class="lb-table-header">
+      <span style="width:48px">Rank</span>
+      <span style="flex:1;padding-left:10px">Tên</span>
+      <span style="text-align:right">Điểm</span>
+    </div>`;
+    h+=sorted.map((item,i)=>{
+      const rank=i+(startRank||1);
+      const rankStr=String(rank).padStart(2,'0');
+      const rankColor=rank===1?'#FFD700':rank===2?'#C0C0C0':rank===3?'#CD7F32':'rgba(200,220,255,0.55)';
+      const scoreColor=rank===1?'#FFD700':rank===2?'#90CAF9':rank===3?'#CD7F32':'rgba(200,220,255,0.9)';
+      return `<div class="lb-table-row">
+        <div class="lb-rank-badge" style="color:${rankColor};border-color:${rank<=3?rankColor:'rgba(255,255,255,0.1)'};background:${rank<=3?'rgba(255,255,255,0.08)':'rgba(255,255,255,0.04)'}">${rankStr}</div>
+        <div style="flex:1;display:flex;align-items:center;gap:10px;padding:0 10px;overflow:hidden">
+          ${avatarHtml(item.name,i,32)}
+          <div style="overflow:hidden">
+            <div class="lb-user-name">${esc(item.name)}</div>
+            ${item.s!==undefined?`<div class="lb-user-sub">⭐ ${item.s||0} star · 🔀 ${item.f||0} fork</div>`:''}
+          </div>
         </div>
-      </div>
+        <div class="lb-score-val" style="color:${scoreColor}">${valueFn(item)}</div>
+      </div>`;
+    }).join('');
+    return h;
+  }
 
-      <!-- #3 -->
-      <div style="flex:1;max-width:180px;display:flex;flex-direction:column;align-items:center">
-        <div style="margin-bottom:8px">${avatar(p3,2,56,20,'#CD7F32')}</div>
-        <p style="margin:0 0 2px;color:#fff;font-size:13px;font-weight:600;text-align:center;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p3.name?esc(p3.name):'—'}</p>
-        <p style="margin:0 0 10px;color:#CD7F32;font-size:13px;font-weight:700">${p3.name?scoreVal(p3):'—'}</p>
-        <div style="width:100%;background:linear-gradient(180deg,#3a3a7a,#2d2d6a);border-radius:10px 10px 0 0;padding:16px 0;text-align:center;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center">
-          <p style="margin:0;color:#CD7F32;font-size:13px;font-weight:600">#3</p>
-          <div style="font-size:20px;margin-top:4px">🥉</div>
-        </div>
+  function subCard(title,icon,list,valueFn,emptyMsg){
+    const sorted=[...list];
+    let h=`<div class="lb-sub-card">
+      <div class="lb-card-header">
+        <i class="ti ${icon}" style="font-size:16px;color:rgba(150,180,255,0.8)"></i>
+        <span class="lb-card-title">${title}</span>
+      </div>`;
+    if(!sorted.length){h+=`<div class="lb-empty">${emptyMsg}</div>`;h+=`</div>`;return h;}
+    h+=tableHtml(sorted.slice(0,6),valueFn,1);
+    h+=`</div>`;
+    return h;
+  }
+
+  // ── MAIN CARD (Theo điểm) ──
+  let mainHtml=`<div class="lb-main-card">
+    <div class="lb-card-header">
+      <i class="ti ti-trophy" style="font-size:18px;color:#FFD700"></i>
+      <span class="lb-card-title" style="font-size:14px">Leaderboard — Tổng điểm</span>
+      <div class="lb-mode-toggle">
+        <button class="lb-mode-btn active" onclick="this.parentNode.querySelectorAll('.lb-mode-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Điểm</button>
+        <button class="lb-mode-btn" onclick="this.parentNode.querySelectorAll('.lb-mode-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Tiền</button>
       </div>
     </div>
+    ${podiumHtml(ptsList)}
+    ${tableHtml(ptsList.slice(3),x=>x.pts+' điểm',4)}
   </div>`;
 
-  let listHTML='';
-  if(rest.length){
-    listHTML=`<div style="background:#fff;border-radius:12px;border:1px solid #e8e8e8;overflow:hidden">`;
-    listHTML+=rest.map((item,i)=>{
-      const rank=i+4;
-      const rankColors=['#555','#555','#555','#555','#555','#555'];
-      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;${i>0?'border-top:1px solid #f5f5f5':''}">
-        <div style="display:flex;align-items:center;gap:12px">
-          <span style="width:32px;height:32px;border-radius:8px;background:#f0f0f2;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#555;flex-shrink:0">#${rank}</span>
-          <div style="width:40px;height:40px;border-radius:50%;background:${avatarColors[(i+3)%avatarColors.length]};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0">${getInit(item.name)}</div>
-          <div>
-            <p style="margin:0;font-size:13px;font-weight:600;color:#1a1a2e">${esc(item.name)}</p>
-            <p style="margin:2px 0 0;font-size:12px;color:#aaa">${item.assets} asset · ${item.s} star · ${item.f} fork</p>
-          </div>
-        </div>
-        <p style="margin:0;font-size:14px;font-weight:700;color:${lbMode==='money'?'#0a7a4b':'#1B3358'}">${scoreVal(item)}</p>
-      </div>`;
-    }).join('');
-    listHTML+=`</div>`;
-  } else if(!lb.length){
-    listHTML=`<div style="background:#fff;border-radius:12px;border:1px solid #e8e8e8;padding:24px;text-align:center"><p style="font-size:13px;color:#aaa">Chưa có dữ liệu — hãy star hoặc fork asset đầu tiên!</p></div>`;
-  }
+  // ── 3 SUB CARDS ──
+  const sub1=subCard('Tiền thưởng','ti-cash',moneyList,x=>fmt(x.money),'Chưa có thưởng');
+  const sub2=subCard('Top star & fork','ti-heart',actorList,x=>x.actions+' lượt','Chưa có hoạt động');
+  const sub3=subCard('Top submit asset','ti-package',assetOwners,x=>x.pts+' asset','Chưa có asset');
 
-  document.getElementById("lb-full").innerHTML=podiumHTML+listHTML;
-}
-
-function renderLeaderboard(){
-  const vS=DB.stars.filter(s=>s.is_valid),vF=DB.forks.filter(f=>f.is_valid);
-  const oData={},oA={};
-  DB.assets.forEach(a=>{oA[a.owner_name]=(oA[a.owner_name]||0)+1;});
-  vS.forEach(s=>{
-    const a=DB.assets.find(x=>x.id===s.asset_id);
-    if(!a)return;
-    const n=a.owner_name;
-    if(!oData[n])oData[n]={pts:0,money:0,s:0,f:0};
-    oData[n].pts+=1;
-    oData[n].s++;
-    if(s.is_cross_team)oData[n].money+=(s.reward_amount||200000);
-  });
-  vF.forEach(f=>{
-    const a=DB.assets.find(x=>x.id===f.original_asset_id);
-    if(!a)return;
-    const n=a.owner_name;
-    if(!oData[n])oData[n]={pts:0,money:0,s:0,f:0};
-    oData[n].pts+=1;
-    oData[n].f++;
-    if(f.is_cross_team)oData[n].money+=(f.reward_amount||500000);
-  });
-
-  const lb=Object.entries(oData)
-    .map(([name,d])=>({name,pts:d.pts,money:d.money,s:d.s,f:d.f,assets:oA[name]||0}))
-    .sort((a,b)=>lbMode==='point'?b.pts-a.pts:b.money-a.money);
-
-  if(!lb.length){
-    document.getElementById("lb-full").innerHTML='<div class="card"><p style="padding:16px 0;font-size:13px;color:#aaa;text-align:center">Chưa có dữ liệu</p></div>';
-    return;
-  }
-
-  const avatarColors=['#4F6AF5','#E8734A','#3BAD7A','#9B59B6','#E74C3C','#1ABC9C','#F39C12','#2980B9','#8E44AD','#27AE60'];
-  const getInitial=name=>name?name.split(' ').pop()[0].toUpperCase():'?';
-  const getColor=(name,i)=>avatarColors[i%avatarColors.length];
-  const scoreLabel=lbMode==='point'?'điểm':'';
-  const scoreVal=(item)=>lbMode==='point'?item.pts+' điểm':fmt(item.money);
-
-  // TOP 3 PODIUM
-  const top3=lb.slice(0,3);
-  const rest=lb.slice(3);
-
-  // Podium order: 2nd, 1st, 3rd
-  const podiumOrder=[
-    top3[1]?{...top3[1],rank:2,orig:1}:null,
-    top3[0]?{...top3[0],rank:1,orig:0}:null,
-    top3[2]?{...top3[2],rank:3,orig:2}:null
-  ];
-
-  const podiumHeights=['140px','170px','120px'];
-  const podiumColors=['#C0C0C0','#FFD700','#CD7F32'];
-  const podiumBg=['#f5f5f5','#FEF8EC','#FDF3EA'];
-  const podiumBorder=['#C0C0C0','#FAC775','#EF9F27'];
-  const crownSize=['0','28px','0'];
-
-  let podiumHTML=`<div style="display:flex;align-items:flex-end;justify-content:center;gap:12px;margin-bottom:20px;padding:20px 0 0">`;
-
-  podiumOrder.forEach((item,pi)=>{
-    if(!item){podiumHTML+=`<div style="flex:1;max-width:180px"></div>`;return;}
-    const isFirst=item.rank===1;
-    podiumHTML+=`
-    <div style="flex:1;max-width:200px;display:flex;flex-direction:column;align-items:center">
-      ${isFirst?`<div style="font-size:28px;margin-bottom:4px">👑</div>`:'<div style="height:32px"></div>'}
-      <div style="width:${isFirst?'64px':'54px'};height:${isFirst?'64px':'54px'};border-radius:50%;background:${getColor(item.name,item.orig)};display:flex;align-items:center;justify-content:center;font-size:${isFirst?'22px':'18px'};font-weight:700;color:#fff;margin-bottom:8px;border:3px solid ${podiumColors[pi]}">${getInitial(item.name)}</div>
-      <p style="margin:0 0 4px;font-size:${isFirst?'14px':'13px'};font-weight:700;color:#1a1a2e;text-align:center;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(item.name)}</p>
-      <p style="margin:0 0 8px;font-size:${isFirst?'15px':'13px'};font-weight:700;color:${isFirst?'#854F0B':'#555'}">${scoreVal(item)}</p>
-      <div style="width:100%;height:${podiumHeights[pi]};background:${podiumBg[pi]};border-radius:10px 10px 0 0;border:2px solid ${podiumBorder[pi]};border-bottom:none;display:flex;align-items:center;justify-content:center">
-        <span style="font-size:28px;font-weight:900;color:${podiumColors[pi]};opacity:0.5">#${item.rank}</span>
-      </div>
+  document.getElementById("lb-full").innerHTML=`
+    <div class="lb-page-wrap">
+      ${mainHtml}
+      <div class="lb-sub-grid">${sub1}${sub2}${sub3}</div>
     </div>`;
-  });
-  podiumHTML+=`</div>`;
-
-  // REST LIST
-  let listHTML='';
-  if(rest.length){
-    listHTML=`<div style="background:#fff;border-radius:10px;border:1px solid #e8e8e8;padding:0 20px">`;
-    listHTML+=rest.map((item,i)=>{
-      const rank=i+4;
-      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;${i>0?'border-top:1px solid #f0f0f0':''}">
-        <div style="display:flex;align-items:center;gap:12px">
-          <span style="width:28px;height:28px;border-radius:8px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#555;flex-shrink:0">#${rank}</span>
-          <div style="width:36px;height:36px;border-radius:50%;background:${getColor(item.name,i+3)};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0">${getInitial(item.name)}</div>
-          <div>
-            <p style="margin:0;font-size:13px;font-weight:600;color:#1a1a2e">${esc(item.name)}</p>
-            <p style="margin:2px 0 0;font-size:12px;color:#aaa">${item.assets} asset · ${item.s} star · ${item.f} fork</p>
-          </div>
-        </div>
-        <p style="margin:0;font-size:14px;font-weight:700;color:${lbMode==='money'?'#0a7a4b':'#1B3358'}">${scoreVal(item)}</p>
-      </div>`;
-    }).join('');
-    listHTML+=`</div>`;
-  }
-
-  document.getElementById("lb-full").innerHTML=podiumHTML+listHTML;
 }
 
 async function loadAll(){
   document.getElementById("sync-label").textContent="Đang tải...";
   document.getElementById("err-banner").style.display="none";
   try{
-    const [a,u,s,f,sv]=await Promise.all([get("Assets"),get("Users"),get("Stars"),get("Forks"),get("Saved")]);
+    const [a,u,s,f]=await Promise.all([get("Assets"),get("Users"),get("Stars"),get("Forks")]);
+    let sv=[];
+    try{sv=await get("Saved");}catch(e){sv=[];}
     DB={assets:a,users:u,stars:s,forks:f,saved:sv};
     renderDashboard();
     renderAssets(a);
