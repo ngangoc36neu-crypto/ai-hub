@@ -141,8 +141,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 
     <!-- LEADERBOARD -->
     <div id="p-leaderboard" class="page">
-      <p class="page-title">Leaderboard</p>
-      <div class="card" style="padding:0 20px"><div id="lb-full"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <p class="page-title" style="margin:0">Leaderboard</p>
+        <div style="display:flex;gap:6px">
+          <button id="lb-tab-point" onclick="switchLbTab('point')" style="padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1B3358;color:#fff">⭐ Theo điểm</button>
+          <button id="lb-tab-money" onclick="switchLbTab('money')" style="padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #ddd;background:#fff;color:#666">💰 Theo tiền</button>
+        </div>
+      </div>
+      <div id="lb-full"></div>
     </div>
   </div>
 </div>
@@ -361,26 +367,215 @@ function renderDashboard(){
     </div>`;}).join(""):'<p style="font-size:13px;color:#aaa">Chưa có dữ liệu</p>';
 }
 
+let lbMode='point';
+
+function switchLbTab(mode){
+  lbMode=mode;
+  document.getElementById("lb-tab-point").style.cssText=mode==='point'?'padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1B3358;color:#fff':'padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #ddd;background:#fff;color:#666';
+  document.getElementById("lb-tab-money").style.cssText=mode==='money'?'padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#1B3358;color:#fff':'padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #ddd;background:#fff;color:#666';
+  renderLeaderboard();
+}
+
 function renderLeaderboard(){
   const vS=DB.stars.filter(s=>s.is_valid),vF=DB.forks.filter(f=>f.is_valid);
-  const oR={},oA={};
+  const oData={},oA={};
   DB.assets.forEach(a=>{oA[a.owner_name]=(oA[a.owner_name]||0)+1;});
-  vS.forEach(s=>{const a=DB.assets.find(x=>x.id===s.asset_id);if(a){if(!oR[a.owner_name])oR[a.owner_name]={s:0,f:0,r:0};oR[a.owner_name].r+=(s.reward_amount||0);oR[a.owner_name].s++;}});
-  vF.forEach(f=>{const a=DB.assets.find(x=>x.id===f.original_asset_id);if(a){if(!oR[a.owner_name])oR[a.owner_name]={s:0,f:0,r:0};oR[a.owner_name].r+=(f.reward_amount||0);oR[a.owner_name].f++;}});
-  const lb=Object.entries(oR).sort((a,b)=>b[1].r-a[1].r);
-  const medals=[{bg:"#FAC775",c:"#1B3358"},{bg:"#E0E0E0",c:"#444"},{bg:"#EF9F27",c:"#1B3358"}];
-  document.getElementById("lb-full").innerHTML=lb.length?lb.map(([name,d],i)=>{
-    const m=medals[i]||{bg:"#f0f0f0",c:"#666"};
-    return`<div class="lb-row">
-      <div style="display:flex;align-items:center;gap:12px">
-        <span class="medal" style="background:${m.bg};color:${m.c}">${i+1}</span>
-        <div>
-          <p style="margin:0;font-size:14px;font-weight:600;color:#1a1a2e">${esc(name)}</p>
-          <p style="margin:2px 0 0;font-size:12px;color:#888">${oA[name]||0} asset · ${d.s} star · ${d.f} fork</p>
+  vS.forEach(s=>{
+    const a=DB.assets.find(x=>x.id===s.asset_id);if(!a)return;
+    const n=a.owner_name;
+    if(!oData[n])oData[n]={pts:0,money:0,s:0,f:0};
+    oData[n].pts+=1;oData[n].s++;
+    if(s.is_cross_team)oData[n].money+=(s.reward_amount||200000);
+  });
+  vF.forEach(f=>{
+    const a=DB.assets.find(x=>x.id===f.original_asset_id);if(!a)return;
+    const n=a.owner_name;
+    if(!oData[n])oData[n]={pts:0,money:0,s:0,f:0};
+    oData[n].pts+=1;oData[n].f++;
+    if(f.is_cross_team)oData[n].money+=(f.reward_amount||500000);
+  });
+
+  const lb=Object.entries(oData)
+    .map(([name,d])=>({name,pts:d.pts,money:d.money,s:d.s,f:d.f,assets:oA[name]||0}))
+    .sort((a,b)=>lbMode==='point'?b.pts-a.pts:b.money-a.money);
+
+  const avatarColors=['#4F6AF5','#E8734A','#3BAD7A','#9B59B6','#E74C3C','#1ABC9C','#F39C12','#2980B9'];
+  const getInit=name=>name?name.trim().split(' ').pop()[0].toUpperCase():'?';
+  const scoreVal=item=>lbMode==='point'?(item.pts+' điểm'):fmt(item.money);
+  const empty={name:null,pts:0,money:0,s:0,f:0,assets:0};
+
+  const p1=lb[0]||empty, p2=lb[1]||empty, p3=lb[2]||empty;
+  const rest=lb.slice(3);
+
+  function avatar(item,idx,size,fontSize,borderColor){
+    if(!item.name) return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:rgba(255,255,255,0.1);border:3px dashed rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center"><span style="font-size:${fontSize-6}px;color:rgba(255,255,255,0.3)">?</span></div>`;
+    return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${avatarColors[idx%avatarColors.length]};display:flex;align-items:center;justify-content:center;font-size:${fontSize}px;font-weight:700;color:#fff;border:3px solid ${borderColor};box-shadow:0 0 0 3px rgba(255,255,255,0.15)">${getInit(item.name)}</div>`;
+  }
+
+  const podiumHTML=`
+  <div style="background:linear-gradient(160deg,#1a1f5e 0%,#2d1b69 50%,#1a2a6c 100%);border-radius:16px;padding:24px 20px 0;margin-bottom:16px;overflow:hidden">
+    <h3 style="text-align:center;color:#fff;font-size:16px;font-weight:700;letter-spacing:2px;margin:0 0 20px;text-transform:uppercase">🏆 LEADERBOARD</h3>
+
+    <!-- TOP 3 PODIUM -->
+    <div style="display:flex;align-items:flex-end;justify-content:center;gap:8px">
+
+      <!-- #2 -->
+      <div style="flex:1;max-width:180px;display:flex;flex-direction:column;align-items:center;padding-bottom:0">
+        <div style="margin-bottom:8px">${avatar(p2,1,56,20,'#C0C0C0')}</div>
+        <p style="margin:0 0 2px;color:#fff;font-size:13px;font-weight:600;text-align:center;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p2.name?esc(p2.name):'—'}</p>
+        <p style="margin:0 0 10px;color:#C0C0C0;font-size:13px;font-weight:700">${p2.name?scoreVal(p2):'—'}</p>
+        <div style="width:100%;background:linear-gradient(180deg,#4a4a8a,#35357a);border-radius:10px 10px 0 0;padding:16px 0;text-align:center;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <p style="margin:0;color:#C0C0C0;font-size:13px;font-weight:600">#2</p>
+          <div style="font-size:22px;margin-top:4px">🥈</div>
         </div>
       </div>
-      <p style="margin:0;font-size:15px;font-weight:700;color:#0a7a4b">${fmt(d.r)}</p>
-    </div>`;}).join(""):'<p style="padding:16px 0;font-size:13px;color:#aaa">Chưa có dữ liệu</p>';
+
+      <!-- #1 -->
+      <div style="flex:1;max-width:200px;display:flex;flex-direction:column;align-items:center">
+        <div style="font-size:28px;margin-bottom:4px">👑</div>
+        <div style="margin-bottom:8px">${avatar(p1,0,70,24,'#FFD700')}</div>
+        <p style="margin:0 0 2px;color:#fff;font-size:14px;font-weight:700;text-align:center;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p1.name?esc(p1.name):'—'}</p>
+        <p style="margin:0 0 10px;color:#FAC775;font-size:15px;font-weight:700">${p1.name?scoreVal(p1):'—'}</p>
+        <div style="width:100%;background:linear-gradient(180deg,#5a4a9a,#453888);border-radius:10px 10px 0 0;padding:16px 0;text-align:center;min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 -4px 20px rgba(250,199,117,0.3)">
+          <p style="margin:0;color:#FAC775;font-size:14px;font-weight:700">#1</p>
+          <div style="font-size:28px;margin-top:4px">🏆</div>
+        </div>
+      </div>
+
+      <!-- #3 -->
+      <div style="flex:1;max-width:180px;display:flex;flex-direction:column;align-items:center">
+        <div style="margin-bottom:8px">${avatar(p3,2,56,20,'#CD7F32')}</div>
+        <p style="margin:0 0 2px;color:#fff;font-size:13px;font-weight:600;text-align:center;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p3.name?esc(p3.name):'—'}</p>
+        <p style="margin:0 0 10px;color:#CD7F32;font-size:13px;font-weight:700">${p3.name?scoreVal(p3):'—'}</p>
+        <div style="width:100%;background:linear-gradient(180deg,#3a3a7a,#2d2d6a);border-radius:10px 10px 0 0;padding:16px 0;text-align:center;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <p style="margin:0;color:#CD7F32;font-size:13px;font-weight:600">#3</p>
+          <div style="font-size:20px;margin-top:4px">🥉</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  let listHTML='';
+  if(rest.length){
+    listHTML=`<div style="background:#fff;border-radius:12px;border:1px solid #e8e8e8;overflow:hidden">`;
+    listHTML+=rest.map((item,i)=>{
+      const rank=i+4;
+      const rankColors=['#555','#555','#555','#555','#555','#555'];
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;${i>0?'border-top:1px solid #f5f5f5':''}">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="width:32px;height:32px;border-radius:8px;background:#f0f0f2;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#555;flex-shrink:0">#${rank}</span>
+          <div style="width:40px;height:40px;border-radius:50%;background:${avatarColors[(i+3)%avatarColors.length]};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0">${getInit(item.name)}</div>
+          <div>
+            <p style="margin:0;font-size:13px;font-weight:600;color:#1a1a2e">${esc(item.name)}</p>
+            <p style="margin:2px 0 0;font-size:12px;color:#aaa">${item.assets} asset · ${item.s} star · ${item.f} fork</p>
+          </div>
+        </div>
+        <p style="margin:0;font-size:14px;font-weight:700;color:${lbMode==='money'?'#0a7a4b':'#1B3358'}">${scoreVal(item)}</p>
+      </div>`;
+    }).join('');
+    listHTML+=`</div>`;
+  } else if(!lb.length){
+    listHTML=`<div style="background:#fff;border-radius:12px;border:1px solid #e8e8e8;padding:24px;text-align:center"><p style="font-size:13px;color:#aaa">Chưa có dữ liệu — hãy star hoặc fork asset đầu tiên!</p></div>`;
+  }
+
+  document.getElementById("lb-full").innerHTML=podiumHTML+listHTML;
+}
+
+function renderLeaderboard(){
+  const vS=DB.stars.filter(s=>s.is_valid),vF=DB.forks.filter(f=>f.is_valid);
+  const oData={},oA={};
+  DB.assets.forEach(a=>{oA[a.owner_name]=(oA[a.owner_name]||0)+1;});
+  vS.forEach(s=>{
+    const a=DB.assets.find(x=>x.id===s.asset_id);
+    if(!a)return;
+    const n=a.owner_name;
+    if(!oData[n])oData[n]={pts:0,money:0,s:0,f:0};
+    oData[n].pts+=1;
+    oData[n].s++;
+    if(s.is_cross_team)oData[n].money+=(s.reward_amount||200000);
+  });
+  vF.forEach(f=>{
+    const a=DB.assets.find(x=>x.id===f.original_asset_id);
+    if(!a)return;
+    const n=a.owner_name;
+    if(!oData[n])oData[n]={pts:0,money:0,s:0,f:0};
+    oData[n].pts+=1;
+    oData[n].f++;
+    if(f.is_cross_team)oData[n].money+=(f.reward_amount||500000);
+  });
+
+  const lb=Object.entries(oData)
+    .map(([name,d])=>({name,pts:d.pts,money:d.money,s:d.s,f:d.f,assets:oA[name]||0}))
+    .sort((a,b)=>lbMode==='point'?b.pts-a.pts:b.money-a.money);
+
+  if(!lb.length){
+    document.getElementById("lb-full").innerHTML='<div class="card"><p style="padding:16px 0;font-size:13px;color:#aaa;text-align:center">Chưa có dữ liệu</p></div>';
+    return;
+  }
+
+  const avatarColors=['#4F6AF5','#E8734A','#3BAD7A','#9B59B6','#E74C3C','#1ABC9C','#F39C12','#2980B9','#8E44AD','#27AE60'];
+  const getInitial=name=>name?name.split(' ').pop()[0].toUpperCase():'?';
+  const getColor=(name,i)=>avatarColors[i%avatarColors.length];
+  const scoreLabel=lbMode==='point'?'điểm':'';
+  const scoreVal=(item)=>lbMode==='point'?item.pts+' điểm':fmt(item.money);
+
+  // TOP 3 PODIUM
+  const top3=lb.slice(0,3);
+  const rest=lb.slice(3);
+
+  // Podium order: 2nd, 1st, 3rd
+  const podiumOrder=[
+    top3[1]?{...top3[1],rank:2,orig:1}:null,
+    top3[0]?{...top3[0],rank:1,orig:0}:null,
+    top3[2]?{...top3[2],rank:3,orig:2}:null
+  ];
+
+  const podiumHeights=['140px','170px','120px'];
+  const podiumColors=['#C0C0C0','#FFD700','#CD7F32'];
+  const podiumBg=['#f5f5f5','#FEF8EC','#FDF3EA'];
+  const podiumBorder=['#C0C0C0','#FAC775','#EF9F27'];
+  const crownSize=['0','28px','0'];
+
+  let podiumHTML=`<div style="display:flex;align-items:flex-end;justify-content:center;gap:12px;margin-bottom:20px;padding:20px 0 0">`;
+
+  podiumOrder.forEach((item,pi)=>{
+    if(!item){podiumHTML+=`<div style="flex:1;max-width:180px"></div>`;return;}
+    const isFirst=item.rank===1;
+    podiumHTML+=`
+    <div style="flex:1;max-width:200px;display:flex;flex-direction:column;align-items:center">
+      ${isFirst?`<div style="font-size:28px;margin-bottom:4px">👑</div>`:'<div style="height:32px"></div>'}
+      <div style="width:${isFirst?'64px':'54px'};height:${isFirst?'64px':'54px'};border-radius:50%;background:${getColor(item.name,item.orig)};display:flex;align-items:center;justify-content:center;font-size:${isFirst?'22px':'18px'};font-weight:700;color:#fff;margin-bottom:8px;border:3px solid ${podiumColors[pi]}">${getInitial(item.name)}</div>
+      <p style="margin:0 0 4px;font-size:${isFirst?'14px':'13px'};font-weight:700;color:#1a1a2e;text-align:center;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(item.name)}</p>
+      <p style="margin:0 0 8px;font-size:${isFirst?'15px':'13px'};font-weight:700;color:${isFirst?'#854F0B':'#555'}">${scoreVal(item)}</p>
+      <div style="width:100%;height:${podiumHeights[pi]};background:${podiumBg[pi]};border-radius:10px 10px 0 0;border:2px solid ${podiumBorder[pi]};border-bottom:none;display:flex;align-items:center;justify-content:center">
+        <span style="font-size:28px;font-weight:900;color:${podiumColors[pi]};opacity:0.5">#${item.rank}</span>
+      </div>
+    </div>`;
+  });
+  podiumHTML+=`</div>`;
+
+  // REST LIST
+  let listHTML='';
+  if(rest.length){
+    listHTML=`<div style="background:#fff;border-radius:10px;border:1px solid #e8e8e8;padding:0 20px">`;
+    listHTML+=rest.map((item,i)=>{
+      const rank=i+4;
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;${i>0?'border-top:1px solid #f0f0f0':''}">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="width:28px;height:28px;border-radius:8px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#555;flex-shrink:0">#${rank}</span>
+          <div style="width:36px;height:36px;border-radius:50%;background:${getColor(item.name,i+3)};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0">${getInitial(item.name)}</div>
+          <div>
+            <p style="margin:0;font-size:13px;font-weight:600;color:#1a1a2e">${esc(item.name)}</p>
+            <p style="margin:2px 0 0;font-size:12px;color:#aaa">${item.assets} asset · ${item.s} star · ${item.f} fork</p>
+          </div>
+        </div>
+        <p style="margin:0;font-size:14px;font-weight:700;color:${lbMode==='money'?'#0a7a4b':'#1B3358'}">${scoreVal(item)}</p>
+      </div>`;
+    }).join('');
+    listHTML+=`</div>`;
+  }
+
+  document.getElementById("lb-full").innerHTML=podiumHTML+listHTML;
 }
 
 async function loadAll(){
