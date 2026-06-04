@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hồ sơ của tôi — Apero AI Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="https://apero.vn/wp-content/uploads/2024/10/logo-white.svg" class="brand-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <div style="display:none;font-size:16px;font-weight:900;color:white;letter-spacing:-0.5px;">APERO</div>
+      <div class="brand-sub">AI Knowledge Hub</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Menu chính</div>
+      <a href="library.html" class="nav-item"><span class="nav-item-label">Thư viện Asset</span></a>
+      <a href="leaderboard.html" class="nav-item"><span class="nav-item-label">Leaderboard</span></a>
+      <a href="profile.html" class="nav-item active"><span class="nav-item-label">Hồ sơ của tôi</span></a>
+      <div class="sidebar-section sidebar-section-admin">Quản trị</div>
+      <a href="index.html" class="nav-item sidebar-section-admin"><span class="nav-item-label">Admin Dashboard</span></a>
+      <a href="curator.html" class="nav-item sidebar-section-admin"><span class="nav-item-label">Curator Duyệt</span><span class="nav-badge" id="pendingBadge" style="display:none;"></span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="avatar av-sm">?</div>
+        <div style="flex:1;overflow:hidden;"><div class="av-name">Đang tải...</div><div class="av-sub"></div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Hồ sơ của tôi</div>
+      <div class="topbar-right"></div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- BANNER -->
+      <div class="profile-banner">
+        <div class="avatar av-xl" id="profileAvatar">?</div>
+        <div style="flex:1;">
+          <h2 id="profileName" style="font-size:22px;font-weight:900;letter-spacing:-0.5px;">Đang tải...</h2>
+          <p id="profileMeta" style="color:var(--text-2);font-size:13px;margin-top:6px;line-height:1.6;"></p>
+          <div class="profile-stats">
+            <div class="profile-stat"><div class="num" id="statSubmit">—</div><div class="lbl">Asset submit</div></div>
+            <div class="profile-stat"><div class="num" id="statStarsRcv" style="color:var(--amber);">—</div><div class="lbl">Stars nhận</div></div>
+            <div class="profile-stat"><div class="num" id="statForksRcv" style="color:var(--blue);">—</div><div class="lbl">Forks nhận</div></div>
+            <div class="profile-stat"><div class="num" id="statStarsGiven">—</div><div class="lbl">Đã star</div></div>
+            <div class="profile-stat"><div class="num" id="statReward" style="color:var(--green);">—</div><div class="lbl">Reward ước tính</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div id="profileTabs">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="t-submitted" onclick="switchTab('profileTabs','t-submitted')">
+            Đã submit <span class="tab-count" id="cnt-submitted">0</span>
+          </button>
+          <button class="tab-btn" data-tab="t-starred" onclick="switchTab('profileTabs','t-starred')">
+            Đã star <span class="tab-count" id="cnt-starred">0</span>
+          </button>
+          <button class="tab-btn" data-tab="t-forked" onclick="switchTab('profileTabs','t-forked')">
+            Đã fork <span class="tab-count" id="cnt-forked">0</span>
+          </button>
+          <button class="tab-btn" data-tab="t-downloads" onclick="switchTab('profileTabs','t-downloads')">
+            Đã tải xuống <span class="tab-count" id="cnt-downloads">0</span>
+          </button>
+          <button class="tab-btn" data-tab="t-bookmarks" onclick="switchTab('profileTabs','t-bookmarks')">
+            Bookmarks
+          </button>
+          <button class="tab-btn" data-tab="t-reward" onclick="switchTab('profileTabs','t-reward')">
+            Reward
+          </button>
+        </div>
+
+        <!-- Tab: Đã submit -->
+        <div class="tab-content active" id="t-submitted">
+          <div class="asset-grid" id="submittedGrid">
+            <div style="padding:20px;color:var(--text-2);">Đang tải...</div>
+          </div>
+        </div>
+
+        <!-- Tab: Đã star -->
+        <div class="tab-content" id="t-starred">
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Asset</th>
+                    <th>Loại</th>
+                    <th>Reason của tôi</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày star</th>
+                  </tr>
+                </thead>
+                <tbody id="starredBody">
+                  <tr><td colspan="5" style="text-align:center;color:var(--text-2);padding:16px;">Đang tải...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Đã fork -->
+        <div class="tab-content" id="t-forked">
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Asset gốc</th>
+                    <th>Use case</th>
+                    <th>Output</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày fork</th>
+                  </tr>
+                </thead>
+                <tbody id="forkedBody">
+                  <tr><td colspan="5" style="text-align:center;color:var(--text-2);padding:16px;">Đang tải...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Đã tải xuống -->
+        <div class="tab-content" id="t-downloads">
+          <div class="alert alert-info mb-16">
+            <div>Danh sách asset bạn đã tải xuống. Sau khi dùng xong, hãy <strong>gửi link output</strong> để ghi nhận kết quả.</div>
+          </div>
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Asset</th>
+                    <th>Loại</th>
+                    <th>Ngày tải</th>
+                    <th>Link output</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="downloadsBody">
+                  <tr><td colspan="5" style="text-align:center;color:var(--text-2);padding:16px;">Đang tải...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Bookmarks -->
+        <div class="tab-content" id="t-bookmarks">
+          <div class="alert alert-info mb-16">
+            <div>Bookmark là hành động lưu để xem lại — <strong>không tính điểm, không qua Curator</strong>.</div>
+          </div>
+          <div style="padding:20px;color:var(--text-2);text-align:center;">
+            Tính năng bookmark sẽ có trong phiên bản tiếp theo.
+          </div>
+        </div>
+
+        <!-- Tab: Reward -->
+        <div class="tab-content" id="t-reward">
+          <div class="grid-2" style="gap:16px;">
+            <div class="card">
+              <div class="card-hd"><span class="card-title">Tổng reward tích lũy</span></div>
+              <div class="card-bd" style="text-align:center;padding:36px 20px;">
+                <div style="font-size:44px;font-weight:900;letter-spacing:-2px;" id="totalRewardAmt">0₫</div>
+                <div style="color:var(--text-2);margin-top:8px;font-size:13px;">Ước tính · chờ Hub Owner xác nhận</div>
+                <div class="alert alert-warn" style="margin-top:20px;text-align:left;">
+                  <div>Đây là số tiền <strong>ước tính</strong>. Reward chính thức sẽ được Hub Owner xác nhận định kỳ.</div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hd"><span class="card-title">Chi tiết</span></div>
+              <div class="card-bd" id="rewardDetail">
+                <div style="color:var(--text-2);padding:8px 0;">Đang tải...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GỬI OUTPUT -->
+<div class="modal-overlay" id="outputModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-hd">
+      <div class="modal-title">📎 Gửi link output</div>
+      <div class="modal-sub" id="outputModalSub">Asset: —</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Link kết quả / output của bạn <span class="req">*</span></label>
+      <input type="url" class="form-control" id="outputUrlInput"
+        placeholder="https://drive.google.com/...">
+      <div class="form-hint">Có thể là Google Drive, Notion, Slides... miễn là link truy cập được.</div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeModal('outputModal')">Hủy</button>
+      <button class="btn btn-primary" id="outputSubmitBtn" onclick="submitOutput()">Gửi output</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="js/supabase.js"></script>
+<script src="js/main.js"></script>
+<script>
+(async function initProfile() {
+  // requireAuth() sẽ redirect sang login.html nếu chưa đăng nhập
+  const u = requireAuth();
+  if (!u) return;
+
+  /* ── Render thông tin tĩnh từ session ngay lập tức ── */
+  document.getElementById('profileAvatar').textContent = u.initials || '?';
+  document.getElementById('profileName').textContent   = u.name || u.full_name || 'Chưa có tên';
+  document.getElementById('profileMeta').innerHTML =
+    `${u.email} · ${u.team} team · `
+    + `<span style="background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:4px;`
+    + `font-size:11px;font-weight:600;">${u.role}</span>`;
+
+  /* ── Nếu không có user ID thì không thể query dữ liệu cá nhân ── */
+  if (!u.id) {
+    const msg = '<div style="padding:16px;color:var(--text-2);">Không tìm thấy ID người dùng. Vui lòng đăng xuất và đăng nhập lại.</div>';
+    document.getElementById('submittedGrid').innerHTML  = msg;
+    document.getElementById('starredBody').innerHTML    = `<tr><td colspan="5">${msg}</td></tr>`;
+    document.getElementById('forkedBody').innerHTML     = `<tr><td colspan="5">${msg}</td></tr>`;
+    document.getElementById('downloadsBody').innerHTML  = `<tr><td colspan="5">${msg}</td></tr>`;
+    // Zero out stats
+    ['statSubmit','statStarsRcv','statForksRcv','statStarsGiven','statReward'].forEach(id => {
+      document.getElementById(id).textContent = '0';
+    });
+    return;
+  }
+
+  try {
+    /* ── Tải song song 4 nguồn dữ liệu ── */
+    const [myAssets, myStars, myForks, myDownloads] = await Promise.all([
+      dbGetAssetsByUser(u.id),
+      dbGetStarsByUser(u.id),
+      dbGetForksByUser(u.id),
+      dbGetDownloadsByUser(u.id).catch(() => [])
+    ]);
+
+    const myAssetsM = myAssets.map(mapAsset);
+
+    /* ── Tính stats ── */
+    const starsReceived   = myAssetsM.reduce((s, a) => s + a.stars, 0);
+    const forksReceived   = myAssetsM.reduce((s, a) => s + a.forks, 0);
+    const starsGiven      = myStars.length;
+    const rewardFromStars = myStars.filter(s => s.is_valid).reduce((s, x) => s + (x.reward_amount || 0), 0);
+    const rewardFromForks = myForks.filter(f => f.is_valid).reduce((s, x) => s + (x.reward_amount || 0), 0);
+    const totalReward     = rewardFromStars + rewardFromForks;
+
+    /* ── Cập nhật stats bar ── */
+    document.getElementById('statSubmit').textContent     = myAssetsM.length;
+    document.getElementById('statStarsRcv').textContent   = `★ ${starsReceived}`;
+    document.getElementById('statForksRcv').textContent   = `⑂ ${forksReceived}`;
+    document.getElementById('statStarsGiven').textContent = starsGiven;
+    document.getElementById('statReward').textContent     = fmtMoney(totalReward);
+    document.getElementById('cnt-submitted').textContent  = myAssetsM.length;
+    document.getElementById('cnt-starred').textContent    = starsGiven;
+    document.getElementById('cnt-forked').textContent     = myForks.length;
+    document.getElementById('cnt-downloads').textContent  = myDownloads.length;
+
+    /* ── Tab: Đã submit ── */
+    document.getElementById('submittedGrid').innerHTML = myAssetsM.length
+      ? myAssetsM.map(a => `
+          <a href="asset-detail.html?id=${a.id}" class="asset-card">
+            <div class="ac-top">
+              <span class="ac-id">${a.asset_id}</span>
+              <span class="badge ${getTypeBadge(a.type)}">${a.type}</span>
+            </div>
+            <div class="ac-name">${a.name}</div>
+            <div class="ac-desc">${a.desc}</div>
+            <div class="ac-tags">
+              <span class="badge b-gray">${a.domain}</span>
+              ${getStatusBadge(a.status)}
+            </div>
+            <div class="ac-foot">
+              <div style="font-size:12px;color:var(--text-2);">${a.created}</div>
+              <div class="ac-stats">
+                <span class="ac-stat" style="color:var(--amber);">★ ${a.stars}</span>
+                <span class="ac-stat" style="margin-left:10px;color:var(--blue);">⑂ ${a.forks}</span>
+              </div>
+            </div>
+          </a>`).join('')
+      : '<div style="padding:32px;color:var(--text-2);text-align:center;">Bạn chưa submit asset nào.<br><a href="submit.html" style="color:var(--blue);text-decoration:underline;margin-top:8px;display:inline-block;">Submit ngay →</a></div>';
+
+    /* ── Tab: Đã star ── */
+    document.getElementById('starredBody').innerHTML = myStars.length
+      ? myStars.map(s => {
+          const asset     = s.assets || {};
+          const assetName = asset.asset_name || `Asset #${s.asset_id}`;
+          const assetType = asset.asset_type || '';
+          const badge = s.status === 'approved'
+            ? '<span class="badge b-verified">Approved</span>'
+            : s.status === 'rejected'
+            ? '<span class="badge b-rejected">Từ chối</span>'
+            : '<span class="badge b-draft">Chờ duyệt</span>';
+          return `<tr>
+            <td><a href="asset-detail.html?id=${s.asset_id}" style="font-weight:600;color:var(--black);text-decoration:underline;">${assetName}</a></td>
+            <td>${assetType ? `<span class="badge ${getTypeBadge(assetType)}">${assetType}</span>` : '—'}</td>
+            <td style="max-width:240px;color:var(--text-2);">${s.reason ? `"${s.reason}"` : '<span style="opacity:0.4;">—</span>'}</td>
+            <td>${badge}</td>
+            <td style="color:var(--text-2);">${timeAgo(s.created_at)}</td>
+          </tr>`;
+        }).join('')
+      : '<tr><td colspan="5" style="text-align:center;color:var(--text-2);padding:24px;">Bạn chưa star asset nào.</td></tr>';
+
+    /* ── Tab: Đã fork ── */
+    document.getElementById('forkedBody').innerHTML = myForks.length
+      ? myForks.map(f => {
+          const asset     = f.assets || {};
+          const assetName = asset.asset_name || `Asset #${f.original_asset_id}`;
+          const badge = f.status === 'approved'
+            ? '<span class="badge b-verified">Approved</span>'
+            : f.status === 'rejected'
+            ? '<span class="badge b-rejected">Từ chối</span>'
+            : '<span class="badge b-draft">Chờ duyệt</span>';
+          return `<tr>
+            <td><a href="asset-detail.html?id=${f.original_asset_id}" style="font-weight:600;color:var(--black);text-decoration:underline;">${assetName}</a></td>
+            <td style="max-width:200px;color:var(--text-2);">${f.fork_description ? `"${f.fork_description}"` : '<span style="opacity:0.4;">—</span>'}</td>
+            <td>${f.output_link ? `<a href="${f.output_link}" target="_blank" style="color:var(--blue);text-decoration:underline;">Xem</a>` : '<span style="opacity:0.4;">—</span>'}</td>
+            <td>${badge}</td>
+            <td style="color:var(--text-2);">${timeAgo(f.created_at)}</td>
+          </tr>`;
+        }).join('')
+      : '<tr><td colspan="5" style="text-align:center;color:var(--text-2);padding:24px;">Bạn chưa fork asset nào.</td></tr>';
+
+    /* ── Tab: Đã tải xuống ── */
+    document.getElementById('downloadsBody').innerHTML = myDownloads.length
+      ? myDownloads.map(d => {
+          const asset     = d.assets || {};
+          const assetName = asset.asset_name || `Asset #${d.asset_id}`;
+          const hasOutput = !!d.output_url;
+          return `<tr>
+            <td><a href="asset-detail.html?id=${d.asset_id}" style="font-weight:600;color:var(--black);text-decoration:underline;">${assetName}</a></td>
+            <td><span class="badge b-gray">${asset.asset_type || '—'}</span></td>
+            <td style="color:var(--text-2);">${timeAgo(d.downloaded_at)}</td>
+            <td>${hasOutput
+              ? `<a href="${d.output_url}" target="_blank" style="color:var(--blue);text-decoration:underline;">Xem output ↗</a>`
+              : '<span style="opacity:0.4;font-size:12px;">Chưa có</span>'}</td>
+            <td>
+              <button class="btn btn-ghost btn-sm" onclick="openOutputModal(${d.id}, '${assetName.replace(/'/g,"\\'")}')">
+                ${hasOutput ? '✏️ Cập nhật' : '📎 Gửi output'}
+              </button>
+            </td>
+          </tr>`;
+        }).join('')
+      : '<tr><td colspan="5" style="text-align:center;color:var(--text-2);padding:24px;">Bạn chưa tải xuống asset nào.</td></tr>';
+
+    /* ── Tab: Reward ── */
+    const starsXT  = myStars.filter(s => s.is_valid && s.is_cross_team);
+    const starsHT  = myStars.filter(s => s.is_valid && !s.is_cross_team);
+    const forksXT  = myForks.filter(f => f.is_valid && f.is_cross_team);
+    const forksHT  = myForks.filter(f => f.is_valid && !f.is_cross_team);
+    const rwStarsXT = starsXT.reduce((s, x) => s + (x.reward_amount || 0), 0);
+    const rwForksXT = forksXT.reduce((s, x) => s + (x.reward_amount || 0), 0);
+
+    document.getElementById('totalRewardAmt').textContent = totalReward.toLocaleString('vi-VN') + '₫';
+    document.getElementById('rewardDetail').innerHTML = `
+      <div class="info-row">
+        <div class="info-label">Stars cross-team</div>
+        <div class="info-val">${starsXT.length} × 200.000₫ = <strong>${rwStarsXT.toLocaleString('vi-VN')}₫</strong></div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Stars cùng team</div>
+        <div class="info-val">${starsHT.length} × 0₫ = <strong>0₫</strong></div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Forks cross-team</div>
+        <div class="info-val">${forksXT.length} × 500.000₫ = <strong>${rwForksXT.toLocaleString('vi-VN')}₫</strong></div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Forks cùng team</div>
+        <div class="info-val">${forksHT.length} × 0₫ = <strong>0₫</strong></div>
+      </div>
+      <div class="divider"></div>
+      <div class="info-row">
+        <div class="info-label">Tổng ước tính</div>
+        <div class="info-val" style="font-weight:800;font-size:16px;">${totalReward.toLocaleString('vi-VN')}₫</div>
+      </div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:8px;">Chờ Hub Owner xác nhận chính thức</div>
+    `;
+
+  } catch (err) {
+    console.error('initProfile error:', err);
+    showToast('Lỗi tải dữ liệu: ' + err.message, 't-error');
+  }
+})();
+
+/* Format tiền gọn: 1.400.000₫ hoặc 1.4M₫ */
+function fmtMoney(n) {
+  if (!n) return '0₫';
+  if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0','') + 'M₫';
+  return n.toLocaleString('vi-VN') + '₫';
+}
+
+/* ── Gửi output sau khi tải xuống ── */
+let _currentDownloadId = null;
+
+function openOutputModal(downloadId, assetName) {
+  _currentDownloadId = downloadId;
+  document.getElementById('outputModalSub').textContent  = 'Asset: ' + assetName;
+  document.getElementById('outputUrlInput').value        = '';
+  openModal('outputModal');
+}
+
+async function submitOutput() {
+  const url = document.getElementById('outputUrlInput').value.trim();
+  if (!url) { showToast('Vui lòng nhập link output.', 't-error'); return; }
+  if (!url.startsWith('http')) { showToast('Link không hợp lệ — phải bắt đầu bằng http/https.', 't-error'); return; }
+
+  const btn = document.getElementById('outputSubmitBtn');
+  btn.textContent = 'Đang lưu...';
+  btn.disabled    = true;
+  try {
+    await dbUpdateDownloadOutput(_currentDownloadId, url);
+    closeModal('outputModal');
+    showToast('Đã lưu link output!', 't-success');
+    // Cập nhật lại bảng tải xuống mà không reload trang
+    const row = document.querySelector(`button[onclick*="openOutputModal(${_currentDownloadId},"]`)?.closest('tr');
+    if (row) {
+      const tdOutput = row.cells[3];
+      const tdBtn    = row.cells[4];
+      if (tdOutput) tdOutput.innerHTML = `<a href="${url}" target="_blank" style="color:var(--blue);text-decoration:underline;">Xem output ↗</a>`;
+      if (tdBtn)    tdBtn.innerHTML    = `<button class="btn btn-ghost btn-sm" onclick="openOutputModal(${_currentDownloadId}, '...')">✏️ Cập nhật</button>`;
+    }
+  } catch (err) {
+    showToast('Lỗi lưu output: ' + err.message, 't-error');
+  } finally {
+    btn.textContent = 'Gửi output';
+    btn.disabled    = false;
+  }
+}
+</script>
+</body>
+</html>

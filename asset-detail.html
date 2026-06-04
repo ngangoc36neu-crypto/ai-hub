@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi tiết Asset — Apero AI Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="https://apero.vn/wp-content/uploads/2024/10/logo-white.svg" class="brand-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <div style="display:none;font-size:16px;font-weight:900;color:white;letter-spacing:-0.5px;">APERO</div>
+      <div class="brand-sub">AI Knowledge Hub</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Menu chính</div>
+      <a href="library.html" class="nav-item active"><span class="nav-item-label">Thư viện Asset</span></a>
+      <a href="leaderboard.html" class="nav-item"><span class="nav-item-label">Leaderboard</span></a>
+      <a href="profile.html" class="nav-item"><span class="nav-item-label">Hồ sơ của tôi</span></a>
+      <div class="sidebar-section sidebar-section-admin">Quản trị</div>
+      <a href="index.html" class="nav-item sidebar-section-admin"><span class="nav-item-label">Admin Dashboard</span></a>
+      <a href="curator.html" class="nav-item sidebar-section-admin"><span class="nav-item-label">Curator Duyệt</span><span class="nav-badge" id="pendingBadge" style="display:none;"></span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="avatar av-sm">NA</div>
+        <div style="flex:1;overflow:hidden;"><div class="av-name">Nguyễn Văn An</div><div class="av-sub">Curator · Product</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="breadcrumb">
+        <a href="library.html" class="breadcrumb">Thư viện Asset</a>
+        <span class="breadcrumb-sep">/</span>
+        <span id="pageTitle" style="color:var(--text-1);font-weight:600;">...</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-sm" onclick="toggleBookmark()" id="bookmarkBtn">🔖 Lưu lại</button>
+      </div>
+    </div>
+
+    <div class="page-content" style="max-width:960px;">
+
+      <!-- HEADER CARD -->
+      <div class="card mb-20" id="assetHeader"></div>
+
+      <!-- TABS -->
+      <div id="tabGroup">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="tab-info" onclick="switchTab('tabGroup','tab-info')">Chi tiết</button>
+          <button class="tab-btn" data-tab="tab-stars" onclick="switchTab('tabGroup','tab-stars')">
+            Stars <span class="tab-count" id="starTabCount">0</span>
+          </button>
+          <button class="tab-btn" data-tab="tab-forks" onclick="switchTab('tabGroup','tab-forks')">
+            Forks <span class="tab-count" id="forkTabCount">0</span>
+          </button>
+        </div>
+
+        <!-- CHI TIẾT -->
+        <div class="tab-content active" id="tab-info">
+          <div class="grid-2" style="gap:16px;">
+            <div class="card">
+              <div class="card-hd"><span class="card-title">Thông tin asset</span></div>
+              <div class="card-bd" id="assetInfo"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <div class="card">
+                <div class="card-hd"><span class="card-title">Thao tác</span></div>
+                <div class="card-bd" style="display:flex;flex-direction:column;gap:8px;">
+                  <a id="driveLink" href="#" target="_blank" class="btn btn-primary btn-lg" style="justify-content:center;">
+                    Mở file trên Drive
+                  </a>
+                  <button class="btn btn-outline btn-lg" style="justify-content:center;" onclick="openModal('starModal')">
+                    <span style="color:var(--amber);font-size:16px;line-height:1;">★</span> Star asset này
+                  </button>
+                  <button class="btn btn-ghost btn-lg" style="justify-content:center;" onclick="openModal('forkModal')">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:middle;opacity:0.8"><path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h1.5v2.128a2.251 2.251 0 1 0 1.5 0V8.5h1.5a2.25 2.25 0 0 0 2.25-2.25v-.878a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878zm3.75 7.378a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm3-8.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0z"/></svg> Fork asset này
+                  </button>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-hd"><span class="card-title">Thống kê</span></div>
+                <div class="card-bd">
+                  <div style="display:flex;gap:0;">
+                    <div style="text-align:center;flex:1;padding:12px 0;">
+                      <div style="font-size:32px;font-weight:800;letter-spacing:-1px;color:var(--amber);" id="statStars">0</div>
+                      <div style="font-size:12px;color:var(--text-2);margin-top:4px;font-weight:500;">★ Stars</div>
+                    </div>
+                    <div style="width:1px;background:var(--border);"></div>
+                    <div style="text-align:center;flex:1;padding:12px 0;">
+                      <div style="font-size:32px;font-weight:800;letter-spacing:-1px;color:var(--blue);" id="statForks">0</div>
+                      <div style="font-size:12px;color:var(--text-2);margin-top:4px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:4px;"><svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h1.5v2.128a2.251 2.251 0 1 0 1.5 0V8.5h1.5a2.25 2.25 0 0 0 2.25-2.25v-.878a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878zm3.75 7.378a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm3-8.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0z"/></svg> Forks</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STARS -->
+        <div class="tab-content" id="tab-stars">
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-title">Danh sách Stars</span>
+              <button class="btn btn-outline btn-sm" onclick="openModal('starModal')">★ Star ngay</button>
+            </div>
+            <div class="card-bd">
+              <div class="q-item">
+                <div class="q-item-hd">
+                  <div>
+                    <div class="q-item-name">Trần Thị Bảo</div>
+                    <div class="q-item-from">Growth team · 2 giờ trước</div>
+                  </div>
+                  <span class="badge b-verified">Verified</span>
+                </div>
+                <div class="q-item-reason">"Tôi đã dùng tool này trong 3 cuộc họp tuần qua. Giảm từ 30 phút ghi chép xuống còn 5 phút review. Cực kỳ hiệu quả cho daily standup."</div>
+              </div>
+              <div class="q-item">
+                <div class="q-item-hd">
+                  <div>
+                    <div class="q-item-name">Lê Minh Cường</div>
+                    <div class="q-item-from">Growth team · Hôm qua</div>
+                  </div>
+                  <span class="badge b-verified">Verified</span>
+                </div>
+                <div class="q-item-reason">"Dùng để viết JD cho 2 vị trí Growth. Giảm từ 45 phút xuống 10 phút mỗi JD."</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FORKS -->
+        <div class="tab-content" id="tab-forks">
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-title">Danh sách Forks</span>
+              <button class="btn btn-outline btn-sm" onclick="openModal('forkModal')">⑂ Fork ngay</button>
+            </div>
+            <div class="card-bd">
+              <div class="q-item">
+                <div class="q-item-hd">
+                  <div>
+                    <div class="q-item-name">Lê Minh Cường</div>
+                    <div class="q-item-from">Engineering team · 3 ngày trước</div>
+                  </div>
+                  <span class="badge b-verified">Verified</span>
+                </div>
+                <div class="q-item-reason">
+                  <strong>Use case:</strong> "Áp dụng cho app gaming thị trường SEA."<br><br>
+                  <strong>Thay đổi:</strong> "Thêm bước lọc review theo ngôn ngữ (tiếng Thái, tiếng Indo). Kết quả chính xác hơn 40%."<br><br>
+                  <a href="#" style="color:var(--blue);font-weight:600;">Xem output</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL STAR -->
+<div class="modal-overlay" id="starModal">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title"><span style="color:var(--amber);">★</span> Star asset này</div>
+      <div class="modal-sub">Lý do của bạn sẽ được Curator xem xét trước khi được ghi nhận.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tại sao asset này có giá trị với bạn? <span class="req">*</span></label>
+      <textarea class="form-control" id="starReason" rows="4"
+        placeholder="VD: Tôi đã dùng tool này để viết 20 email follow-up cho campaign Q2, tỉ lệ reply tăng 15%..."
+        oninput="updateStarCount()"></textarea>
+      <div id="starCount" class="char-count">0 ký tự (cần thêm 20)</div>
+    </div>
+    <div class="alert alert-info" style="margin-bottom:0;">
+      <div>Reason cần tối thiểu <strong>20 ký tự</strong>. Reason quá ngắn hoặc chung chung sẽ bị Curator từ chối.</div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeModal('starModal')">Hủy</button>
+      <button class="btn btn-primary" onclick="submitStar()" id="starSubmitBtn" disabled>Gửi Star</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FORK -->
+<div class="modal-overlay" id="forkModal">
+  <div class="modal" style="max-width:540px;">
+    <div class="modal-hd">
+      <div class="modal-title">⑂ Fork asset này</div>
+      <div class="modal-sub">Fork = bạn đã thực sự dùng asset này và tạo ra kết quả. Cần mô tả cụ thể.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Bạn đã dùng asset này vào việc gì? <span class="req">*</span></label>
+      <textarea class="form-control" id="forkUsecase" rows="3"
+        placeholder="VD: Phân tích review app gaming của đối thủ tại thị trường SEA..."></textarea>
+      <div class="form-hint">Mô tả tình huống cụ thể, không chung chung.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Bạn đã thay đổi gì so với bản gốc? <span class="req">*</span></label>
+      <textarea class="form-control" id="forkChanges" rows="3"
+        placeholder="VD: Thêm bước lọc theo ngôn ngữ, điều chỉnh prompt cho thị trường SEA..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Link output / kết quả thực tế</label>
+      <input type="url" class="form-control" id="forkOutput" placeholder="https://drive.google.com/...">
+      <div class="form-hint">Không bắt buộc nhưng giúp Curator duyệt nhanh hơn.</div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeModal('forkModal')">Hủy</button>
+      <button class="btn btn-primary" onclick="submitFork()">Gửi Fork</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DOWNLOAD — hiện sau khi fork thành công -->
+<div class="modal-overlay" id="downloadModal">
+  <div class="modal" style="max-width:480px;text-align:center;">
+    <div style="font-size:40px;margin-bottom:12px;">⬇️</div>
+    <div class="modal-title" style="margin-bottom:6px;">Tải file về máy?</div>
+    <div class="modal-sub" style="margin-bottom:20px;">
+      Fork của bạn đã được ghi nhận và đang chờ Curator duyệt.<br>
+      Bấm <strong>"Mở & Tải"</strong> để mở file trên Google Drive, sau đó dùng nút tải của Drive.
+    </div>
+
+    <!-- Thông tin file -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:20px;text-align:left;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:24px;">📄</div>
+        <div>
+          <div style="font-weight:700;font-size:13.5px;" id="dlFileName">—</div>
+          <div style="font-size:12px;color:var(--text-2);margin-top:2px;" id="dlAssetId">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-ft" style="justify-content:center;gap:10px;">
+      <button class="btn btn-ghost" onclick="skipDownload()">Bỏ qua</button>
+      <button class="btn btn-primary btn-lg" id="dlBtn" onclick="doDownload()">
+        ⬇️ Mở & Tải trên Drive
+      </button>
+    </div>
+    <div style="font-size:11px;color:var(--text-3);margin-top:12px;">
+      Lượt tải chỉ được lưu để thống kê — không cần duyệt.
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="js/supabase.js"></script>
+<script src="js/main.js"></script>
+<script>
+/* self-check:
+   - ASSETS.find() → dbGetAssetById() async
+   - updateStarCount, toggleBookmark KHÔNG đổi (UI only)
+   - submitStar / submitFork → gọi Supabase thật
+   - starRows / forkRows render động vào tab-stars / tab-forks
+*/
+
+const params  = new URLSearchParams(window.location.search);
+const assetId = parseInt(params.get('id')) || 1;
+let _asset    = null; // giữ reference để submitStar/Fork dùng
+
+function renderHeader(a, starCount, forkCount) {
+  document.getElementById('pageTitle').textContent = a.name;
+  document.title = `${a.name} — Apero AI Hub`;
+  document.getElementById('driveLink').href = a.asset_link;
+  document.getElementById('statStars').textContent   = starCount;
+  document.getElementById('statForks').textContent   = forkCount;
+  document.getElementById('starTabCount').textContent = starCount;
+  document.getElementById('forkTabCount').textContent = forkCount;
+
+  document.getElementById('assetHeader').innerHTML = `
+    <div style="padding:24px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px;">
+            <span class="badge b-gray" style="font-size:11px;letter-spacing:0.5px;">${a.asset_id}</span>
+            <span class="badge ${getTypeBadge(a.type)}">${a.type}</span>
+            <span class="badge b-gray">${a.domain}</span>
+            ${getStatusBadge(a.status)}
+          </div>
+          <h1 style="font-size:24px;font-weight:800;margin-bottom:10px;letter-spacing:-0.5px;">${a.name}</h1>
+          <p style="font-size:14px;color:var(--text-2);line-height:1.6;max-width:600px;">${a.desc}</p>
+        </div>
+        <div style="display:flex;gap:24px;flex-shrink:0;">
+          <div style="text-align:center;">
+            <div style="font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--amber);">${starCount}</div>
+            <div style="font-size:12px;color:var(--text-2);font-weight:500;">★ Stars</div>
+          </div>
+          <div style="width:1px;background:var(--border);"></div>
+          <div style="text-align:center;">
+            <div style="font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--blue);">${forkCount}</div>
+            <div style="font-size:12px;color:var(--text-2);font-weight:500;">⑂ Forks</div>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="avatar av-sm">${a.owner.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;">${a.owner}</div>
+            <div style="font-size:11px;color:var(--text-2);">${a.team} team</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--text-2);">Ngày tạo: ${a.created}</div>
+        <div style="font-size:13px;color:var(--text-2);">Dùng cho: ${a.target_user}</div>
+      </div>
+    </div>`;
+
+  document.getElementById('assetInfo').innerHTML = `
+    <div class="info-row"><div class="info-label">Mô tả</div><div class="info-val">${a.desc}</div></div>
+    <div class="info-row"><div class="info-label">Đối tượng</div><div class="info-val">${a.target_user}</div></div>
+    <div class="info-row"><div class="info-label">Cách dùng</div><div class="info-val" style="white-space:pre-line;">${a.how_to_use}</div></div>
+    <div class="info-row"><div class="info-label">Ví dụ output</div><div class="info-val">
+      <div style="background:var(--glass);border:1px solid var(--glass-border);padding:10px 12px;border-radius:var(--r-sm);font-style:italic;color:var(--text-2);">"${a.example_output}"</div>
+    </div></div>`;
+}
+
+function renderStarList(rows) {
+  const validStars = rows.filter(s => s.is_valid);
+  const el = document.querySelector('#tab-stars .card-bd');
+  if (!el) return;
+  el.innerHTML = validStars.length ? validStars.map(s => `
+    <div class="q-item">
+      <div class="q-item-hd">
+        <div>
+          <div class="q-item-name">${s.users?.full_name || `User #${s.user_id}`}</div>
+          <div class="q-item-from">${s.users?.team || ''} · ${timeAgo(s.created_at)}</div>
+        </div>
+        <span class="badge b-verified">Verified</span>
+      </div>
+      <div class="q-item-reason">"${s.reason || ''}"</div>
+    </div>`).join('')
+  : '<div style="padding:16px;color:var(--text-2);">Chưa có star nào được duyệt.</div>';
+}
+
+function renderForkList(rows) {
+  const validForks = rows.filter(f => f.is_valid);
+  const el = document.querySelector('#tab-forks .card-bd');
+  if (!el) return;
+  el.innerHTML = validForks.length ? validForks.map(f => `
+    <div class="q-item">
+      <div class="q-item-hd">
+        <div>
+          <!-- FIX BUG #6: forks_log dùng user_id, không phải forked_by_user_id -->
+      <div class="q-item-name">${f.users?.full_name || `User #${f.user_id}`}</div>
+          <div class="q-item-from">${f.users?.team || ''} · ${timeAgo(f.created_at)}</div>
+        </div>
+        <span class="badge b-verified">Verified</span>
+      </div>
+      <div class="q-item-reason">
+        <strong>Use case:</strong> "${f.fork_description || ''}"<br><br>
+        <strong>Thay đổi:</strong> "${f.changes_made || ''}"
+        ${f.output_link ? `<br><br><a href="${f.output_link}" target="_blank" style="color:var(--blue);font-weight:600;">Xem output</a>` : ''}
+      </div>
+    </div>`).join('')
+  : '<div style="padding:16px;color:var(--text-2);">Chưa có fork nào được duyệt.</div>';
+}
+
+/* ===== INIT ===== */
+(async function initDetail() {
+  document.getElementById('assetHeader').innerHTML = '<div style="padding:24px;color:var(--text-2);">Đang tải...</div>';
+  try {
+    const [rawAsset, starRows, forkRows] = await Promise.all([
+      dbGetAssetById(assetId),
+      dbGetStarsByAsset(assetId),
+      dbGetForksByAsset(assetId)
+    ]);
+
+    if (!rawAsset) {
+      document.getElementById('assetHeader').innerHTML = '<div style="padding:24px;color:var(--red);">Không tìm thấy asset.</div>';
+      return;
+    }
+
+    const validStars = (starRows || []).filter(s => s.is_valid).length;
+    const validForks = (forkRows || []).filter(f => f.is_valid).length;
+    _asset = mapAsset(rawAsset, validStars, validForks);
+
+    renderHeader(_asset, validStars, validForks);
+    renderStarList(starRows || []);
+    renderForkList(forkRows || []);
+  } catch (err) {
+    console.error('initDetail error:', err);
+    showToast('Lỗi tải asset.', 't-error');
+  }
+})();
+
+/* ===== STAR ACTIONS (UI logic không đổi, thêm Supabase) ===== */
+function updateStarCount() {
+  const len   = document.getElementById('starReason').value.length;
+  const count = document.getElementById('starCount');
+  count.textContent = len < 20 ? `${len} ký tự (cần thêm ${20 - len})` : `${len} ký tự`;
+  count.className   = 'char-count' + (len > 0 && len < 20 ? ' warn' : '');
+  document.getElementById('starSubmitBtn').disabled = len < 20;
+}
+
+async function submitStar() {
+  const reason = document.getElementById('starReason').value;
+  if (reason.length < 20) return;
+  const btn = document.getElementById('starSubmitBtn');
+  btn.textContent = 'Đang gửi...';
+  btn.disabled = true;
+  try {
+    const userId     = await getCurrentUserId();
+
+    // GIỚI HẠN 1: mỗi user chỉ star 1 lần / asset (lượt bị từ chối không tính)
+    if (await dbHasActiveStar(userId, assetId)) {
+      showToast('Bạn đã star asset này rồi (đang chờ duyệt hoặc đã duyệt).', 't-error');
+      return;
+    }
+    // GIỚI HẠN 2: tối đa LIMIT_STAR_PER_MONTH star được duyệt / tháng
+    const usedStars = await dbCountApprovedStarsThisMonth(userId);
+    if (usedStars >= LIMIT_STAR_PER_MONTH) {
+      showToast(`Bạn đã đạt giới hạn ${LIMIT_STAR_PER_MONTH} star được duyệt trong tháng này. Thử lại vào tháng sau nhé.`, 't-error');
+      return;
+    }
+
+    const isCrossTeam = _asset && _asset.team !== CURRENT_USER.team;
+    await dbInsertStar({
+      asset_id:     assetId,
+      user_id:      userId,
+      reason:       reason,
+      is_cross_team: isCrossTeam
+    });
+    closeModal('starModal');
+    showToast('Đã gửi star! Curator sẽ xem xét trong 48h.', 't-success');
+    document.getElementById('starReason').value = '';
+  } catch (err) {
+    showToast('Lỗi: ' + err.message, 't-error');
+  } finally {
+    btn.textContent = 'Gửi Star';
+    btn.disabled    = false;
+  }
+}
+
+async function submitFork() {
+  const uc = document.getElementById('forkUsecase').value.trim();
+  const ch = document.getElementById('forkChanges').value.trim();
+  const op = document.getElementById('forkOutput').value.trim();
+  if (!uc || !ch) { showToast('Vui lòng điền đầy đủ thông tin bắt buộc.', 't-error'); return; }
+  const btn = document.querySelector('#forkModal .btn-primary');
+  if (btn) { btn.textContent = 'Đang gửi...'; btn.disabled = true; }
+  try {
+    const userId      = await getCurrentUserId();
+
+    // GIỚI HẠN 1: mỗi user chỉ fork 1 lần / asset (lượt bị từ chối không tính)
+    if (await dbHasActiveFork(userId, assetId)) {
+      showToast('Bạn đã fork asset này rồi (đang chờ duyệt hoặc đã duyệt).', 't-error');
+      return;
+    }
+    // GIỚI HẠN 2: tối đa LIMIT_FORK_PER_MONTH fork được duyệt / tháng
+    const usedForks = await dbCountApprovedForksThisMonth(userId);
+    if (usedForks >= LIMIT_FORK_PER_MONTH) {
+      showToast(`Bạn đã đạt giới hạn ${LIMIT_FORK_PER_MONTH} fork được duyệt trong tháng này. Thử lại vào tháng sau nhé.`, 't-error');
+      return;
+    }
+
+    const isCrossTeam = _asset && _asset.team !== CURRENT_USER.team;
+    await dbInsertFork({
+      original_asset_id:  assetId,
+      user_id:            userId,
+      fork_description:   uc,
+      changes_made:       ch,
+      output_link:        op || null,
+      is_cross_team:      isCrossTeam
+    });
+    closeModal('forkModal');
+    document.getElementById('forkUsecase').value = '';
+    document.getElementById('forkChanges').value = '';
+    document.getElementById('forkOutput').value  = '';
+
+    // Nếu asset có link file → mở download modal
+    if (_asset?.asset_link && _asset.asset_link !== '#') {
+      document.getElementById('dlFileName').textContent = _asset.name || _asset.asset_name || 'File asset';
+      document.getElementById('dlAssetId').textContent  = 'Asset code: ' + (_asset.asset_id || assetId);
+      openModal('downloadModal');
+    } else {
+      showToast('Đã gửi fork! Curator sẽ xem xét trong 48h.', 't-success');
+    }
+  } catch (err) {
+    showToast('Lỗi: ' + err.message, 't-error');
+  } finally {
+    if (btn) { btn.textContent = 'Gửi Fork'; btn.disabled = false; }
+  }
+}
+
+/* ===== DOWNLOAD TRACKING ===== */
+
+// Lấy Drive file ID từ nhiều dạng URL
+function extractDriveFileId(url) {
+  if (!url) return null;
+  // /file/d/{id}/ hoặc /document/d/{id}/
+  const m1 = url.match(/\/d\/([a-zA-Z0-9_-]{10,})/);
+  if (m1) return m1[1];
+  // ?id={id} hoặc &id={id}
+  const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]{10,})/);
+  if (m2) return m2[1];
+  return null;
+}
+
+async function doDownload() {
+  const btn = document.getElementById('dlBtn');
+  btn.textContent = 'Đang cấp quyền...';
+  btn.disabled    = true;
+
+  try {
+    const userId = await getCurrentUserId();
+
+    // 1. Ghi log download vào Supabase
+    await dbInsertDownload({
+      asset_id: assetId,
+      user_id:  userId
+    }).catch(() => {});
+
+    // 2. Lấy file ID từ link Drive
+    const fileId = extractDriveFileId(_asset.asset_link);
+
+    if (fileId && typeof APPS_SCRIPT_URL !== 'undefined' && APPS_SCRIPT_URL && CURRENT_USER?.email) {
+      // 3. Gọi Apps Script để share file cho email người dùng (fire & forget)
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method:  'POST',
+          mode:    'no-cors', // bắt buộc do cross-origin
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            event:     'shareFile',
+            fileId:    fileId,
+            userEmail: CURRENT_USER.email
+          })
+        });
+      } catch (_) { /* bỏ qua lỗi cors — Apps Script vẫn chạy */ }
+
+      closeModal('downloadModal');
+      showToast('Đang cấp quyền, sắp tải xuống...', 't-success');
+
+      // 4. Đợi Apps Script share xong (~3s) rồi trigger tải thẳng về máy
+      //    File đã được set "Anyone with link" → uc?export=download hoạt động
+      setTimeout(() => {
+        const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+        const a = document.createElement('a');
+        a.href     = downloadUrl;
+        a.target   = '_blank';
+        a.download = _asset.name || 'file';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast('File đang tải xuống!', 't-success');
+      }, 3000);
+
+    } else {
+      // Fallback nếu chưa cấu hình APPS_SCRIPT_URL
+      closeModal('downloadModal');
+      window.open(_asset.asset_link, '_blank');
+    }
+
+  } catch (err) {
+    closeModal('downloadModal');
+    showToast('Lỗi: ' + err.message, 't-error');
+  } finally {
+    btn.textContent = '⬇️ Mở & Tải trên Drive';
+    btn.disabled    = false;
+  }
+}
+
+function skipDownload() {
+  closeModal('downloadModal');
+  showToast('Đã gửi fork! Curator sẽ xem xét trong 48h.', 't-success');
+}
+
+let bookmarked = false;
+function toggleBookmark() {
+  bookmarked = !bookmarked;
+  document.getElementById('bookmarkBtn').innerHTML = bookmarked ? '🔖 Đã lưu' : '🔖 Lưu lại';
+  showToast(bookmarked ? 'Đã thêm vào Bookmarks.' : 'Đã bỏ khỏi Bookmarks.');
+}
+</script>
+</body>
+</html>

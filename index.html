@@ -1,840 +1,501 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Apero AI Knowledge Hub</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --apero-sidebar-from:#1e0038;
-  --apero-sidebar-to:#a855f7;
-  --apero-accent:#7b2fbe;
-  --apero-accent-light:#a855f7;
-  --apero-accent-pale:#f3e8ff;
-  --apero-white:#FFFFFF;
-  --apero-gray:#F7F4FF;
-  --apero-gray2:#EDE9FF;
-  --apero-text:#1A0A2E;
-  --apero-text2:#55447A;
-  --apero-text3:#9988BB;
-  --apero-border:#E8E0F5;
-  --apero-success:#00B87A;
-  --apero-success-bg:#E6F9F2;
-  --apero-danger:#E53935;
-  --apero-danger-bg:#FEF2F2;
-}
-body{font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif;background:linear-gradient(145deg,#1e0038 0%,#4a0080 35%,#7b2fbe 70%,#a855f7 100%);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:0}
-html{background:linear-gradient(145deg,#1e0038 0%,#4a0080 35%,#7b2fbe 70%,#a855f7 100%);min-height:100%}
-.app{display:flex;width:100%;min-height:100vh;background:transparent}
-
-/* SIDEBAR */
-.sidebar{width:220px;background:rgba(0,0,0,0.35);backdrop-filter:blur(20px);border-right:0.5px solid rgba(255,255,255,0.12);flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
-.sidebar-header{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,0.1)}
-.brand-logo{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.brand-icon{width:32px;height:32px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#7b2fbe;letter-spacing:-1px}
-.brand-name{font-size:14px;font-weight:700;color:#fff;letter-spacing:-0.3px}
-.user-chip{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);border-radius:8px;padding:7px 10px;margin-top:12px;border:0.5px solid rgba(255,255,255,0.15)}
-.user-dot{width:7px;height:7px;border-radius:50%;background:#00E5A0;flex-shrink:0}
-.user-email{font-size:11px;color:rgba(255,255,255,0.7);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.nav{padding:12px 0;flex:1}
-.nav-section{font-size:10px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:1.5px;padding:10px 20px 6px;text-transform:uppercase}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:13px;color:rgba(255,255,255,0.55);cursor:pointer;border-radius:8px;margin:1px 10px;transition:all .15s}
-.nav-item:hover{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.9)}
-.nav-item.active{background:rgba(255,255,255,0.18);color:#fff;font-weight:600;border-left:2px solid #fff}
-.nav-item.active i{color:#fff;opacity:1}
-.nav-item i{font-size:16px;opacity:0.6}
-.sidebar-footer{padding:14px 16px;border-top:1px solid rgba(255,255,255,0.1)}
-.sync-btn{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.4);cursor:pointer;background:none;border:none;padding:4px 4px;border-radius:6px;width:100%;transition:color .15s}
-.sync-btn:hover{color:rgba(255,255,255,0.8)}
-
-/* CONTENT */
-.content{flex:1;margin-left:220px;background:transparent;padding:28px 32px;min-height:100vh;overflow-y:auto}
-.page{display:none}.page.active{display:block}
-.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.page-title{font-size:20px;font-weight:700;color:#fff;letter-spacing:-0.3px}
-
-/* STAT CARDS */
-.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-.stat-card{background:rgba(255,255,255,0.12);backdrop-filter:blur(12px);border-radius:12px;padding:18px 20px;border:0.5px solid rgba(255,255,255,0.2);position:relative;overflow:hidden;transition:all .2s}
-.stat-card:hover{background:rgba(255,255,255,0.18);border-color:rgba(255,255,255,0.35)}
-.stat-card .label{font-size:11px;font-weight:600;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;display:flex;align-items:center;gap:5px}
-.stat-card .value{font-size:26px;font-weight:800;color:#fff;letter-spacing:-1px}
-.stat-card .value.small{font-size:18px;font-weight:700}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.card{background:rgba(255,255,255,0.12);backdrop-filter:blur(12px);border-radius:12px;border:0.5px solid rgba(255,255,255,0.2);padding:18px 20px}
-.card-title{font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px}
-
-/* TAGS */
-.tag{font-size:11px;padding:3px 9px;border-radius:20px;display:inline-block;font-weight:600}
-.tag.verified{background:rgba(0,184,122,0.2);color:#00E5A0;border:0.5px solid rgba(0,229,160,0.3)}
-.tag.draft{background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);border:0.5px solid rgba(255,255,255,0.2)}
-.tag.deprecated{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35)}
-
-/* ERROR */
-.err-banner{background:rgba(229,57,53,0.15);color:#FF8A80;border:0.5px solid rgba(229,57,53,0.3);padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:16px;display:none}
-.medal{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
-
-/* ASSET CARDS */
-.asset-card{background:rgba(255,255,255,0.1);backdrop-filter:blur(12px);border-radius:12px;border:0.5px solid rgba(255,255,255,0.18);margin-bottom:10px;overflow:hidden;transition:all .2s}
-.asset-card:hover{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.3)}
-.asset-header{padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
-.asset-info{flex:1;min-width:0}
-.asset-name{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px;letter-spacing:-0.2px}
-.asset-meta{font-size:12px;color:rgba(255,255,255,0.5)}
-.asset-counts{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.count-badge{display:flex;align-items:center;gap:3px;font-size:13px;font-weight:600}
-.star-count{color:#FFD166}
-.fork-count{color:#90CAF9}
-
-/* ACTION BUTTONS */
-.asset-actions{display:flex;gap:7px;flex-shrink:0}
-.gh-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:0.5px solid;transition:all .15s}
-.gh-star-btn{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.8)}
-.gh-star-btn:hover,.gh-star-btn.active{background:rgba(255,209,102,0.2);border-color:#FFD166;color:#FFD166}
-.gh-fork-btn{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.8)}
-.gh-fork-btn:hover,.gh-fork-btn.active{background:rgba(144,202,249,0.2);border-color:#90CAF9;color:#90CAF9}
-.gh-save-btn{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.8)}
-.gh-save-btn:hover{background:rgba(0,229,160,0.15);border-color:#00E5A0;color:#00E5A0}
-.gh-save-btn.saved{background:rgba(0,229,160,0.15);border-color:#00E5A0;color:#00E5A0}
-.gh-link-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;background:rgba(255,255,255,0.15);color:#fff;border:0.5px solid rgba(255,255,255,0.3);text-decoration:none;transition:all .15s}
-.gh-link-btn:hover{background:rgba(255,255,255,0.25)}
-
-/* INLINE PANEL */
-.action-panel{display:none;border-top:0.5px solid rgba(255,255,255,0.1);padding:18px;background:rgba(0,0,0,0.15)}
-.action-panel.open{display:block}
-.panel-tabs{display:flex;gap:8px;margin-bottom:16px}
-.panel-tab{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:0.5px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);transition:all .15s}
-.panel-tab.active{background:rgba(255,255,255,0.2);color:#fff;border-color:rgba(255,255,255,0.4)}
-.panel-form{display:none}.panel-form.active{display:block}
-.form-group{margin-bottom:14px}
-.form-label{display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 13px;border:0.5px solid rgba(255,255,255,0.2);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border .15s;background:rgba(255,255,255,0.1);color:#fff}
-.form-group input::placeholder,.form-group textarea::placeholder{color:rgba(255,255,255,0.35)}
-.form-group select option{background:#4a0080;color:#fff}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.15)}
-.form-group textarea{resize:vertical}
-.check-row{display:flex;align-items:center;gap:8px;margin-bottom:14px}
-.check-row input{width:16px;height:16px;cursor:pointer;flex-shrink:0;accent-color:#a855f7}
-.check-row label{font-size:13px;cursor:pointer;color:rgba(255,255,255,0.7)}
-.form-actions{display:flex;align-items:center;gap:8px}
-.submit-btn{padding:9px 20px;background:rgba(255,255,255,0.9);color:#7b2fbe;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
-.submit-btn:hover{background:#fff}
-.cancel-btn{padding:9px 16px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);border:0.5px solid rgba(255,255,255,0.2);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer}
-.cancel-btn:hover{background:rgba(255,255,255,0.15)}
-.inline-alert{padding:9px 13px;border-radius:8px;font-size:13px;margin-bottom:12px;display:none;font-weight:500}
-.inline-alert.error{background:rgba(229,57,53,0.15);color:#FF8A80;border:0.5px solid rgba(229,57,53,0.3)}
-.inline-alert.success{background:rgba(0,229,160,0.15);color:#00E5A0;border:0.5px solid rgba(0,229,160,0.3)}
-
-/* LB */
-.lb-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:0.5px solid rgba(255,255,255,0.1)}
-.lb-row:last-child{border-bottom:none}
-
-/* SEARCH */
-.search-wrap{position:relative;margin-bottom:0}
-.search-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);font-size:16px;pointer-events:none}
-.search-wrap input{width:100%;padding:10px 14px 10px 38px;border:0.5px solid rgba(255,255,255,0.2);border-radius:10px;font-size:13px;outline:none;background:rgba(255,255,255,0.1);color:#fff;transition:border .15s;font-family:inherit}
-.search-wrap input::placeholder{color:rgba(255,255,255,0.35)}
-.search-wrap input:focus{border-color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.15)}
-
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(10,0,20,0.8);display:flex;align-items:center;justify-content:center;z-index:1000}
-.modal-box{background:#fff;border-radius:20px;padding:36px;width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
-/* SIDEBAR */
-.sidebar{width:220px;background:rgba(0,0,0,0.35);backdrop-filter:blur(20px);border-right:0.5px solid rgba(255,255,255,0.12);flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
-.sidebar-header{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,0.06)}
-.brand-logo{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.brand-icon{width:32px;height:32px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#7b2fbe !important;color:#fff;letter-spacing:-1px}
-.brand-name{font-size:14px;font-weight:700;color:#fff;letter-spacing:-0.3px}
-.brand-sub{font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px}
-.user-chip{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border-radius:8px;padding:7px 10px;margin-top:12px}
-.user-dot{width:7px;height:7px;border-radius:50%;background:var(--apero-success);flex-shrink:0}
-.user-email{font-size:11px;color:rgba(255,255,255,0.55);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.nav{padding:12px 0;flex:1}
-.nav-section{font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:1.5px;padding:10px 20px 6px;text-transform:uppercase}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:13px;color:rgba(255,255,255,0.5);cursor:pointer;border-radius:8px;margin:1px 10px;transition:all .15s}
-.nav-item:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85)}
-.nav-item.active{background:rgba(255,255,255,0.18);color:#fff;font-weight:600;border-left:2px solid #fff}
-
-.nav-item i{font-size:16px;opacity:0.7}
-.nav-item.active i{opacity:1}
-.sidebar-footer{padding:14px 16px;border-top:1px solid rgba(255,255,255,0.06)}
-.sync-btn{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.35);cursor:pointer;background:none;border:none;padding:4px 4px;border-radius:6px;width:100%;transition:color .15s}
-.sync-btn:hover{color:rgba(255,255,255,0.7)}
-
-/* ── LEADERBOARD REDESIGN ── */
-.lb-page-wrap{display:flex;flex-direction:column;gap:16px}
-.lb-main-card{background:linear-gradient(145deg,rgba(10,30,90,0.92),rgba(5,15,55,0.97));border:1px solid rgba(80,140,255,0.35);border-radius:20px;overflow:hidden;backdrop-filter:blur(20px);box-shadow:0 8px 40px rgba(0,50,200,0.25)}
-.lb-sub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.lb-sub-card{background:linear-gradient(145deg,rgba(10,30,90,0.85),rgba(5,15,55,0.95));border:1px solid rgba(80,140,255,0.25);border-radius:16px;overflow:hidden;backdrop-filter:blur(16px)}
-.lb-card-header{padding:14px 20px;border-bottom:1px solid rgba(80,140,255,0.2);display:flex;align-items:center;gap:10px;background:rgba(0,20,80,0.4)}
-.lb-card-title{font-size:13px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1.5px}
-.lb-podium-wrap{padding:24px 20px 0;display:flex;align-items:flex-end;justify-content:center;gap:10px}
-.lb-podium-col{flex:1;max-width:160px;display:flex;flex-direction:column;align-items:center}
-.lb-podium-avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0}
-.lb-podium-name{font-size:12px;font-weight:700;color:#fff;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:110px;margin:6px 0 2px}
-.lb-podium-score{font-size:12px;font-weight:700;margin:0 0 8px}
-.lb-podium-base{width:100%;border-radius:8px 8px 0 0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 0}
-.lb-table-header{display:flex;align-items:center;padding:10px 20px;border-bottom:1px solid rgba(80,140,255,0.15)}
-.lb-table-header span{font-size:10px;font-weight:700;color:rgba(150,180,255,0.6);text-transform:uppercase;letter-spacing:1.2px}
-.lb-table-row{display:flex;align-items:center;padding:10px 20px;border-bottom:0.5px solid rgba(255,255,255,0.05);transition:background .15s}
-.lb-table-row:last-child{border-bottom:none}
-.lb-table-row:hover{background:rgba(80,140,255,0.1)}
-.lb-rank-badge{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:rgba(200,220,255,0.7);flex-shrink:0;font-variant-numeric:tabular-nums}
-.lb-user-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
-.lb-user-name{font-size:13px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lb-user-sub{font-size:11px;color:rgba(150,180,255,0.6);margin-top:1px}
-.lb-score-val{font-size:14px;font-weight:800;margin-left:auto;flex-shrink:0}
-.lb-empty{padding:24px;text-align:center;color:rgba(150,180,255,0.4);font-size:13px}
-.lb-mode-toggle{display:flex;gap:6px;margin-left:auto}
-.lb-mode-btn{padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid rgba(80,140,255,0.35);background:transparent;color:rgba(150,180,255,0.7);transition:all .15s;letter-spacing:0.5px}
-.lb-mode-btn.active{background:rgba(80,140,255,0.3);color:#fff;border-color:rgba(120,170,255,0.6)}
-
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang chủ — Apero AI Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- self-check: supabase.js load trước main.js để các dbXxx() sẵn sàng -->
 </head>
 <body>
+<div class="layout">
 
-<!-- EMAIL LOGIN MODAL -->
-<div id="email-modal" class="modal-overlay" style="display:none">
-  <div class="modal-box">
-    <div style="text-align:center;margin-bottom:20px">
-      <div style="width:52px;height:52px;background:linear-gradient(135deg,#7b2fbe,#a855f7);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:22px;font-weight:900;color:#fff">A</div>
-      <h2 style="font-size:20px;font-weight:800;color:var(--apero-text);margin:0 0 6px;letter-spacing:-0.5px">Chào mừng đến Hub 👋</h2>
-      <p style="font-size:13px;color:var(--apero-text3);margin:0">Nhập email công ty để bắt đầu</p>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="https://apero.vn/wp-content/uploads/2024/10/logo-white.svg"
+           class="brand-logo"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <div style="display:none;font-size:16px;font-weight:900;color:white;letter-spacing:-0.5px;">APERO</div>
+      <div class="brand-sub">AI Knowledge Hub</div>
     </div>
-    <div style="margin-bottom:16px">
-      <label style="display:block;font-size:12px;font-weight:600;color:#555;margin-bottom:5px">Email công ty</label>
-      <input id="email-input" type="email" placeholder="ten.ban@apero.vn" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px;outline:none;font-family:inherit" onkeydown="if(event.key==='Enter')saveEmail()">
-    </div>
-    <div id="email-err" style="display:none;background:#fef2f2;color:#c0392b;padding:8px 12px;border-radius:6px;font-size:13px;margin-bottom:12px"></div>
-    <button onclick="saveEmail()" style="width:100%;padding:12px;background:linear-gradient(135deg,#7b2fbe,#a855f7);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:-0.2px">Bắt đầu →</button>
-  </div>
-</div>
-<div class="app">
-  <div class="sidebar">
-    <div class="sidebar-header">
-      <div class="brand-logo">
-        <div class="brand-icon">A</div>
-        <div>
-          <div class="brand-name">Apero AI Hub</div>
-        </div>
-      </div>
-      <div class="user-chip">
-        <div class="user-dot"></div>
-        <span id="user-email-display" class="user-email">Chưa đăng nhập</span>
-      </div>
-    </div>
-    <div class="nav">
-      <div class="nav-section">Menu</div>
-      <div class="nav-item active" onclick="nav('dashboard')"><i class="ti ti-layout-dashboard"></i>Dashboard</div>
-      <div class="nav-item" onclick="nav('assets')"><i class="ti ti-package"></i>Kho asset</div>
-      <div class="nav-item" onclick="nav('saved')"><i class="ti ti-bookmark"></i>Đã lưu</div>
-      <div class="nav-item" onclick="nav('leaderboard')"><i class="ti ti-trophy"></i>Leaderboard</div>
-    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Menu chính</div>
+      <a href="library.html" class="nav-item"><span class="nav-item-label">Thư viện Asset</span></a>
+      <a href="leaderboard.html" class="nav-item"><span class="nav-item-label">Leaderboard</span></a>
+      <a href="profile.html" class="nav-item"><span class="nav-item-label">Hồ sơ của tôi</span></a>
+      <div class="sidebar-section sidebar-section-admin">Quản trị</div>
+      <a href="index.html" class="nav-item active sidebar-section-admin"><span class="nav-item-label">Admin Dashboard</span></a>
+      <a href="curator.html" class="nav-item">
+        <span class="nav-item-label">Curator Duyệt</span>
+        <span class="nav-badge">6</span>
+      </a>
+    </nav>
     <div class="sidebar-footer">
-      <button class="sync-btn" onclick="loadAll()">
-        <i class="ti ti-refresh"></i><span id="sync-label">Làm mới</span>
-      </button>
-      <button class="sync-btn" onclick="changeAccount()" style="margin-top:6px">
-        <i class="ti ti-user-circle"></i><span>Đổi tài khoản</span>
-      </button>
-      <p id="last-sync" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px"></p>
-    </div>
-  </div>
-
-  <div class="content">
-    <div id="err-banner" class="err-banner"></div>
-
-    <!-- DASHBOARD -->
-    <div id="p-dashboard" class="page active">
-      <div class="page-header">
-        <h1 class="page-title">Dashboard</h1>
-        <span style="font-size:12px;color:rgba(255,255,255,0.5)" id="dash-date"></span>
-      </div>
-      <div class="stat-grid">
-        <div class="stat-card"><div class="label"><i class="ti ti-package" style="color:#E9D5FF"></i>Tổng asset</div><div class="value" id="d-assets">—</div></div>
-        <div class="stat-card"><div class="label"><i class="ti ti-star" style="color:#FFD166"></i>Stars hợp lệ</div><div class="value" id="d-stars">—</div></div>
-        <div class="stat-card"><div class="label"><i class="ti ti-copy" style="color:#90CAF9"></i>Forks hợp lệ</div><div class="value" id="d-forks">—</div></div>
-        <div class="stat-card"><div class="label"><i class="ti ti-cash" style="color:#00E5A0"></i>Tổng thưởng</div><div class="value small" id="d-reward">—</div></div>
-      </div>
-      <div class="two-col">
-        <div class="card"><p class="card-title">Top 5 asset</p><div id="d-top"></div></div>
-        <div class="card"><p class="card-title">Leaderboard nhanh</p><div id="d-lb"></div></div>
-      </div>
-    </div>
-
-    <!-- ASSETS -->
-    <div id="p-assets" class="page">
-      <div class="page-header">
-        <h1 class="page-title">Kho asset</h1>
-        <span id="assets-count" style="font-size:12px;color:rgba(255,255,255,0.5)"></span>
-      </div>
-      <div style="position:relative;margin-bottom:16px">
-        <div class="search-wrap" style="margin-bottom:0">
-          <i class="ti ti-search"></i>
-          <input id="search-input" oninput="onSearchInput()" onkeydown="onSearchKey(event)" autocomplete="off" placeholder="Tìm theo tên, domain, loại, mô tả...">
+      <div class="sidebar-user">
+        <div class="avatar av-sm">NA</div>
+        <div style="flex:1;overflow:hidden;">
+          <div class="av-name">Nguyễn Văn An</div>
+          <div class="av-sub">Curator · Product</div>
         </div>
-        <div id="search-suggestions" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-top:none;border-radius:0 0 10px 10px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:100;max-height:280px;overflow-y:auto"></div>
-        <div id="search-tags" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"></div>
       </div>
-      <div id="assets-list"></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Trang chủ</div>
+      <div class="topbar-right">
+        <div class="search-wrap">
+          <input type="text" placeholder="Tìm kiếm asset..."
+                 onkeydown="if(event.key==='Enter') window.location='library.html'">
+        </div>
+        <button class="btn btn-primary" onclick="openFormModal()">Submit Asset</button>
+      </div>
     </div>
 
-    <!-- SAVED -->
-    <div id="p-saved" class="page">
-      <p class="page-title">Asset đã lưu</p>
-      <div id="saved-list"></div>
-    </div>
+    <div class="page-content">
 
-    <!-- LEADERBOARD -->
-    <div id="p-leaderboard" class="page">
-      <div class="page-header">
-        <h1 class="page-title">Leaderboard</h1>
+      <!-- SLA ALERT — ẩn mặc định, hiện động khi có pending item -->
+      <div class="alert alert-warn" id="pendingAlert" style="margin-bottom:20px;display:none;">
+        <div id="pendingAlertText"></div>
       </div>
-      <div id="lb-full"></div>
+
+      <!-- STATS -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-val" id="statAssets">—</div>
+          <div class="stat-lbl">Asset đã duyệt</div>
+          <div class="stat-chg" id="statAssetsChg"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statStars">—</div>
+          <div class="stat-lbl">Tổng Stars</div>
+          <div class="stat-chg" id="statStarsChg"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statForks">—</div>
+          <div class="stat-lbl">Tổng Forks</div>
+          <div class="stat-chg" id="statForksChg"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statMembers">—</div>
+          <div class="stat-lbl">Thành viên</div>
+          <div class="stat-chg" id="statMembersChg"></div>
+        </div>
+      </div>
+
+      <!-- MAIN GRID -->
+      <div class="grid-2" style="gap:16px;">
+
+        <!-- ACTIVITY -->
+        <div class="card">
+          <div class="card-hd">
+            <span class="card-title">Hoạt động gần đây</span>
+            <a href="library.html" class="btn btn-ghost btn-sm">Xem tất cả</a>
+          </div>
+          <div style="padding:4px 20px;">
+            <ul class="act-list" id="activityList"></ul>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px;">
+
+          <!-- TOP ASSETS -->
+          <div class="card">
+            <div class="card-hd"><span class="card-title">Asset nổi bật tuần này</span></div>
+            <div id="topAssets"></div>
+          </div>
+
+          <!-- QUICK ACTIONS -->
+          <div class="card">
+            <div class="card-hd"><span class="card-title">Thao tác nhanh</span></div>
+            <div class="card-bd" style="display:flex;flex-direction:column;gap:8px;">
+              <button class="btn btn-primary btn-lg" style="justify-content:center;" onclick="openFormModal()">Submit asset mới</button>
+              <a href="library.html" class="btn btn-outline btn-lg" style="justify-content:center;">Tìm kiếm thư viện</a>
+              <a href="curator.html" class="btn btn-ghost btn-lg" style="justify-content:center;" id="curatorQuickBtn">
+                Curator Duyệt
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- TOP DOWNLOADS -->
+      <div class="mt-24">
+        <div class="grid-2" style="gap:16px;">
+
+          <!-- Top người tải nhiều nhất -->
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-title">⬇️ Top người tải xuống</span>
+              <span style="font-size:11px;color:var(--text-2);">Tổng lượt tải</span>
+            </div>
+            <div id="topDownloaders"></div>
+          </div>
+
+          <!-- Top asset được tải nhiều nhất -->
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-title">📄 Asset được tải nhiều nhất</span>
+              <span style="font-size:11px;color:var(--text-2);">Tổng lượt tải</span>
+            </div>
+            <div id="topDownloadedAssets"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- CHI TIẾT LƯỢT TẢI -->
+      <div class="mt-24">
+        <div class="card">
+          <div class="card-hd">
+            <span class="card-title">⬇️ Chi tiết lượt tải xuống</span>
+            <span style="font-size:11px;color:var(--text-2);" id="dlTotalCount"></span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Người tải</th>
+                  <th>Team</th>
+                  <th>Asset</th>
+                  <th>Loại</th>
+                  <th>Link output</th>
+                  <th>Thời gian</th>
+                </tr>
+              </thead>
+              <tbody id="dlDetailBody">
+                <tr><td colspan="6" style="text-align:center;color:var(--text-2);padding:16px;">Đang tải...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECENT ASSETS -->
+      <div class="mt-24">
+        <div class="page-hd">
+          <div>
+            <h1 style="font-size:16px;font-weight:700;">Asset mới nhất</h1>
+          </div>
+          <a href="library.html" class="btn btn-ghost btn-sm">Xem tất cả</a>
+        </div>
+        <div class="asset-grid" id="recentAssets"></div>
+      </div>
+
+      <!-- LỊCH SỬ STAR/FORK CỦA TÔI -->
+      <div class="mt-24">
+        <div class="grid-2" style="gap:16px;">
+
+          <!-- Stars của tôi -->
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-title">⭐ Star gần đây của tôi</span>
+              <a href="profile.html" class="btn btn-ghost btn-sm">Xem tất cả</a>
+            </div>
+            <div style="padding:4px 20px;">
+              <ul class="act-list" id="myStarList">
+                <li style="padding:12px;color:var(--text-2);font-size:13px;">Đang tải...</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Forks của tôi -->
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-title">⑂ Fork gần đây của tôi</span>
+              <a href="profile.html" class="btn btn-ghost btn-sm">Xem tất cả</a>
+            </div>
+            <div style="padding:4px 20px;">
+              <ul class="act-list" id="myForkList">
+                <li style="padding:12px;color:var(--text-2);font-size:13px;">Đang tải...</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
 
+<div id="toast" class="toast"></div>
+<script src="js/supabase.js"></script>
+<script src="js/main.js"></script>
 <script>
-const SB="https://oaedfqlvbsnlwizdmhkj.supabase.co";
-const KEY="sb_publishable_5Y_cXwgxziFm4cymOgGynQ_3pqkdwtO";
-const H={"apikey":KEY,"Authorization":"Bearer "+KEY};
-const HP={...H,"Content-Type":"application/json","Prefer":"return=minimal"};
-let DB={assets:[],users:[],stars:[],forks:[],saved:[]};
+/* self-check:
+   - Không dùng ASSETS/ACTIVITIES global nữa → dùng Supabase
+   - getTypeBadge, getStatusBadge, STAR_ICON, FORK_ICON vẫn từ main.js
+   - Các id DOM giữ nguyên: activityList, topAssets, recentAssets, statXxx
+*/
 
-const fmt=n=>new Intl.NumberFormat("vi-VN").format(n)+" ₫";
-const esc=s=>String(s||"").replace(/[<>&"]/g,c=>({"<":"&lt;",">":`&gt;`,"&":"&amp;",'"':"&quot;"}[c]));
-
-async function get(t){
-  const r=await fetch(SB+"/rest/v1/"+t+"?select=*",{headers:H});
-  if(!r.ok)throw new Error("Lỗi "+r.status+" khi tải bảng "+t);
-  return r.json();
-}
-async function post(t,body){
-  const r=await fetch(SB+"/rest/v1/"+t,{method:"POST",headers:HP,body:JSON.stringify(body)});
-  if(!r.ok){const e=await r.text();throw new Error("Lỗi "+r.status+": "+e);}
+/* ===== ROLE GUARD — chỉ Curator+ mới vào được ===== */
+if (!requireRole('Curator')) {
+  throw new Error('Access denied');
 }
 
-// ── SAVE / BOOKMARK ──────────────────────────
-async function toggleSave(assetId){
-  if(!currentEmail){document.getElementById("email-modal").style.display="flex";return;}
-  const btn=document.getElementById("save-btn-"+assetId);
-  const alreadySaved=DB.saved.some(s=>s.saved_by===currentEmail&&s.asset_id===assetId);
-  if(alreadySaved){
-    // Unsave
-    const row=DB.saved.find(s=>s.saved_by===currentEmail&&s.asset_id===assetId);
-    if(row){
-      await fetch(SB+"/rest/v1/Saved?id=eq."+row.id,{method:"DELETE",headers:H});
-      DB.saved=DB.saved.filter(s=>!(s.saved_by===currentEmail&&s.asset_id===assetId));
+(async function initDashboard() {
+  try {
+    // Tải song song để nhanh hơn
+    const [assets, starRows, forkRows, users] = await Promise.all([
+      dbGetAssetsWithCounts(),
+      // FIX BUG #2: /stars và /forks là tên cũ (v1), đổi sang stars_log/forks_log (v2)
+      sbFetch('/stars_log?select=id,created_at,asset_id,is_valid,assets(asset_name),users(full_name)&is_valid=is.true&order=created_at.desc&limit=10')
+        .catch(() => []),
+      sbFetch('/forks_log?select=id,created_at,original_asset_id,is_valid,assets(asset_name),users(full_name)&is_valid=is.true&order=created_at.desc&limit=10')
+        .catch(() => []),
+      dbGetUsers().catch(() => [])
+    ]);
+
+    const verified = assets.filter(a => a.status === 'verified');
+    const totalStars = verified.reduce((s, a) => s + a.stars, 0);
+    const totalForks = verified.reduce((s, a) => s + a.forks, 0);
+
+    // Stats
+    document.getElementById('statAssets').textContent  = verified.length;
+    document.getElementById('statStars').textContent   = totalStars;
+    document.getElementById('statForks').textContent   = totalForks;
+    document.getElementById('statMembers').textContent = users.length;
+
+    // Activity feed — merge stars + forks, sort mới nhất lên đầu
+    const acts = [];
+    (starRows || []).forEach(s => acts.push({
+      type: 'star',
+      text: `<strong>${s.users?.full_name || 'Ai đó'}</strong> vừa star <strong>${s.assets?.asset_name || '...'}</strong>`,
+      time: timeAgo(s.created_at),
+      ts:   new Date(s.created_at).getTime()
+    }));
+    (forkRows || []).forEach(f => acts.push({
+      type: 'fork',
+      text: `<strong>${f.users?.full_name || 'Ai đó'}</strong> vừa fork <strong>${f.assets?.asset_name || '...'}</strong>`,
+      time: timeAgo(f.created_at),
+      ts:   new Date(f.created_at).getTime()
+    }));
+    acts.sort((a, b) => b.ts - a.ts);
+
+    document.getElementById('activityList').innerHTML = acts.slice(0, 6).map(a => `
+      <li class="act-item">
+        <div class="act-dot ${a.type}"></div>
+        <div style="flex:1;">
+          <div class="act-body">${a.text}</div>
+          <div class="act-time">${a.time}</div>
+        </div>
+      </li>`).join('') || '<li style="padding:12px;color:var(--text-2)">Chưa có hoạt động nào.</li>';
+
+    // Top assets (top 3 stars)
+    const top = verified.sort((a, b) => b.stars - a.stars).slice(0, 3);
+    document.getElementById('topAssets').innerHTML = top.map((a, i) => `
+      <div class="lb-item">
+        <div class="lb-rank ${i === 0 ? 'top' : ''}">${i + 1}</div>
+        <div class="lb-info">
+          <div class="lb-name"><a href="asset-detail.html?id=${a.id}" style="color:inherit;">${a.name}</a></div>
+          <div class="lb-team">${a.owner} · ${a.team}</div>
+        </div>
+        <div class="lb-score">
+          <div class="lb-pts" style="color:var(--amber);">★ ${a.stars}</div>
+          <div class="lb-sub">⑂ ${a.forks}</div>
+        </div>
+      </div>`).join('') || '<div style="padding:16px;color:var(--text-2);">Chưa có asset nào.</div>';
+
+    // Pending alert + curator badge (chỉ hiện với Curator+)
+    if (hasRole('Curator')) {
+      try {
+        const [pAssets, pStars, pForks] = await Promise.all([
+          sbFetch('/assets?status=eq.pending&select=id').catch(() => []),
+          sbFetch('/stars_log?status=eq.pending&select=id').catch(() => []),
+          sbFetch('/forks_log?status=eq.pending&select=id').catch(() => [])
+        ]);
+        const aCnt = (pAssets || []).length;
+        const sCnt = (pStars  || []).length;
+        const fCnt = (pForks  || []).length;
+        const total = aCnt + sCnt + fCnt;
+        if (total > 0) {
+          const parts = [];
+          if (aCnt) parts.push(`${aCnt} asset mới`);
+          if (sCnt) parts.push(`${sCnt} star`);
+          if (fCnt) parts.push(`${fCnt} fork`);
+          const alertEl = document.getElementById('pendingAlert');
+          if (alertEl) {
+            alertEl.style.display = '';
+            document.getElementById('pendingAlertText').innerHTML =
+              `<strong>Curator Dashboard có ${total} item đang chờ xử lý</strong> — ${parts.join(', ')}.
+               <a href="curator.html" style="font-weight:700;text-decoration:underline;margin-left:6px;">Xem ngay</a>`;
+          }
+          const curatorBtn = document.getElementById('curatorQuickBtn');
+          if (curatorBtn) {
+            curatorBtn.innerHTML = `Curator Duyệt <span class="badge b-rejected" style="margin-left:4px;">${total} pending</span>`;
+          }
+        }
+        // Cập nhật sidebar badge
+        document.querySelectorAll('.nav-badge').forEach(b => {
+          b.textContent = total > 0 ? total : '';
+          b.style.display = total > 0 ? '' : 'none';
+        });
+      } catch (_) {}
     }
-    btn.className="gh-btn gh-save-btn";
-    btn.innerHTML=`<i class="ti ti-bookmark" style="font-size:13px"></i>Lưu`;
-  } else {
-    // Save
-    await post("Saved",{asset_id:assetId,saved_by:currentEmail});
-    DB.saved.push({asset_id:assetId,saved_by:currentEmail});
-    btn.className="gh-btn gh-save-btn saved";
-    btn.innerHTML=`<i class="ti ti-bookmark" style="font-size:13px"></i>Đã lưu`;
-  }
-}
 
-function renderSaved(){
-  const savedAssetIds=DB.saved.filter(s=>s.saved_by===currentEmail).map(s=>s.asset_id);
-  const savedAssets=DB.assets.filter(a=>savedAssetIds.includes(a.id));
-  const el=document.getElementById("saved-list");
-  if(!currentEmail){
-    el.innerHTML='<div class="card"><p style="font-size:13px;color:#aaa;padding:8px 0">Vui lòng đăng nhập để xem danh sách đã lưu.</p></div>';
-    return;
-  }
-  if(!savedAssets.length){
-    el.innerHTML='<div class="card"><p style="font-size:13px;color:#aaa;padding:8px 0">Bạn chưa lưu asset nào. Nhấn nút "Lưu" trên card bất kỳ để bookmark.</p></div>';
-    return;
-  }
-  const sC={},fC={};
-  DB.stars.filter(s=>s.is_valid).forEach(s=>{sC[s.asset_id]=(sC[s.asset_id]||0)+1;});
-  DB.forks.filter(f=>f.is_valid).forEach(f=>{fC[f.original_asset_id]=(fC[f.original_asset_id]||0)+1;});
-  el.innerHTML=savedAssets.map(a=>`
-    <div class="asset-card">
-      <div class="asset-header">
-        <div class="asset-info">
-          <div class="asset-name">${esc(a.asset_name)}</div>
-          <div class="asset-meta">${esc(a.domain||"—")} · ${esc(a.asset_type||"—")} · <span style="color:#1B3358;font-weight:500">${esc(a.owner_name||"—")}</span></div>
-          ${a.description?`<div style="font-size:12px;color:#999;margin-top:3px">${esc(a.description)}</div>`:''}
+    // Recent assets (3 mới nhất verified)
+    const recent = assets.filter(a => a.status === 'verified').slice(0, 3);
+    document.getElementById('recentAssets').innerHTML = recent.map(a => `
+      <a href="asset-detail.html?id=${a.id}" class="asset-card">
+        <div class="ac-top">
+          <span class="ac-id">${a.asset_id}</span>
+          <span class="badge ${getTypeBadge(a.type)}">${a.type}</span>
         </div>
-        <div class="asset-counts">
-          <span class="count-badge star-count"><i class="ti ti-star" style="font-size:14px"></i>${sC[a.id]||0}</span>
-          <span class="count-badge fork-count"><i class="ti ti-copy" style="font-size:14px"></i>${fC[a.id]||0}</span>
+        <div class="ac-name">${a.name}</div>
+        <div class="ac-desc">${a.desc}</div>
+        <div class="ac-tags">
+          <span class="badge b-gray">${a.domain}</span>
+          ${getStatusBadge(a.status)}
         </div>
-        <div class="asset-actions">
-          ${(a.asset_link&&a.asset_link.startsWith('https://'))?`<a href="${esc(a.asset_link)}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:600;background:#F0F4FF;color:#1B3358;border:1px solid #C5D3F0;text-decoration:none"><i class="ti ti-external-link" style="font-size:13px"></i>Mở link</a>`:''}
-          <button class="gh-btn gh-save-btn saved" onclick="toggleSave(${a.id})">
-            <i class="ti ti-bookmark" style="font-size:13px"></i>Bỏ lưu
-          </button>
-        </div>
-      </div>
-    </div>`).join("");
-}
-let currentEmail = localStorage.getItem("hub_email") || "";
-
-function initSession(){
-  const dateEl=document.getElementById("dash-date");
-  if(dateEl) dateEl.textContent=new Date().toLocaleDateString("vi-VN",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
-  if(!currentEmail){
-    document.getElementById("email-modal").style.display="flex";
-  } else {
-    document.getElementById("user-email-display").textContent = currentEmail;
-    loadAll();
-  }
-}
-
-function saveEmail(){
-  const val = document.getElementById("email-input").value.trim();
-  const errEl = document.getElementById("email-err");
-  if(!val || !val.includes("@")){
-    errEl.style.display="block";
-    errEl.textContent="Vui lòng nhập email hợp lệ";
-    return;
-  }
-  currentEmail = val;
-  localStorage.setItem("hub_email", val);
-  document.getElementById("email-modal").style.display="none";
-  document.getElementById("user-email-display").textContent = val;
-  loadAll();
-}
-
-function changeAccount(){
-  if(!confirm("Đổi tài khoản? Bạn sẽ cần nhập email mới.")) return;
-  localStorage.removeItem("hub_email");
-  currentEmail = "";
-  document.getElementById("email-input").value = "";
-  document.getElementById("email-modal").style.display="flex";
-}
-
-// ── NAV ──────────────────────────────────────
-function nav(page){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
-  document.getElementById("p-"+page).classList.add("active");
-  const idx={dashboard:0,assets:1,saved:2,leaderboard:3};
-  document.querySelectorAll(".nav-item")[idx[page]].classList.add("active");
-  if(page==="saved") renderSaved();
-  if(page==="leaderboard") renderLeaderboard();
-}
-
-let searchKeyword='';
-let selectedSuggestionIdx=-1;
-
-function onSearchInput(){
-  const q=document.getElementById("search-input").value.trim();
-  searchKeyword=q;
-  showSuggestions(q);
-  filterAssets();
-}
-
-function onSearchKey(e){
-  const box=document.getElementById("search-suggestions");
-  const items=box.querySelectorAll(".suggestion-item");
-  if(e.key==="ArrowDown"){selectedSuggestionIdx=Math.min(selectedSuggestionIdx+1,items.length-1);highlightSuggestion(items);e.preventDefault();}
-  else if(e.key==="ArrowUp"){selectedSuggestionIdx=Math.max(selectedSuggestionIdx-1,-1);highlightSuggestion(items);e.preventDefault();}
-  else if(e.key==="Enter"){if(selectedSuggestionIdx>=0&&items[selectedSuggestionIdx]){items[selectedSuggestionIdx].click();}else{hideSuggestions();filterAssets();}}
-  else if(e.key==="Escape"){hideSuggestions();}
-}
-
-function highlightSuggestion(items){items.forEach((item,i)=>{item.style.background=i===selectedSuggestionIdx?"#E8EEF7":"#fff";});}
-
-function showSuggestions(q){
-  const box=document.getElementById("search-suggestions");
-  if(!q||q.length<1){hideSuggestions();return;}
-  const ql=q.toLowerCase();
-  const matches=DB.assets.filter(a=>[a.asset_name,a.domain,a.asset_type,a.description,a.how_to_use,a.target_user].some(v=>(v||"").toLowerCase().includes(ql))).slice(0,6);
-  const domains=[...new Set(DB.assets.map(a=>a.domain).filter(d=>d&&d.toLowerCase().includes(ql)))].slice(0,2);
-  const types=[...new Set(DB.assets.map(a=>a.asset_type).filter(t=>t&&t.toLowerCase().includes(ql)))].slice(0,2);
-  if(!matches.length&&!domains.length&&!types.length){hideSuggestions();return;}
-  let html='';
-  if(domains.length||types.length){
-    html+=`<div style="padding:5px 12px;font-size:11px;font-weight:600;color:#aaa;background:#f9f9f9;border-bottom:1px solid #f0f0f0">GỢI Ý BỘ LỌC</div>`;
-    [...domains.map(d=>({label:d,type:'domain'})),...types.map(t=>({label:t,type:'type'}))].forEach(item=>{
-      html+=`<div class="suggestion-item" onclick="selectTag('${item.label.replace(/'/g,"\\'")}','${item.type}')" style="padding:8px 14px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px;border-bottom:0.5px solid #f5f5f5">
-        <span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${item.type==='domain'?'#E8EEF7':'#f0f0f0'};color:${item.type==='domain'?'#1B3358':'#555'};font-weight:600">${esc(item.label)}</span>
-        <span style="color:#aaa;font-size:12px">Lọc theo ${item.type==='domain'?'domain':'loại'}</span>
-      </div>`;
-    });
-  }
-  if(matches.length){
-    html+=`<div style="padding:5px 12px;font-size:11px;font-weight:600;color:#aaa;background:#f9f9f9;border-bottom:1px solid #f0f0f0">ASSET LIÊN QUAN</div>`;
-    matches.forEach(a=>{
-      const highlighted=(a.asset_name||"").replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),m=>`<mark style="background:#FEF8EC;color:#854F0B;border-radius:2px">${m}</mark>`);
-      html+=`<div class="suggestion-item" onclick="selectAsset('${a.asset_name.replace(/'/g,"\\'")}')" style="padding:10px 14px;cursor:pointer;border-bottom:0.5px solid #f5f5f5;display:flex;justify-content:space-between;align-items:center">
-        <div><p style="margin:0;font-size:13px;font-weight:600;color:#1a1a2e">${highlighted}</p>
-        <p style="margin:2px 0 0;font-size:12px;color:#aaa">${esc(a.domain||"")} · ${esc(a.asset_type||"")}</p></div>
-        <i class="ti ti-arrow-right" style="font-size:14px;color:#ccc"></i>
-      </div>`;
-    });
-  }
-  box.innerHTML=html;box.style.display="block";selectedSuggestionIdx=-1;
-}
-
-function selectAsset(name){document.getElementById("search-input").value=name;searchKeyword=name;hideSuggestions();filterAssets();}
-
-function selectTag(label,type){
-  document.getElementById("search-input").value=label;searchKeyword=label;hideSuggestions();filterAssets();
-  const tagsEl=document.getElementById("search-tags");
-  if([...tagsEl.querySelectorAll(".search-tag")].map(t=>t.dataset.label).includes(label))return;
-  const tag=document.createElement("span");tag.className="search-tag";tag.dataset.label=label;
-  tag.style.cssText=`display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;background:${type==='domain'?'#E8EEF7':'#f0f0f0'};color:${type==='domain'?'#1B3358':'#555'};cursor:pointer`;
-  tag.innerHTML=`${esc(label)} <span onclick="removeTag('${label.replace(/'/g,"\\'")}')" style="font-size:14px;opacity:0.5;line-height:1">×</span>`;
-  tagsEl.appendChild(tag);
-}
-
-function removeTag(label){
-  document.getElementById("search-tags").querySelectorAll(".search-tag").forEach(t=>{if(t.dataset.label===label)t.remove();});
-  document.getElementById("search-input").value="";searchKeyword="";filterAssets();
-}
-
-function hideSuggestions(){document.getElementById("search-suggestions").style.display="none";}
-
-document.addEventListener("click",function(e){if(!e.target.closest("#search-suggestions")&&!e.target.closest("#search-input")){hideSuggestions();}});
-
-function filterAssets(){
-  const q=searchKeyword.toLowerCase();
-  if(!q){renderAssets(DB.assets);return;}
-  renderAssets(DB.assets.filter(a=>[a.asset_name,a.domain,a.asset_type,a.description,a.how_to_use,a.target_user,a.owner_name].some(v=>(v||"").toLowerCase().includes(q))));
-}
-
-function togglePanel(assetId,tab){
-  const panel=document.getElementById("panel-"+assetId);
-  const starBtn=document.getElementById("star-btn-"+assetId);
-  const forkBtn=document.getElementById("fork-btn-"+assetId);
-  const isOpen=panel.classList.contains("open");
-  const currentTab=panel.dataset.tab;
-
-  if(isOpen && currentTab===tab){
-    panel.classList.remove("open");
-    starBtn.classList.remove("active");
-    forkBtn.classList.remove("active");
-    return;
-  }
-  panel.classList.add("open");
-  panel.dataset.tab=tab;
-  panel.querySelectorAll(".panel-tab").forEach(t=>t.classList.remove("active"));
-  panel.querySelectorAll(".panel-form").forEach(f=>f.classList.remove("active"));
-  document.getElementById("tab-"+tab+"-"+assetId).classList.add("active");
-  document.getElementById("form-"+tab+"-"+assetId).classList.add("active");
-  starBtn.classList.toggle("active",tab==="star");
-  forkBtn.classList.toggle("active",tab==="fork");
-}
-
-function renderAssets(list){
-  const sC={},fC={};
-  DB.stars.filter(s=>s.is_valid).forEach(s=>{sC[s.asset_id]=(sC[s.asset_id]||0)+1;});
-  DB.forks.filter(f=>f.is_valid).forEach(f=>{fC[f.original_asset_id]=(fC[f.original_asset_id]||0)+1;});
-  const savedIds=new Set(DB.saved.filter(s=>s.saved_by===currentEmail).map(s=>s.asset_id));
-  const userOpts=DB.users.map(u=>`<option value="${u.id}">${esc(u.full_name)}</option>`).join("");
-  const currentUserHint=currentEmail?`<p style="margin:0 0 8px;font-size:12px;color:rgba(255,255,255,0.5)">Đang dùng với: <strong style="color:rgba(255,255,255,0.85)">${esc(currentEmail)}</strong></p>`:'';
-  const el=document.getElementById("assets-list");
-  const countEl=document.getElementById("assets-count");
-  if(countEl) countEl.textContent=list.length+" asset";
-  if(!list.length){el.innerHTML='<div style="padding:20px;text-align:center;color:rgba(255,255,255,0.4);font-size:13px">Không tìm thấy asset nào</div>';return;}
-  el.innerHTML=list.map(a=>`
-    <div class="asset-card">
-      <div class="asset-header">
-        <div class="asset-info" onclick="togglePanel(${a.id},'star')">
-          <div class="asset-name">${esc(a.asset_name)}</div>
-          <div class="asset-meta">${esc(a.domain||"—")} · ${esc(a.asset_type||"—")} · <span style="color:#1B3358;font-weight:500">${esc(a.owner_name||"—")}</span></div>
-          ${a.description?`<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:480px">${esc(a.description)}</div>`:''}
-        </div>
-        <div class="asset-counts">
-          <span class="count-badge star-count"><i class="ti ti-star" style="font-size:14px"></i>${sC[a.id]||0}</span>
-          <span class="count-badge fork-count"><i class="ti ti-copy" style="font-size:14px"></i>${fC[a.id]||0}</span>
-          <span class="tag ${a.status==="Verified"?"verified":"draft"}">${esc(a.status||"Draft")}</span>
-        </div>
-        <div class="asset-actions">
-          ${(a.asset_link&&(a.asset_link.startsWith('http://')||a.asset_link.startsWith('https://')))?`<a href="${esc(a.asset_link)}" target="_blank" class="gh-link-btn"><i class="ti ti-external-link" style="font-size:13px"></i>Mở link</a>`:''}
-          <button id="save-btn-${a.id}" class="gh-btn gh-save-btn ${savedIds.has(a.id)?'saved':''}" onclick="toggleSave(${a.id})">
-            <i class="ti ti-bookmark" style="font-size:13px"></i>${savedIds.has(a.id)?'Đã lưu':'Lưu'}
-          </button>
-          <button id="star-btn-${a.id}" class="gh-btn gh-star-btn" onclick="togglePanel(${a.id},'star')">
-            <i class="ti ti-star" style="font-size:13px"></i>Star
-          </button>
-          <button id="fork-btn-${a.id}" class="gh-btn gh-fork-btn" onclick="togglePanel(${a.id},'fork')">
-            <i class="ti ti-copy" style="font-size:13px"></i>Fork
-          </button>
-        </div>
-      </div>
-
-      <div id="panel-${a.id}" class="action-panel" data-tab="">
-        <div class="panel-tabs">
-          <button id="tab-star-${a.id}" class="panel-tab" onclick="togglePanel(${a.id},'star')"><i class="ti ti-star" style="font-size:13px"></i> Star asset này</button>
-          <button id="tab-fork-${a.id}" class="panel-tab" onclick="togglePanel(${a.id},'fork')"><i class="ti ti-copy" style="font-size:13px"></i> Fork asset này</button>
-        </div>
-
-        <div id="form-star-${a.id}" class="panel-form">
-          <div id="serr-${a.id}" class="inline-alert error"></div>
-          <div id="sok-${a.id}" class="inline-alert success"></div>
-          ${currentUserHint}
-          <div class="form-group">
-            <label class="form-label">Bạn là ai</label>
-            <select id="suser-${a.id}"><option value="">-- Chọn tên --</option>${userOpts}</select>
+        <div class="ac-foot">
+          <div class="ac-owner">
+            <div class="avatar av-sm">${a.owner.split(' ').map(w => w[0]).join('').slice(0, 2)}</div>
+            ${a.owner}
           </div>
-          <div class="form-group">
-            <label class="form-label">Lý do star (bắt buộc)</label>
-            <textarea id="sreason-${a.id}" rows="2" placeholder="Tại sao asset này hữu ích với bạn?"></textarea>
-          </div>
-          <div class="check-row">
-            <input type="checkbox" id="scross-${a.id}">
-            <label for="scross-${a.id}">Star từ team khác (cross-team)</label>
-          </div>
-          <div class="form-actions">
-            <button class="submit-btn" onclick="submitStar(${a.id})"><i class="ti ti-star" style="font-size:13px"></i>Xác nhận star · +200.000 ₫</button>
-            <button class="cancel-btn" onclick="togglePanel(${a.id},'star')">Hủy</button>
+          <div class="ac-stats">
+            <span class="ac-stat">${STAR_ICON} ${a.stars}</span>
+            <span class="ac-stat" style="margin-left:10px;">${FORK_ICON} ${a.forks}</span>
           </div>
         </div>
+      </a>`).join('') || '<p style="padding:12px;color:var(--text-2)">Chưa có asset nào được duyệt.</p>';
 
-        <!-- FORK FORM -->
-        <div id="form-fork-${a.id}" class="panel-form">
-          <div id="ferr-${a.id}" class="inline-alert error"></div>
-          <div id="fok-${a.id}" class="inline-alert success"></div>
-          <div class="form-group">
-            <label class="form-label">Bạn là ai</label>
-            <select id="fuser-${a.id}"><option value="">-- Chọn tên --</option>${userOpts}</select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Dùng vào việc gì</label>
-            <textarea id="fdesc-${a.id}" rows="2" placeholder="Mô tả use case của bạn..."></textarea>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Thay đổi so với bản gốc</label>
-            <textarea id="fchanges-${a.id}" rows="2" placeholder="Bạn đã chỉnh sửa hoặc thêm gì?"></textarea>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Link output (không bắt buộc)</label>
-            <input id="flink-${a.id}" type="text" placeholder="https://...">
-          </div>
-          <div class="form-actions">
-            <button class="submit-btn" onclick="submitFork(${a.id})"><i class="ti ti-copy" style="font-size:13px"></i>Xác nhận fork · +500.000 ₫</button>
-            <button class="cancel-btn" onclick="togglePanel(${a.id},'fork')">Hủy</button>
-          </div>
-        </div>
-      </div>
-    </div>`).join("");
-}
+    // Lịch sử Star/Fork của người đang đăng nhập
+    try {
+      const uid = CURRENT_USER?.id;
+      if (uid) {
+        const [myStars, myForks] = await Promise.all([
+          dbGetStarsByUser(uid).catch(() => []),
+          dbGetForksByUser(uid).catch(() => [])
+        ]);
 
-function showInline(errId,okId,msg,isOk){
-  const e=document.getElementById(errId),o=document.getElementById(okId);
-  e.style.display="none";o.style.display="none";
-  if(isOk){o.style.display="block";o.textContent=msg;}
-  else{e.style.display="block";e.textContent=msg;}
-}
+        document.getElementById('myStarList').innerHTML = myStars.slice(0, 5).map(s => `
+          <li class="act-item">
+            <div class="act-dot star"></div>
+            <div style="flex:1;">
+              <div class="act-body">
+                <a href="asset-detail.html?id=${s.asset_id}" style="color:inherit;font-weight:600;">
+                  ${s.assets?.asset_name || '—'}
+                </a>
+                ${s.reason ? `<span style="color:var(--text-2);"> · "${s.reason}"</span>` : ''}
+              </div>
+              <div class="act-time">${timeAgo(s.created_at)} · <span class="badge ${s.status === 'approved' ? 'b-verified' : s.status === 'rejected' ? 'b-rejected' : 'b-draft'}">${s.status === 'approved' ? 'Approved' : s.status === 'rejected' ? 'Rejected' : 'Chờ duyệt'}</span></div>
+            </div>
+          </li>`).join('') || '<li style="padding:12px;color:var(--text-2);font-size:13px;">Chưa star asset nào.</li>';
 
-async function submitStar(id){
-  const uId=parseInt(document.getElementById("suser-"+id).value);
-  const reason=document.getElementById("sreason-"+id).value.trim();
-  const cross=document.getElementById("scross-"+id).checked;
-  if(!uId){showInline("serr-"+id,"sok-"+id,"Hãy chọn tên của bạn",false);return;}
-  if(!reason){showInline("serr-"+id,"sok-"+id,"Lý do star là bắt buộc",false);return;}
-  try{
-    await post("Stars",{asset_id:id,user_id:uId,reason,is_cross_team:cross,is_valid:true,reward_amount:200000});
-    showInline("serr-"+id,"sok-"+id,"Star thành công! +200.000 ₫ đã được ghi nhận",true);
-    document.getElementById("sreason-"+id).value="";
-    document.getElementById("scross-"+id).checked=false;
-    setTimeout(()=>loadAll(),1000);
-  }catch(e){showInline("serr-"+id,"sok-"+id,e.message,false);}
-}
+        document.getElementById('myForkList').innerHTML = myForks.slice(0, 5).map(f => `
+          <li class="act-item">
+            <div class="act-dot fork"></div>
+            <div style="flex:1;">
+              <div class="act-body">
+                <a href="asset-detail.html?id=${f.original_asset_id}" style="color:inherit;font-weight:600;">
+                  ${f.assets?.asset_name || '—'}
+                </a>
+                ${f.fork_description ? `<span style="color:var(--text-2);"> · ${f.fork_description}</span>` : ''}
+              </div>
+              <div class="act-time">${timeAgo(f.created_at)} · <span class="badge ${f.status === 'approved' ? 'b-verified' : f.status === 'rejected' ? 'b-rejected' : 'b-draft'}">${f.status === 'approved' ? 'Approved' : f.status === 'rejected' ? 'Rejected' : 'Chờ duyệt'}</span></div>
+            </div>
+          </li>`).join('') || '<li style="padding:12px;color:var(--text-2);font-size:13px;">Chưa fork asset nào.</li>';
+      } else {
+        ['myStarList','myForkList'].forEach(id => {
+          document.getElementById(id).innerHTML = '<li style="padding:12px;color:var(--text-2);font-size:13px;">Đăng nhập để xem lịch sử.</li>';
+        });
+      }
+    } catch (_) {}
 
-async function submitFork(id){
-  const uId=parseInt(document.getElementById("fuser-"+id).value);
-  const desc=document.getElementById("fdesc-"+id).value.trim();
-  const chg=document.getElementById("fchanges-"+id).value.trim();
-  const link=document.getElementById("flink-"+id).value.trim();
-  if(!uId){showInline("ferr-"+id,"fok-"+id,"Hãy chọn tên của bạn",false);return;}
-  if(!desc){showInline("ferr-"+id,"fok-"+id,"Mô tả use case là bắt buộc",false);return;}
-  if(!chg){showInline("ferr-"+id,"fok-"+id,"Mô tả thay đổi là bắt buộc",false);return;}
-  try{
-    await post("Forks",{original_asset_id:id,forked_by_user_id:uId,fork_description:desc,changes_made:chg,output_link:link||null,is_valid:true,reward_amount:500000});
-    showInline("ferr-"+id,"fok-"+id,"Fork thành công! +500.000 ₫ đã được ghi nhận",true);
-    document.getElementById("fdesc-"+id).value="";
-    document.getElementById("fchanges-"+id).value="";
-    document.getElementById("flink-"+id).value="";
-    setTimeout(()=>loadAll(),1000);
-  }catch(e){showInline("ferr-"+id,"fok-"+id,e.message,false);}
-}
+    // Top Downloads — tổng hợp phía client từ asset_downloads
+    try {
+      const dlRows = await dbGetAllDownloads().catch(() => []);
 
-function renderDashboard(){
-  const vS=DB.stars.filter(s=>s.is_valid),vF=DB.forks.filter(f=>f.is_valid);
-  const tot=vS.reduce((s,x)=>s+(x.reward_amount||0),0)+vF.reduce((s,x)=>s+(x.reward_amount||0),0);
-  document.getElementById("d-assets").textContent=DB.assets.length;
-  document.getElementById("d-stars").textContent=vS.length;
-  document.getElementById("d-forks").textContent=vF.length;
-  document.getElementById("d-reward").textContent=fmt(tot);
-  const sC={},fC={};
-  vS.forEach(s=>{sC[s.asset_id]=(sC[s.asset_id]||0)+1;});
-  vF.forEach(f=>{fC[f.original_asset_id]=(fC[f.original_asset_id]||0)+1;});
-  const top=[...DB.assets].map(a=>({...a,sc:sC[a.id]||0,fc:fC[a.id]||0})).sort((a,b)=>(b.sc+b.fc)-(a.sc+a.fc)).slice(0,5);
-  document.getElementById("d-top").innerHTML=top.length?top.map((a,i)=>`
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;${i>0?"border-top:1px solid #f0f0f0":""}">
-      <p style="margin:0;font-size:13px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:8px">${esc(a.asset_name)}</p>
-      <span style="font-size:12px;color:#888;flex-shrink:0"><i class="ti ti-star" style="font-size:12px;color:#854F0B"></i> ${a.sc} &nbsp;<i class="ti ti-copy" style="font-size:12px;color:#185FA5"></i> ${a.fc}</span>
-    </div>`).join(""):'<p style="font-size:13px;color:#aaa">Chưa có asset</p>';
-  const oR={};
-  vS.forEach(s=>{const a=DB.assets.find(x=>x.id===s.asset_id);if(a){oR[a.owner_name]=(oR[a.owner_name]||0)+(s.reward_amount||0);}});
-  vF.forEach(f=>{const a=DB.assets.find(x=>x.id===f.original_asset_id);if(a){oR[a.owner_name]=(oR[a.owner_name]||0)+(f.reward_amount||0);}});
-  const lb=Object.entries(oR).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  const medals=[{bg:"#FAC775",c:"#1B3358"},{bg:"#E0E0E0",c:"#444"},{bg:"#EF9F27",c:"#1B3358"}];
-  document.getElementById("d-lb").innerHTML=lb.length?lb.map(([name,r],i)=>{
-    const m=medals[i]||{bg:"#f0f0f0",c:"#666"};
-    return`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;${i>0?"border-top:1px solid #f0f0f0":""}">
-      <div style="display:flex;align-items:center;gap:8px">
-        <span class="medal" style="background:${m.bg};color:${m.c}">${i+1}</span>
-        <p style="margin:0;font-size:13px;font-weight:600">${esc(name)}</p>
-      </div>
-      <p style="margin:0;font-size:13px;font-weight:700;color:#0a7a4b">${fmt(r)}</p>
-    </div>`;}).join(""):'<p style="font-size:13px;color:#aaa">Chưa có dữ liệu</p>';
-}
+      if (dlRows.length > 0) {
+        // Top người tải (group by user_email)
+        const byUser = {};
+        dlRows.forEach(d => {
+          const key   = d.user_email || 'unknown';
+          const name  = d.users?.full_name || d.user_email || 'Ẩn danh';
+          const team  = d.users?.team || '';
+          if (!byUser[key]) byUser[key] = { name, team, count: 0 };
+          byUser[key].count++;
+        });
+        const topUsers = Object.values(byUser).sort((a, b) => b.count - a.count).slice(0, 5);
+        document.getElementById('topDownloaders').innerHTML = topUsers.map((u, i) => `
+          <div class="lb-item">
+            <div class="lb-rank ${i === 0 ? 'top' : ''}">${i + 1}</div>
+            <div class="lb-info">
+              <div class="lb-name">${u.name}</div>
+              <div class="lb-team">${u.team}</div>
+            </div>
+            <div class="lb-score">
+              <div class="lb-pts" style="color:var(--blue);">⬇️ ${u.count}</div>
+              <div class="lb-sub">lượt tải</div>
+            </div>
+          </div>`).join('');
 
+        // Top asset được tải (group by asset_id)
+        const byAsset = {};
+        dlRows.forEach(d => {
+          const key  = d.asset_id;
+          const name = d.assets?.asset_name || ('Asset #' + key);
+          const type = d.assets?.asset_type || '';
+          if (!byAsset[key]) byAsset[key] = { name, type, assetId: key, count: 0 };
+          byAsset[key].count++;
+        });
+        const topAssets = Object.values(byAsset).sort((a, b) => b.count - a.count).slice(0, 5);
+        document.getElementById('topDownloadedAssets').innerHTML = topAssets.map((a, i) => `
+          <div class="lb-item">
+            <div class="lb-rank ${i === 0 ? 'top' : ''}">${i + 1}</div>
+            <div class="lb-info">
+              <div class="lb-name">
+                <a href="asset-detail.html?id=${a.assetId}" style="color:inherit;">${a.name}</a>
+              </div>
+              <div class="lb-team">${a.type}</div>
+            </div>
+            <div class="lb-score">
+              <div class="lb-pts" style="color:var(--blue);">⬇️ ${a.count}</div>
+              <div class="lb-sub">lượt tải</div>
+            </div>
+          </div>`).join('');
 
-function renderLeaderboard(){
-  const vS=DB.stars.filter(s=>s.is_valid),vF=DB.forks.filter(f=>f.is_valid);
-  const aC=['#4F6AF5','#E8734A','#3BAD7A','#9B59B6','#E74C3C','#1ABC9C','#F39C12','#2980B9'];
-  const gi=name=>name?name.trim().split(' ').pop()[0].toUpperCase():'?';
+        // Bảng chi tiết: ai tải asset nào
+        document.getElementById('dlTotalCount').textContent = `Tổng: ${dlRows.length} lượt`;
+        document.getElementById('dlDetailBody').innerHTML = dlRows.map(d => {
+          const userName  = d.users?.full_name  || d.user_email   || 'Ẩn danh';
+          const userTeam  = d.users?.team       || '—';
+          const assetName = d.assets?.asset_name || `Asset #${d.asset_id}`;
+          const assetType = d.assets?.asset_type || '—';
+          const output    = d.output_url
+            ? `<a href="${d.output_url}" target="_blank" style="color:var(--blue);text-decoration:underline;">Xem ↗</a>`
+            : '<span style="opacity:0.4;font-size:12px;">Chưa có</span>';
+          return `<tr>
+            <td style="font-weight:600;">${userName}</td>
+            <td><span class="badge b-gray">${userTeam}</span></td>
+            <td><a href="asset-detail.html?id=${d.asset_id}" style="color:var(--black);text-decoration:underline;">${assetName}</a></td>
+            <td><span class="badge b-gray">${assetType}</span></td>
+            <td>${output}</td>
+            <td style="color:var(--text-2);white-space:nowrap;">${timeAgo(d.downloaded_at)}</td>
+          </tr>`;
+        }).join('');
+      } else {
+        const empty = '<div style="padding:16px;color:var(--text-2);font-size:13px;">Chưa có lượt tải nào.</div>';
+        document.getElementById('topDownloaders').innerHTML      = empty;
+        document.getElementById('topDownloadedAssets').innerHTML = empty;
+        document.getElementById('dlDetailBody').innerHTML        =
+          '<tr><td colspan="6" style="text-align:center;color:var(--text-2);padding:24px;">Chưa có lượt tải nào.</td></tr>';
+        document.getElementById('dlTotalCount').textContent = 'Tổng: 0 lượt';
+      }
+    } catch (_) {}
 
-  // ── DATA: giữ nguyên logic cũ ──
-  const ownerPts={},ownerAssets={};
-  DB.assets.forEach(a=>{ownerAssets[a.owner_name]=(ownerAssets[a.owner_name]||0)+1;});
-  vS.forEach(s=>{const a=DB.assets.find(x=>x.id===s.asset_id);if(!a)return;if(!ownerPts[a.owner_name])ownerPts[a.owner_name]={name:a.owner_name,pts:0,money:0,s:0,f:0};ownerPts[a.owner_name].pts++;ownerPts[a.owner_name].s++;if(s.is_cross_team)ownerPts[a.owner_name].money+=(s.reward_amount||200000);});
-  vF.forEach(f=>{const a=DB.assets.find(x=>x.id===f.original_asset_id);if(!a)return;if(!ownerPts[a.owner_name])ownerPts[a.owner_name]={name:a.owner_name,pts:0,money:0,s:0,f:0};ownerPts[a.owner_name].pts++;ownerPts[a.owner_name].f++;if(f.is_cross_team)ownerPts[a.owner_name].money+=(f.reward_amount||500000);});
-  const ptsList=Object.values(ownerPts).sort((a,b)=>b.pts-a.pts);
-  const moneyList=[...ptsList].sort((a,b)=>b.money-a.money);
-  const actorData={};
-  vS.forEach(s=>{const name=s.submitted_by||s.user_id;if(!name)return;if(!actorData[name])actorData[name]={name:String(name),actions:0};actorData[name].actions++;});
-  vF.forEach(f=>{const name=f.submitted_by||f.forked_by_user_id;if(!name)return;if(!actorData[name])actorData[name]={name:String(name),actions:0};actorData[name].actions++;});
-  if(!Object.keys(actorData).length){const uidCount={};vS.forEach(s=>{uidCount[s.user_id]=(uidCount[s.user_id]||0)+1;});vF.forEach(f=>{uidCount[f.forked_by_user_id]=(uidCount[f.forked_by_user_id]||0)+1;});Object.entries(uidCount).forEach(([uid,cnt])=>{const u=DB.users.find(x=>x.id==uid);actorData[uid]={name:u?u.full_name:'User #'+uid,actions:cnt};});}
-  const actorList=Object.values(actorData).sort((a,b)=>b.actions-a.actions);
-  const assetOwners=Object.entries(ownerAssets).map(([name,count])=>({name,pts:count})).sort((a,b)=>b.pts-a.pts);
-
-  // ── HELPERS ──
-  const podiumColors=['#FFD700','#C0C0C0','#CD7F32'];
-  const podiumGlow=['rgba(255,215,0,0.3)','rgba(192,192,192,0.2)','rgba(205,127,50,0.2)'];
-  const trophyIcon=['🏆','🥈','🥉'];
-
-  function avatarHtml(name,idx,size){
-    const fs=Math.floor(size/2.5);
-    const bg=name?aC[idx%aC.length]:'rgba(255,255,255,0.1)';
-    return `<div class="lb-user-avatar" style="width:${size}px;height:${size}px;background:${bg};font-size:${fs}px">${name?gi(name):'?'}</div>`;
+  } catch (err) {
+    console.error('initDashboard error:', err);
+    showToast('Lỗi tải dữ liệu từ Supabase. Kiểm tra RLS hoặc kết nối.', 't-error');
   }
-
-  function podiumHtml(sorted){
-    if(!sorted.length) return `<div class="lb-empty">Chưa có dữ liệu — hãy star hoặc fork asset đầu tiên!</div>`;
-    const order=[1,0,2]; // vị trí hiển thị: #2 trái, #1 giữa, #3 phải
-    const heights=['100px','140px','80px'];
-    let h=`<div class="lb-podium-wrap">`;
-    order.forEach((rank,pos)=>{
-      const item=sorted[rank];
-      const isFirst=pos===1;
-      if(!item){h+=`<div class="lb-podium-col"></div>`;return;}
-      h+=`<div class="lb-podium-col">
-        ${isFirst?`<div style="font-size:24px;margin-bottom:6px;text-align:center">👑</div>`:`<div style="height:30px"></div>`}
-        ${avatarHtml(item.name,rank,isFirst?56:44)}
-        <div class="lb-podium-name" style="font-size:${isFirst?13:11}px">${esc(item.name)}</div>
-        <div class="lb-podium-score" style="color:${podiumColors[rank]};font-size:${isFirst?13:11}px">${item.pts} điểm</div>
-        <div class="lb-podium-base" style="height:${heights[pos]};background:linear-gradient(180deg,${podiumGlow[rank]},rgba(0,20,80,0.4));box-shadow:0 0 20px ${podiumGlow[rank]}">
-          <div style="font-size:${isFirst?28:22}px">${trophyIcon[rank]}</div>
-          <div style="font-size:${isFirst?14:12}px;font-weight:800;color:${podiumColors[rank]};margin-top:4px">#${rank+1}</div>
-        </div>
-      </div>`;
-    });
-    h+=`</div>`;
-    return h;
-  }
-
-  function tableHtml(sorted,valueFn,startRank){
-    if(!sorted.length) return '';
-    let h=`<div class="lb-table-header">
-      <span style="width:48px">Rank</span>
-      <span style="flex:1;padding-left:10px">Tên</span>
-      <span style="text-align:right">Điểm</span>
-    </div>`;
-    h+=sorted.map((item,i)=>{
-      const rank=i+(startRank||1);
-      const rankStr=String(rank).padStart(2,'0');
-      const rankColor=rank===1?'#FFD700':rank===2?'#C0C0C0':rank===3?'#CD7F32':'rgba(200,220,255,0.55)';
-      const scoreColor=rank===1?'#FFD700':rank===2?'#90CAF9':rank===3?'#CD7F32':'rgba(200,220,255,0.9)';
-      return `<div class="lb-table-row">
-        <div class="lb-rank-badge" style="color:${rankColor};border-color:${rank<=3?rankColor:'rgba(255,255,255,0.1)'};background:${rank<=3?'rgba(255,255,255,0.08)':'rgba(255,255,255,0.04)'}">${rankStr}</div>
-        <div style="flex:1;display:flex;align-items:center;gap:10px;padding:0 10px;overflow:hidden">
-          ${avatarHtml(item.name,i,32)}
-          <div style="overflow:hidden">
-            <div class="lb-user-name">${esc(item.name)}</div>
-            ${item.s!==undefined?`<div class="lb-user-sub">⭐ ${item.s||0} star · 🔀 ${item.f||0} fork</div>`:''}
-          </div>
-        </div>
-        <div class="lb-score-val" style="color:${scoreColor}">${valueFn(item)}</div>
-      </div>`;
-    }).join('');
-    return h;
-  }
-
-  function subCard(title,icon,list,valueFn,emptyMsg){
-    const sorted=[...list];
-    let h=`<div class="lb-sub-card">
-      <div class="lb-card-header">
-        <i class="ti ${icon}" style="font-size:16px;color:rgba(150,180,255,0.8)"></i>
-        <span class="lb-card-title">${title}</span>
-      </div>`;
-    if(!sorted.length){h+=`<div class="lb-empty">${emptyMsg}</div>`;h+=`</div>`;return h;}
-    h+=tableHtml(sorted.slice(0,6),valueFn,1);
-    h+=`</div>`;
-    return h;
-  }
-
-  // ── MAIN CARD (Theo điểm) ──
-  let mainHtml=`<div class="lb-main-card">
-    <div class="lb-card-header">
-      <i class="ti ti-trophy" style="font-size:18px;color:#FFD700"></i>
-      <span class="lb-card-title" style="font-size:14px">Leaderboard — Tổng điểm</span>
-      <div class="lb-mode-toggle">
-        <button class="lb-mode-btn active" onclick="this.parentNode.querySelectorAll('.lb-mode-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Điểm</button>
-        <button class="lb-mode-btn" onclick="this.parentNode.querySelectorAll('.lb-mode-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Tiền</button>
-      </div>
-    </div>
-    ${podiumHtml(ptsList)}
-    ${tableHtml(ptsList.slice(3),x=>x.pts+' điểm',4)}
-  </div>`;
-
-  // ── 3 SUB CARDS ──
-  const sub1=subCard('Tiền thưởng','ti-cash',moneyList,x=>fmt(x.money),'Chưa có thưởng');
-  const sub2=subCard('Top star & fork','ti-heart',actorList,x=>x.actions+' lượt','Chưa có hoạt động');
-  const sub3=subCard('Top submit asset','ti-package',assetOwners,x=>x.pts+' asset','Chưa có asset');
-
-  document.getElementById("lb-full").innerHTML=`
-    <div class="lb-page-wrap">
-      ${mainHtml}
-      <div class="lb-sub-grid">${sub1}${sub2}${sub3}</div>
-    </div>`;
-}
-
-async function loadAll(){
-  document.getElementById("sync-label").textContent="Đang tải...";
-  document.getElementById("err-banner").style.display="none";
-  try{
-    const [a,u,s,f]=await Promise.all([get("Assets"),get("Users"),get("Stars"),get("Forks")]);
-    let sv=[];
-    try{sv=await get("Saved");}catch(e){sv=[];}
-    DB={assets:a,users:u,stars:s,forks:f,saved:sv};
-    renderDashboard();
-    renderAssets(a);
-    renderLeaderboard();
-    document.getElementById("last-sync").textContent="Cập nhật "+new Date().toLocaleTimeString("vi-VN");
-  }catch(e){
-    const el=document.getElementById("err-banner");
-    el.style.display="block";
-    el.textContent=e.message;
-  }
-  document.getElementById("sync-label").textContent="Làm mới dữ liệu";
-}
-
-initSession();
+})();
 </script>
 </body>
 </html>

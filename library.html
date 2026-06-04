@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thư viện Asset — Apero AI Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="https://apero.vn/wp-content/uploads/2024/10/logo-white.svg" class="brand-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <div style="display:none;font-size:16px;font-weight:900;color:white;letter-spacing:-0.5px;">APERO</div>
+      <div class="brand-sub">AI Knowledge Hub</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Menu chính</div>
+      <a href="library.html" class="nav-item active"><span class="nav-item-label">Thư viện Asset</span></a>
+      <a href="leaderboard.html" class="nav-item"><span class="nav-item-label">Leaderboard</span></a>
+      <a href="profile.html" class="nav-item"><span class="nav-item-label">Hồ sơ của tôi</span></a>
+      <div class="sidebar-section sidebar-section-admin">Quản trị</div>
+      <a href="index.html" class="nav-item sidebar-section-admin"><span class="nav-item-label">Admin Dashboard</span></a>
+      <a href="curator.html" class="nav-item sidebar-section-admin"><span class="nav-item-label">Curator Duyệt</span><span class="nav-badge">6</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="avatar av-sm">NA</div>
+        <div style="flex:1;overflow:hidden;"><div class="av-name">Nguyễn Văn An</div><div class="av-sub">Curator · Product</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Thư viện Asset</div>
+      <div class="topbar-right">
+        <div class="search-wrap">
+          <div class="search-outer" id="searchOuter">
+            <input type="text" id="searchInput"
+              placeholder="Tìm theo tên, mô tả, loại, domain..."
+              oninput="onSearchInput(this.value)"
+              onkeydown="onSearchKeydown(event)"
+              autocomplete="off">
+            <div class="search-suggestions" id="searchSuggestions"></div>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="openFormModal()">Submit Asset</button>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <div class="filter-bar">
+        <select class="fselect" id="filterType" onchange="filterAssets()">
+          <option value="">Tất cả loại</option>
+          <option>Prompt</option><option>Tool</option><option>Workflow</option>
+          <option>Template</option><option>Agent</option><option>Use Case</option>
+        </select>
+        <select class="fselect" id="filterDomain" onchange="filterAssets()">
+          <option value="">Tất cả domain</option>
+          <option>Product</option><option>Growth</option><option>Engineering</option>
+          <option>Data-AI</option><option>HR</option><option>Design</option>
+        </select>
+        <select class="fselect" id="filterStatus" onchange="filterAssets()">
+          <option value="">Tất cả trạng thái</option>
+          <option value="verified">Verified</option>
+          <option value="pending">Chờ duyệt</option>
+        </select>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+          <select class="fselect" id="sortBy" onchange="filterAssets()">
+            <option value="stars">Nhiều stars nhất</option>
+            <option value="forks">Nhiều forks nhất</option>
+            <option value="newest">Mới nhất</option>
+          </select>
+          <div class="view-toggle">
+            <button onclick="setView('grid')" id="viewGrid" class="view-btn active">Lưới</button>
+            <button onclick="setView('list')" id="viewList" class="view-btn">Danh sách</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:12.5px;color:var(--text-2);margin-bottom:14px;" id="resultCount">
+        Hiển thị <strong>6</strong> asset
+      </div>
+
+      <div class="asset-grid" id="assetGrid"></div>
+
+      <div class="empty" id="emptyState" style="display:none;">
+        <div class="empty-ico">—</div>
+        <h3>Không tìm thấy asset</h3>
+        <p>Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
+        <a href="submit.html" class="btn btn-primary" style="margin-top:16px;">Submit asset mới</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="js/supabase.js"></script>
+<script src="js/main.js"></script>
+<script>
+/* self-check:
+   - ALL_ASSETS thay ASSETS global (ASSETS đã bị xoá khỏi main.js)
+   - filterAssets() giữ nguyên logic, chỉ đổi nguồn data
+   - setView() không thay đổi
+*/
+let currentView = 'grid';
+let ALL_ASSETS  = []; // populated từ Supabase
+let _keywords   = []; // keyword index for smart search suggestions
+let _sugIdx     = -1; // keyboard navigation index
+
+/* ===== SMART SEARCH HELPERS ===== */
+
+/** Xây keyword index từ tất cả assets */
+function buildKeywordIndex(assets) {
+  const set = new Set();
+  assets.forEach(a => {
+    // Thêm từng word từ name (word ≥ 3 ký tự)
+    (a.name || '').split(/[\s\-_/]+/).forEach(w => { if (w.length >= 3) set.add(w.toLowerCase()); });
+    // Thêm type, domain, team như keyword đơn
+    if (a.type)   set.add(a.type.toLowerCase());
+    if (a.domain) set.add(a.domain.toLowerCase());
+    if (a.team)   set.add(a.team.toLowerCase());
+    // Thêm asset_id
+    if (a.asset_id) set.add(a.asset_id.toLowerCase());
+  });
+  _keywords = [...set].sort();
+}
+
+/** Trả về top 8 keywords khớp với query */
+function getSuggestions(query) {
+  if (!query || query.length < 2) return [];
+  const q = query.toLowerCase();
+  const exact   = _keywords.filter(k => k.startsWith(q) && k !== q);
+  const partial = _keywords.filter(k => !k.startsWith(q) && k.includes(q));
+  return [...exact, ...partial].slice(0, 8);
+}
+
+function onSearchInput(val) {
+  _sugIdx = -1;
+  filterAssets();
+  const sugs = getSuggestions(val.trim());
+  renderSuggestions(sugs, val.trim());
+}
+
+function onSearchKeydown(e) {
+  const dd = document.getElementById('searchSuggestions');
+  const items = dd ? dd.querySelectorAll('.sug-item') : [];
+  if (!items.length) return;
+
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    _sugIdx = Math.min(_sugIdx + 1, items.length - 1);
+    highlightSug(items);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    _sugIdx = Math.max(_sugIdx - 1, -1);
+    highlightSug(items);
+  } else if (e.key === 'Enter' && _sugIdx >= 0) {
+    e.preventDefault();
+    items[_sugIdx].click();
+  } else if (e.key === 'Escape') {
+    closeSuggestions();
+  }
+}
+
+function highlightSug(items) {
+  items.forEach((el, i) => el.classList.toggle('active', i === _sugIdx));
+}
+
+function renderSuggestions(sugs, query) {
+  const dd = document.getElementById('searchSuggestions');
+  if (!dd) return;
+  if (!sugs.length || !query) { dd.classList.remove('open'); dd.innerHTML = ''; return; }
+
+  dd.innerHTML = sugs.map(s => {
+    // Highlight matching part
+    const idx = s.indexOf(query.toLowerCase());
+    let label = s;
+    if (idx >= 0) {
+      label = s.slice(0, idx)
+        + `<mark class="hl">${s.slice(idx, idx + query.length)}</mark>`
+        + s.slice(idx + query.length);
+    }
+    return `<div class="sug-item" onmousedown="applySuggestion('${s.replace(/'/g,"\\'")}')">
+              <span class="sug-icon">🔍</span>${label}
+            </div>`;
+  }).join('');
+  dd.classList.add('open');
+}
+
+function applySuggestion(keyword) {
+  const inp = document.getElementById('searchInput');
+  if (inp) { inp.value = keyword; inp.focus(); }
+  closeSuggestions();
+  filterAssets();
+}
+
+function closeSuggestions() {
+  const dd = document.getElementById('searchSuggestions');
+  if (dd) { dd.classList.remove('open'); dd.innerHTML = ''; }
+  _sugIdx = -1;
+}
+
+/* Đóng suggestions khi click ra ngoài */
+document.addEventListener('click', e => {
+  const outer = document.getElementById('searchOuter');
+  if (outer && !outer.contains(e.target)) closeSuggestions();
+});
+
+/* ===== VIEW & FILTER ===== */
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('viewGrid').classList.toggle('active', v === 'grid');
+  document.getElementById('viewList').classList.toggle('active', v === 'list');
+  filterAssets();
+}
+
+/** Tính relevance score cho full-text search */
+function searchScore(a, q) {
+  if (!q) return 1;
+  const fields = [
+    { val: a.name,      w: 5 },
+    { val: a.asset_id,  w: 4 },
+    { val: a.type,      w: 3 },
+    { val: a.domain,    w: 3 },
+    { val: a.desc,      w: 2 },
+    { val: a.owner,     w: 1 },
+    { val: a.team,      w: 1 },
+    { val: a.how_to_use,  w: 1 },
+    { val: a.target_user, w: 1 }
+  ];
+  let score = 0;
+  fields.forEach(f => {
+    const v = (f.val || '').toLowerCase();
+    if (v.includes(q)) score += f.w;
+    if (v.startsWith(q)) score += f.w; // bonus for prefix match
+  });
+  return score;
+}
+
+function filterAssets() {
+  const search = document.getElementById('searchInput').value.toLowerCase().trim();
+  const type   = document.getElementById('filterType').value;
+  const domain = document.getElementById('filterDomain').value;
+  const status = document.getElementById('filterStatus').value;
+  const sort   = document.getElementById('sortBy').value;
+
+  let list = [...ALL_ASSETS];
+
+  /* Full-text search across all fields */
+  if (search) {
+    list = list
+      .map(a => ({ a, score: searchScore(a, search) }))
+      .filter(x => x.score > 0)
+      .sort((x, y) => y.score - x.score)
+      .map(x => x.a);
+  }
+
+  if (type)   list = list.filter(a => a.type === type);
+  if (domain) list = list.filter(a => a.domain === domain);
+  if (status) list = list.filter(a => a.status === status);
+
+  /* Sort (chỉ override khi không có search query — search query đã sort theo relevance) */
+  if (!search) {
+    if (sort === 'stars')  list.sort((a,b) => b.stars - a.stars);
+    if (sort === 'forks')  list.sort((a,b) => b.forks - a.forks);
+    if (sort === 'newest') list.sort((a,b) => b.id - a.id);
+  }
+
+  document.getElementById('resultCount').innerHTML = `Hiển thị <strong>${list.length}</strong> asset`;
+  document.getElementById('emptyState').style.display = list.length ? 'none' : 'block';
+
+  const grid = document.getElementById('assetGrid');
+  grid.style.gridTemplateColumns = currentView === 'list' ? '1fr' : '';
+  grid.innerHTML = list.map(a => currentView === 'grid' ? `
+    <a href="asset-detail.html?id=${a.id}" class="asset-card">
+      <div class="ac-top">
+        <span class="ac-id">${a.asset_id}</span>
+        <span class="badge ${getTypeBadge(a.type)}">${a.type}</span>
+      </div>
+      <div class="ac-name">${a.name}</div>
+      <div class="ac-desc">${a.desc}</div>
+      <div class="ac-tags">
+        <span class="badge b-gray">${a.domain}</span>
+        ${getStatusBadge(a.status)}
+      </div>
+      <div class="ac-foot">
+        <div class="ac-owner">
+          <div class="avatar av-sm">${a.owner.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+          ${a.owner}
+        </div>
+        <div class="ac-stats">
+          <span class="ac-stat">${STAR_ICON} ${a.stars}</span>
+          <span class="ac-stat" style="margin-left:10px;">${FORK_ICON} ${a.forks}</span>
+        </div>
+      </div>
+    </a>` : `
+    <a href="asset-detail.html?id=${a.id}" class="asset-card" style="display:flex;align-items:center;gap:16px;padding:14px 18px;">
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+          <span class="ac-id">${a.asset_id}</span>
+          <span class="badge ${getTypeBadge(a.type)}">${a.type}</span>
+          <span class="badge b-gray">${a.domain}</span>
+          ${getStatusBadge(a.status)}
+        </div>
+        <div class="ac-name" style="margin-bottom:2px;">${a.name}</div>
+        <div style="font-size:12px;color:var(--text-2);">${a.owner} · ${a.team}</div>
+      </div>
+      <div class="ac-stats" style="flex-shrink:0;">
+        <span class="ac-stat">${STAR_ICON} ${a.stars}</span>
+        <span class="ac-stat" style="margin-left:12px;">${FORK_ICON} ${a.forks}</span>
+      </div>
+    </a>`).join('');
+}
+
+// Không gọi filterAssets() trực tiếp — đợi data từ Supabase
+(async function initLibrary() {
+  showLoading('assetGrid', 'Đang tải thư viện...');
+  try {
+    ALL_ASSETS = await dbGetAssetsWithCounts();
+    buildKeywordIndex(ALL_ASSETS);
+    filterAssets();
+  } catch (err) {
+    console.error('initLibrary error:', err);
+    document.getElementById('assetGrid').innerHTML = '';
+    showToast('Lỗi tải dữ liệu. Kiểm tra kết nối Supabase.', 't-error');
+    document.getElementById('emptyState').style.display = 'block';
+  }
+})();
+</script>
+</body>
+</html>
