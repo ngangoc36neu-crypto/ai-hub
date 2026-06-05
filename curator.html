@@ -42,12 +42,23 @@
 
     <div class="page-content">
 
+      <!-- Bấm vào ô thống kê → nhảy tới đúng tab danh sách chờ duyệt -->
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-val">3</div><div class="stat-lbl">Asset chờ duyệt</div></div>
-        <div class="stat-card"><div class="stat-val">2</div><div class="stat-lbl">Star chờ verify</div></div>
-        <div class="stat-card"><div class="stat-val">1</div><div class="stat-lbl">Fork chờ verify</div></div>
-        <div class="stat-card" style="border-color:var(--red-border);box-shadow:0 0 20px rgba(248,113,113,0.12);">
-          <div class="stat-val" style="color:var(--red);">1</div>
+        <div class="stat-card" style="cursor:pointer;" title="Xem danh sách asset chờ duyệt"
+          onclick="switchTab('curatorTabs','c-assets')">
+          <div class="stat-val">3</div><div class="stat-lbl">Asset chờ duyệt</div>
+        </div>
+        <div class="stat-card" style="cursor:pointer;" title="Xem danh sách star chờ verify"
+          onclick="switchTab('curatorTabs','c-stars')">
+          <div class="stat-val">2</div><div class="stat-lbl">Star chờ verify</div>
+        </div>
+        <div class="stat-card" style="cursor:pointer;" title="Xem danh sách fork chờ verify"
+          onclick="switchTab('curatorTabs','c-forks')">
+          <div class="stat-val">1</div><div class="stat-lbl">Fork chờ verify</div>
+        </div>
+        <div class="stat-card" style="cursor:pointer;border-color:var(--red-border);box-shadow:0 0 20px rgba(248,113,113,0.12);"
+          title="Nhảy tới item sắp quá hạn" onclick="goToSla()">
+          <div class="stat-val" style="color:var(--red);" id="slaCount">0</div>
           <div class="stat-lbl" style="color:var(--red);opacity:0.75;">⚠ Sắp quá SLA</div>
         </div>
       </div>
@@ -88,45 +99,21 @@
         <div class="tab-content" id="c-history">
           <div class="card">
             <div class="card-hd">
-              <span class="card-title">Lịch sử duyệt gần đây</span>
-              <span style="font-size:12px;color:var(--text-2);">7 ngày qua</span>
+              <span class="card-title">Lịch sử duyệt</span>
+              <select id="historyRange" class="form-control"
+                style="width:auto;font-size:12px;padding:4px 10px;cursor:pointer;"
+                onchange="loadReviewHistory()">
+                <option value="7" selected>7 ngày qua</option>
+                <option value="30">30 ngày qua</option>
+                <option value="90">3 tháng qua</option>
+                <option value="all">Tất cả</option>
+              </select>
             </div>
             <div class="table-wrap">
               <table>
                 <thead><tr><th>Thời gian</th><th>Loại</th><th>Tên</th><th>Người submit</th><th>Quyết định</th><th>Curator</th></tr></thead>
-                <tbody>
-                  <tr>
-                    <td style="color:var(--text-2);">25/05 14:30</td>
-                    <td><span class="badge t-prompt">Prompt</span></td>
-                    <td><strong>Email Follow-up Generator</strong></td>
-                    <td>Lê Minh Cường</td>
-                    <td><span class="badge b-verified">Duyệt</span></td>
-                    <td>Nguyễn Văn An</td>
-                  </tr>
-                  <tr>
-                    <td style="color:var(--text-2);">25/05 10:15</td>
-                    <td><span class="badge b-gray" style="font-size:11px;">Star</span></td>
-                    <td>Star: App Review Miner</td>
-                    <td>Trần Thị Bảo</td>
-                    <td><span class="badge b-verified">Approve</span></td>
-                    <td>Nguyễn Văn An</td>
-                  </tr>
-                  <tr>
-                    <td style="color:var(--text-2);">24/05 16:00</td>
-                    <td><span class="badge t-template">Template</span></td>
-                    <td>User Persona Template v2</td>
-                    <td>Phạm Thu Dương</td>
-                    <td><span class="badge b-rejected">Từ chối</span></td>
-                    <td>Nguyễn Văn An</td>
-                  </tr>
-                  <tr>
-                    <td style="color:var(--text-2);">24/05 09:30</td>
-                    <td><span class="badge b-gray" style="font-size:11px;">Fork</span></td>
-                    <td>Fork: Meeting Summary Agent</td>
-                    <td>Hoàng Minh Tuấn</td>
-                    <td><span class="badge b-verified">Approve</span></td>
-                    <td>Nguyễn Văn An</td>
-                  </tr>
+                <tbody id="historyBody">
+                  <tr><td colspan="6" style="text-align:center;color:var(--text-2);padding:16px;">Đang tải...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -221,20 +208,22 @@ async function confirmReject() {
   if (!rejectTarget) return;
 
   const { type, id, name, elId } = rejectTarget;
+  const reviewStamp = { reviewed_at: new Date().toISOString(), reviewed_by: CURRENT_USER.email };
   try {
     if (type === 'asset') {
-      await dbUpdateAsset(id, { status: 'rejected', reviewer_note: reason, reviewed_by: CURRENT_USER.email });
+      await dbUpdateAsset(id, { status: 'rejected', reviewer_note: reason, ...reviewStamp });
       // Email → asset owner
       const email = await dbGetOwnerEmailByAssetId(id);
       if (email) callEmailWebhook({ event: 'asset_rejected', recipientEmail: email, assetName: name, reason });
     } else if (type === 'star') {
-      await dbUpdateStar(id, { status: 'rejected', is_valid: false, reward_amount: 0 });
+      await dbUpdateStar(id, { status: 'rejected', is_valid: false, reward_amount: 0, ...reviewStamp });
     } else if (type === 'fork') {
-      await dbUpdateFork(id, { status: 'rejected', is_valid: false, reward_amount: 0 });
+      await dbUpdateFork(id, { status: 'rejected', is_valid: false, reward_amount: 0, ...reviewStamp });
     }
     markItemDone(elId, false, `Đã từ chối: ${reason}`);
     showToast(`Đã từ chối "${name}".`, 't-error');
     updateTabCounts();
+    loadReviewHistory(); // cập nhật tab Lịch sử duyệt ngay
   } catch (err) {
     showToast('Lỗi: ' + err.message, 't-error');
   }
@@ -242,25 +231,34 @@ async function confirmReject() {
 
 async function approveAsset(supabaseId, name, elId) {
   try {
+    const now = new Date().toISOString();
     await dbUpdateAsset(supabaseId, {
       status:       'verified',
-      verified_at:  new Date().toISOString(),
+      verified_at:  now,
+      reviewed_at:  now,
       reviewed_by:  CURRENT_USER.email,
       reviewer_note: ''
     });
     markItemDone(elId, true, 'Đã duyệt');
     showToast(`"${name}" đã được duyệt.`, 't-success');
     updateTabCounts();
-    // Email + Discord → asset owner
+    loadReviewHistory(); // cập nhật tab Lịch sử duyệt ngay
+    // Email → asset owner + Discord noti "asset được duyệt"
+    // (gửi cả khi thiếu email — Apps Script vẫn cần assetId để đẩy Discord)
     const email = await dbGetOwnerEmailByAssetId(supabaseId);
-    if (email) callEmailWebhook({ event: 'asset_approved', recipientEmail: email, assetName: name });
+    callEmailWebhook({
+      event: 'asset_approved',
+      recipientEmail: email || '',
+      assetName: name,
+      assetId: supabaseId   // id Supabase → Apps Script tự lấy chi tiết + build link Hub
+    });
   } catch (err) { showToast('Lỗi: ' + err.message, 't-error'); }
 }
 
 async function approveStar(supabaseId, isCrossTeam, name, elId) {
   try {
-    // Lấy thông tin star (dùng cho cả kiểm tra hạn mức lẫn gửi email)
-    const starRow  = await sbFetch(`/stars_log?id=eq.${supabaseId}&select=user_id,asset_id,assets(asset_name)&limit=1`).catch(() => null);
+    // Lấy thông tin star (kiểm tra hạn mức + gửi email + Discord)
+    const starRow  = await sbFetch(`/stars_log?id=eq.${supabaseId}&select=user_id,asset_id,reason,users(full_name),assets(asset_name)&limit=1`).catch(() => null);
     const starData = starRow?.[0];
 
     // GIỚI HẠN: không duyệt thêm nếu user đã đạt hạn mức star/tháng (cơ sở đếm = approved)
@@ -273,18 +271,25 @@ async function approveStar(supabaseId, isCrossTeam, name, elId) {
     }
 
     const reward = isCrossTeam ? 200000 : 0;
-    await dbUpdateStar(supabaseId, { status: 'approved', is_valid: true, reward_amount: reward });
+    await dbUpdateStar(supabaseId, {
+      status: 'approved', is_valid: true, reward_amount: reward,
+      reviewed_at: new Date().toISOString(), reviewed_by: CURRENT_USER.email
+    });
     markItemDone(elId, true, `Approved${isCrossTeam ? ' · Reward 200.000₫' : ' · Cùng team, reward 0₫'}`);
     showToast(`Star "${name}" đã được duyệt.`, 't-success');
     updateTabCounts();
-    // Email → người đã star
-    if (starData?.user_id) {
-      const email = await dbGetUserEmailById(starData.user_id);
-      if (email) callEmailWebhook({
+    loadReviewHistory(); // cập nhật tab Lịch sử duyệt ngay
+    // Email → người đã star + Discord noti channel star
+    if (starData) {
+      const email = starData.user_id ? await dbGetUserEmailById(starData.user_id) : null;
+      callEmailWebhook({
         event: 'star_approved',
-        recipientEmail: email,
+        recipientEmail: email || '',
         assetName: starData.assets?.asset_name || name,
-        reward
+        reward,
+        userName: starData.users?.full_name || name,
+        reason:   starData.reason || '',
+        assetId:  starData.asset_id
       });
     }
   } catch (err) { showToast('Lỗi: ' + err.message, 't-error'); }
@@ -292,8 +297,8 @@ async function approveStar(supabaseId, isCrossTeam, name, elId) {
 
 async function approveFork(supabaseId, isCrossTeam, name, elId) {
   try {
-    // Lấy thông tin fork (dùng cho cả kiểm tra hạn mức lẫn gửi email)
-    const forkRow  = await sbFetch(`/forks_log?id=eq.${supabaseId}&select=user_id,original_asset_id,assets(asset_name)&limit=1`).catch(() => null);
+    // Lấy thông tin fork (kiểm tra hạn mức + gửi email + Discord)
+    const forkRow  = await sbFetch(`/forks_log?id=eq.${supabaseId}&select=user_id,original_asset_id,fork_description,users(full_name),assets(asset_name)&limit=1`).catch(() => null);
     const forkData = forkRow?.[0];
 
     // GIỚI HẠN: không duyệt thêm nếu user đã đạt hạn mức fork/tháng (cơ sở đếm = approved)
@@ -306,18 +311,25 @@ async function approveFork(supabaseId, isCrossTeam, name, elId) {
     }
 
     const reward = isCrossTeam ? 500000 : 0;
-    await dbUpdateFork(supabaseId, { status: 'approved', is_valid: true, reward_amount: reward });
+    await dbUpdateFork(supabaseId, {
+      status: 'approved', is_valid: true, reward_amount: reward,
+      reviewed_at: new Date().toISOString(), reviewed_by: CURRENT_USER.email
+    });
     markItemDone(elId, true, `Approved${isCrossTeam ? ' · Reward 500.000₫' : ' · Cùng team, reward 0₫'}`);
     showToast(`Fork "${name}" đã được duyệt.`, 't-success');
     updateTabCounts();
-    // Email → người đã fork
-    if (forkData?.user_id) {
-      const email = await dbGetUserEmailById(forkData.user_id);
-      if (email) callEmailWebhook({
+    loadReviewHistory(); // cập nhật tab Lịch sử duyệt ngay
+    // Email → người đã fork + Discord noti channel fork
+    if (forkData) {
+      const email = forkData.user_id ? await dbGetUserEmailById(forkData.user_id) : null;
+      callEmailWebhook({
         event: 'fork_approved',
-        recipientEmail: email,
+        recipientEmail: email || '',
         assetName: forkData.assets?.asset_name || name,
-        reward
+        reward,
+        userName: forkData.users?.full_name || name,
+        useCase:  forkData.fork_description || '',
+        assetId:  forkData.original_asset_id
       });
     }
   } catch (err) { showToast('Lỗi: ' + err.message, 't-error'); }
@@ -396,6 +408,11 @@ function renderStarQueue(stars) {
       : `⚠️ Cùng team với owner → Reward = 0₫`;
     const rewardColor = isCross ? 'var(--green)' : 'var(--amber)';
 
+    /* SLA 48h — tính thật theo created_at (trước đây ghi cứng "48h SLA") */
+    const slaRemaining = Math.max(0, 48 - Math.floor((Date.now() - new Date(s.created_at).getTime()) / 3600000));
+    const slaClass = slaRemaining <= 4 ? 'sla-warn' : 'sla-ok';
+    const slaText  = slaRemaining <= 4 ? `Còn ${slaRemaining}h — Sắp muộn!` : `Còn ${slaRemaining}h`;
+
     /* Gaming check — luôn render, bọc try/catch để tránh silent fail */
     let riskHtml = '';
     try {
@@ -431,7 +448,7 @@ function renderStarQueue(stars) {
           <div class="q-item-name"><span class="contrib-link" onclick="openContributorHistory(${s.user_id}, '${nameEsc}', '${userTeam.replace(/'/g,"\\'")}')">${userName}</span> star <strong>${assetName}</strong></div>
           <div class="q-item-from">${userTeam} → ${assetTeam} ${isCross ? '(cross-team)' : '(cùng team)'} · ${timeAgo(s.created_at)}</div>
         </div>
-        <span class="sla-badge sla-ok">48h SLA</span>
+        <span class="sla-badge ${slaClass}">${slaText}</span>
       </div>
       ${riskHtml}
       <div style="font-size:11px;font-weight:700;color:var(--text-3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Lý do star</div>
@@ -458,6 +475,11 @@ function renderForkQueue(forks) {
     const isCross   = userTeam !== '?' && assetTeam !== '?' && userTeam !== assetTeam;
     const rewardTxt   = isCross ? `✅ Cross-team → Reward 500.000₫` : `⚠️ Cùng team với owner → Reward = 0₫`;
     const rewardColor = isCross ? 'var(--green)' : 'var(--amber)';
+
+    /* SLA 48h — tính thật theo created_at (trước đây ghi cứng "48h SLA") */
+    const slaRemaining = Math.max(0, 48 - Math.floor((Date.now() - new Date(f.created_at).getTime()) / 3600000));
+    const slaClass = slaRemaining <= 4 ? 'sla-warn' : 'sla-ok';
+    const slaText  = slaRemaining <= 4 ? `Còn ${slaRemaining}h — Sắp muộn!` : `Còn ${slaRemaining}h`;
 
     /* Gaming check */
     let riskHtml = '';
@@ -494,17 +516,17 @@ function renderForkQueue(forks) {
           <div class="q-item-name"><span class="contrib-link" onclick="openContributorHistory(${f.user_id}, '${nameEsc}', '${userTeam.replace(/'/g,"\\'")}')">${userName}</span> fork <strong>${assetName}</strong></div>
           <div class="q-item-from">${userTeam} → ${assetTeam} ${isCross ? '(cross-team)' : '(cùng team)'} · ${timeAgo(f.created_at)}</div>
         </div>
-        <span class="sla-badge sla-ok">48h SLA</span>
+        <span class="sla-badge ${slaClass}">${slaText}</span>
       </div>
       ${riskHtml}
       <div style="margin-bottom:8px;">
         <div style="font-size:11px;font-weight:700;color:var(--text-3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Use case</div>
         <div class="q-item-reason" style="margin:0;">"${f.fork_description || '(trống)'}"</div>
       </div>
-      <div style="margin-bottom:8px;">
+      ${f.changes_made ? `<div style="margin-bottom:8px;">
         <div style="font-size:11px;font-weight:700;color:var(--text-3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Thay đổi so với bản gốc</div>
-        <div class="q-item-reason" style="margin:0;">"${f.changes_made || '(trống)'}"</div>
-      </div>
+        <div class="q-item-reason" style="margin:0;">"${f.changes_made}"</div>
+      </div>` : ''}
       ${f.output_link
         ? `<div style="margin-bottom:10px;"><div style="font-size:11px;font-weight:700;color:var(--text-3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Output link</div><a href="${f.output_link}" target="_blank" style="color:var(--blue);font-size:13px;">${f.output_link}</a></div>`
         : ''}
@@ -595,6 +617,101 @@ async function openContributorHistory(userId, name, team) {
 /* Đóng drawer bằng phím Esc */
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeContribDrawer(); });
 
+/* ===== SLA — TÍNH ITEM SẮP QUÁ HẠN + NHẢY TỚI ITEM TRỄ =====
+   Sắp quá hạn = còn ≤ 4h (hoặc đã quá hạn):
+   - Asset: SLA 24h kể từ khi submit
+   - Star/Fork: SLA 48h kể từ khi gửi
+   ===== */
+let _slaTargets = []; // [{tab, elId}] — item sắp trễ, sắp xếp theo mức độ gấp
+
+function computeSlaTargets(draftAssets, pendingStars, pendingForks) {
+  const hoursOld = iso => (Date.now() - new Date(iso).getTime()) / 3600000;
+  const targets = [];
+  (draftAssets  || []).forEach(a => {
+    const remaining = 24 - hoursOld(a.created_at);
+    if (remaining <= 4) targets.push({ tab: 'c-assets', elId: `qa-${a.id}`, remaining });
+  });
+  (pendingStars || []).forEach(s => {
+    const remaining = 48 - hoursOld(s.created_at);
+    if (remaining <= 4) targets.push({ tab: 'c-stars', elId: `qs-${s.id}`, remaining });
+  });
+  (pendingForks || []).forEach(f => {
+    const remaining = 48 - hoursOld(f.created_at);
+    if (remaining <= 4) targets.push({ tab: 'c-forks', elId: `qf-${f.id}`, remaining });
+  });
+  targets.sort((a, b) => a.remaining - b.remaining); // gấp nhất lên đầu
+  _slaTargets = targets;
+  const el = document.getElementById('slaCount');
+  if (el) el.textContent = targets.length;
+}
+
+function goToSla() {
+  if (!_slaTargets.length) {
+    showToast('Không có item nào sắp quá hạn 🎉', 't-success');
+    return;
+  }
+  const t = _slaTargets[0]; // item gấp nhất
+  switchTab('curatorTabs', t.tab);
+  const el = document.getElementById(t.elId);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Nháy viền đỏ để dễ nhận ra
+    el.style.transition = 'box-shadow 0.3s';
+    el.style.boxShadow  = '0 0 0 2.5px var(--red)';
+    setTimeout(() => { el.style.boxShadow = ''; }, 2500);
+  }
+}
+
+/* ===== TAB LỊCH SỬ DUYỆT — render động từ reviewed_at/reviewed_by ===== */
+function fmtReviewTime(iso) {
+  const d = new Date(iso);
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mi = String(d.getMinutes()).padStart(2, '0');
+  return `${dd}/${mm} ${hh}:${mi}`;
+}
+
+async function loadReviewHistory() {
+  const el = document.getElementById('historyBody');
+  if (!el) return;
+  // Đọc khoảng thời gian từ dropdown (7/30/90 ngày hoặc tất cả)
+  const rangeVal = document.getElementById('historyRange')?.value || '7';
+  const days     = rangeVal === 'all' ? null : parseInt(rangeVal);
+  el.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-2);padding:16px;">Đang tải...</td></tr>';
+  try {
+    const items = await dbGetReviewHistory(days);
+    if (!items.length) {
+      el.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-2);padding:24px;">Chưa có lượt duyệt nào trong khoảng thời gian này.</td></tr>';
+      return;
+    }
+    el.innerHTML = items.map(i => {
+      // Cột "Loại" = hành động được duyệt: Submit / Star / Fork asset
+      const kindBadge = {
+        asset: '<span class="badge t-prompt" style="font-size:11px;">Submit asset</span>',
+        star:  '<span class="badge b-draft"  style="font-size:11px;">Star asset</span>',
+        fork:  '<span class="badge t-tool"   style="font-size:11px;">Fork asset</span>'
+      }[i.kind] || '<span class="badge b-gray" style="font-size:11px;">—</span>';
+      const decisionBadge = i.decision === 'approved'
+        ? `<span class="badge b-verified">${i.kind === 'asset' ? 'Duyệt' : 'Approve'}</span>`
+        : '<span class="badge b-rejected">Từ chối</span>';
+      // reviewed_by là email → hiển thị phần trước @ cho gọn
+      const curator = (i.curator && i.curator !== '—') ? i.curator.split('@')[0] : '—';
+      return `<tr>
+        <td style="color:var(--text-2);white-space:nowrap;">${fmtReviewTime(i.time)}</td>
+        <td>${kindBadge}</td>
+        <td>${i.kind === 'asset' ? `<strong>${i.name}</strong>` : i.name}</td>
+        <td>${i.submitter}</td>
+        <td>${decisionBadge}</td>
+        <td style="color:var(--text-2);">${curator}</td>
+      </tr>`;
+    }).join('');
+  } catch (err) {
+    console.error('loadReviewHistory:', err);
+    el.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--red);padding:16px;">Không tải được lịch sử duyệt. Đã chạy migration SQL v2.2 chưa?</td></tr>';
+  }
+}
+
 /* ===== ROLE GUARD — chỉ Curator+ mới vào được ===== */
 if (!requireRole('Curator')) {
   // requireRole tự redirect, dừng script
@@ -613,6 +730,8 @@ if (!requireRole('Curator')) {
     renderAssetQueue(draftAssets || []);
     renderStarQueue(pendingStars || []);
     renderForkQueue(pendingForks || []);
+    loadReviewHistory(); // tab Lịch sử duyệt — không await để không chặn queue
+    computeSlaTargets(draftAssets, pendingStars, pendingForks); // ô "Sắp quá SLA" tính thật
 
     // Cập nhật tab counts + stats
     const aCnt = (draftAssets || []).length;

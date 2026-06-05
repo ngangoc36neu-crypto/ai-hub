@@ -59,9 +59,13 @@
           <option>Template</option><option>Agent</option><option>Use Case</option>
         </select>
         <select class="fselect" id="filterDomain" onchange="filterAssets()">
-          <option value="">Tất cả domain</option>
-          <option>Product</option><option>Growth</option><option>Engineering</option>
-          <option>Data-AI</option><option>HR</option><option>Design</option>
+          <option value="">Tất cả khối</option>
+          <option>Marketing</option><option>Technology</option><option>Product</option>
+          <option>Creative</option><option>Data</option><option>General</option>
+        </select>
+        <select class="fselect" id="filterNgach" onchange="filterAssets()">
+          <option value="">Dành cho ngạch (tất cả)</option>
+          <!-- options đổ động từ NGACH_BY_KHOI trong supabase.js -->
         </select>
         <select class="fselect" id="filterStatus" onchange="filterAssets()">
           <option value="">Tất cả trạng thái</option>
@@ -243,10 +247,28 @@ function searchScore(a, q) {
   return score;
 }
 
+/* Đổ options bộ lọc ngạch theo nhóm khối (nguồn: NGACH_BY_KHOI trong supabase.js) */
+function buildNgachFilter() {
+  const sel = document.getElementById('filterNgach');
+  if (!sel || typeof NGACH_BY_KHOI === 'undefined') return;
+  KHOI_LIST.forEach(khoi => {
+    const og = document.createElement('optgroup');
+    og.label = khoi;
+    NGACH_BY_KHOI[khoi].forEach(ng => {
+      const op = document.createElement('option');
+      op.value = `${khoi} — ${ng}`;
+      op.textContent = ng;
+      og.appendChild(op);
+    });
+    sel.appendChild(og);
+  });
+}
+
 function filterAssets() {
   const search = document.getElementById('searchInput').value.toLowerCase().trim();
   const type   = document.getElementById('filterType').value;
   const domain = document.getElementById('filterDomain').value;
+  const ngach  = document.getElementById('filterNgach')?.value || '';
   const status = document.getElementById('filterStatus').value;
   const sort   = document.getElementById('sortBy').value;
 
@@ -263,6 +285,17 @@ function filterAssets() {
 
   if (type)   list = list.filter(a => a.type === type);
   if (domain) list = list.filter(a => a.domain === domain);
+  if (ngach) {
+    /* Khớp target_user: "Khối — Ngạch" đầy đủ, hoặc tên ngạch (data tự do cũ),
+       hoặc asset dành cho tất cả mọi người */
+    const ngachOnly = ngach.split(' — ')[1] || ngach;
+    list = list.filter(a => {
+      const tu = (a.target_user || '').toLowerCase();
+      return tu.includes(ngach.toLowerCase())
+          || tu.includes(ngachOnly.toLowerCase())
+          || tu.includes(TARGET_ALL.toLowerCase());
+    });
+  }
   if (status) list = list.filter(a => a.status === status);
 
   /* Sort (chỉ override khi không có search query — search query đã sort theo relevance) */
@@ -321,6 +354,7 @@ function filterAssets() {
 // Không gọi filterAssets() trực tiếp — đợi data từ Supabase
 (async function initLibrary() {
   showLoading('assetGrid', 'Đang tải thư viện...');
+  buildNgachFilter();
   try {
     ALL_ASSETS = await dbGetAssetsWithCounts();
     buildKeywordIndex(ALL_ASSETS);

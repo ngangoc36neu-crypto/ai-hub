@@ -6,6 +6,10 @@
   <title>Chi tiết Asset — Apero AI Hub</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Hướng dẫn trong placeholder ô use case (fork) — in nghiêng */
+    #forkUsecase::placeholder { font-style: italic; }
+  </style>
 </head>
 <body>
 <div class="layout">
@@ -72,7 +76,10 @@
               <div class="card">
                 <div class="card-hd"><span class="card-title">Thao tác</span></div>
                 <div class="card-bd" style="display:flex;flex-direction:column;gap:8px;">
-                  <a id="driveLink" href="#" target="_blank" class="btn btn-primary btn-lg" style="justify-content:center;">
+                  <button class="btn btn-primary btn-lg" id="downloadBtn" style="justify-content:center;" onclick="downloadAsset()">
+                    ⬇️ Tải xuống
+                  </button>
+                  <a id="driveLink" href="#" target="_blank" class="btn btn-outline btn-lg" style="justify-content:center;">
                     Mở file trên Drive
                   </a>
                   <button class="btn btn-outline btn-lg" style="justify-content:center;" onclick="openModal('starModal')">
@@ -199,14 +206,9 @@
     </div>
     <div class="form-group">
       <label class="form-label">Bạn đã dùng asset này vào việc gì? <span class="req">*</span></label>
-      <textarea class="form-control" id="forkUsecase" rows="3"
-        placeholder="VD: Phân tích review app gaming của đối thủ tại thị trường SEA..."></textarea>
+      <textarea class="form-control" id="forkUsecase" rows="5"
+        placeholder="VD: Phân tích review app gaming của đối thủ tại thị trường SEA... Nếu bạn có thay đổi gì so với bản gốc (prompt, các bước, ngôn ngữ...), hãy mô tả thêm ở đây."></textarea>
       <div class="form-hint">Mô tả tình huống cụ thể, không chung chung.</div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Bạn đã thay đổi gì so với bản gốc? <span class="req">*</span></label>
-      <textarea class="form-control" id="forkChanges" rows="3"
-        placeholder="VD: Thêm bước lọc theo ngôn ngữ, điều chỉnh prompt cho thị trường SEA..."></textarea>
     </div>
     <div class="form-group">
       <label class="form-label">Link output / kết quả thực tế</label>
@@ -216,39 +218,6 @@
     <div class="modal-ft">
       <button class="btn btn-ghost" onclick="closeModal('forkModal')">Hủy</button>
       <button class="btn btn-primary" onclick="submitFork()">Gửi Fork</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL DOWNLOAD — hiện sau khi fork thành công -->
-<div class="modal-overlay" id="downloadModal">
-  <div class="modal" style="max-width:480px;text-align:center;">
-    <div style="font-size:40px;margin-bottom:12px;">⬇️</div>
-    <div class="modal-title" style="margin-bottom:6px;">Tải file về máy?</div>
-    <div class="modal-sub" style="margin-bottom:20px;">
-      Fork của bạn đã được ghi nhận và đang chờ Curator duyệt.<br>
-      Bấm <strong>"Mở & Tải"</strong> để mở file trên Google Drive, sau đó dùng nút tải của Drive.
-    </div>
-
-    <!-- Thông tin file -->
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:20px;text-align:left;">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="font-size:24px;">📄</div>
-        <div>
-          <div style="font-weight:700;font-size:13.5px;" id="dlFileName">—</div>
-          <div style="font-size:12px;color:var(--text-2);margin-top:2px;" id="dlAssetId">—</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal-ft" style="justify-content:center;gap:10px;">
-      <button class="btn btn-ghost" onclick="skipDownload()">Bỏ qua</button>
-      <button class="btn btn-primary btn-lg" id="dlBtn" onclick="doDownload()">
-        ⬇️ Mở & Tải trên Drive
-      </button>
-    </div>
-    <div style="font-size:11px;color:var(--text-3);margin-top:12px;">
-      Lượt tải chỉ được lưu để thống kê — không cần duyệt.
     </div>
   </div>
 </div>
@@ -358,8 +327,8 @@ function renderForkList(rows) {
         <span class="badge b-verified">Verified</span>
       </div>
       <div class="q-item-reason">
-        <strong>Use case:</strong> "${f.fork_description || ''}"<br><br>
-        <strong>Thay đổi:</strong> "${f.changes_made || ''}"
+        <strong>Use case:</strong> "${f.fork_description || ''}"
+        ${f.changes_made ? `<br><br><strong>Thay đổi:</strong> "${f.changes_made}"` : ''}
         ${f.output_link ? `<br><br><a href="${f.output_link}" target="_blank" style="color:var(--blue);font-weight:600;">Xem output</a>` : ''}
       </div>
     </div>`).join('')
@@ -444,9 +413,8 @@ async function submitStar() {
 
 async function submitFork() {
   const uc = document.getElementById('forkUsecase').value.trim();
-  const ch = document.getElementById('forkChanges').value.trim();
   const op = document.getElementById('forkOutput').value.trim();
-  if (!uc || !ch) { showToast('Vui lòng điền đầy đủ thông tin bắt buộc.', 't-error'); return; }
+  if (!uc) { showToast('Vui lòng mô tả bạn đã dùng asset này vào việc gì.', 't-error'); return; }
   const btn = document.querySelector('#forkModal .btn-primary');
   if (btn) { btn.textContent = 'Đang gửi...'; btn.disabled = true; }
   try {
@@ -469,23 +437,14 @@ async function submitFork() {
       original_asset_id:  assetId,
       user_id:            userId,
       fork_description:   uc,
-      changes_made:       ch,
+      changes_made:       null,   // trường này đã bỏ khỏi form — mô tả thay đổi gộp vào use case
       output_link:        op || null,
       is_cross_team:      isCrossTeam
     });
     closeModal('forkModal');
     document.getElementById('forkUsecase').value = '';
-    document.getElementById('forkChanges').value = '';
     document.getElementById('forkOutput').value  = '';
-
-    // Nếu asset có link file → mở download modal
-    if (_asset?.asset_link && _asset.asset_link !== '#') {
-      document.getElementById('dlFileName').textContent = _asset.name || _asset.asset_name || 'File asset';
-      document.getElementById('dlAssetId').textContent  = 'Asset code: ' + (_asset.asset_id || assetId);
-      openModal('downloadModal');
-    } else {
-      showToast('Đã gửi fork! Curator sẽ xem xét trong 48h.', 't-success');
-    }
+    showToast('Đã gửi fork! Curator sẽ xem xét trong 48h.', 't-success');
   } catch (err) {
     showToast('Lỗi: ' + err.message, 't-error');
   } finally {
@@ -507,15 +466,26 @@ function extractDriveFileId(url) {
   return null;
 }
 
-async function doDownload() {
-  const btn = document.getElementById('dlBtn');
+/* Nút "⬇️ Tải xuống" độc lập ở khung Thao tác — không cần fork trước.
+   Luồng: ghi log asset_downloads → Apps Script share file cho ĐÚNG email
+   người tải (không mở public) → trigger tải về máy.
+   Lượt tải hiện trong tab "Đã tải xuống" (profile) + Admin Dashboard,
+   và được nhắc fork sau 7 ngày (tối đa 3 lần). */
+async function downloadAsset() {
+  if (!_asset) return;
+  if (!_asset.asset_link || _asset.asset_link === '#') {
+    showToast('Asset này không có file đính kèm.', 't-error');
+    return;
+  }
+  const btn = document.getElementById('downloadBtn');
+  const resetBtn = () => { btn.textContent = '⬇️ Tải xuống'; btn.disabled = false; };
   btn.textContent = 'Đang cấp quyền...';
   btn.disabled    = true;
 
   try {
     const userId = await getCurrentUserId();
 
-    // 1. Ghi log download vào Supabase
+    // 1. Ghi log download vào Supabase (thống kê + nhắc fork sau 7 ngày)
     await dbInsertDownload({
       asset_id: assetId,
       user_id:  userId
@@ -525,7 +495,7 @@ async function doDownload() {
     const fileId = extractDriveFileId(_asset.asset_link);
 
     if (fileId && typeof APPS_SCRIPT_URL !== 'undefined' && APPS_SCRIPT_URL && CURRENT_USER?.email) {
-      // 3. Gọi Apps Script để share file cho email người dùng (fire & forget)
+      // 3. Gọi Apps Script share file cho đúng email người tải (fire & forget)
       try {
         await fetch(APPS_SCRIPT_URL, {
           method:  'POST',
@@ -539,41 +509,28 @@ async function doDownload() {
         });
       } catch (_) { /* bỏ qua lỗi cors — Apps Script vẫn chạy */ }
 
-      closeModal('downloadModal');
-      showToast('Đang cấp quyền, sắp tải xuống...', 't-success');
+      showToast('Đang cấp quyền cho ' + CURRENT_USER.email + '...', 't-success');
 
-      // 4. Đợi Apps Script share xong (~3s) rồi trigger tải thẳng về máy
-      //    File đã được set "Anyone with link" → uc?export=download hoạt động
+      // 4. Đợi Apps Script share xong (~3s) rồi trigger tải
+      //    File chỉ share riêng cho email người tải → trình duyệt cần
+      //    đăng nhập Google đúng account @apero.vn mới tải được
       setTimeout(() => {
-        const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-        const a = document.createElement('a');
-        a.href     = downloadUrl;
-        a.target   = '_blank';
-        a.download = _asset.name || 'file';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        showToast('File đang tải xuống!', 't-success');
+        window.open(`https://drive.google.com/uc?export=download&id=${fileId}`, '_blank');
+        showToast('File đang tải! Nếu Drive báo cần quyền, hãy đăng nhập Google bằng ' + CURRENT_USER.email, 't-success');
+        resetBtn();
       }, 3000);
+      return; // resetBtn chạy trong setTimeout
 
-    } else {
-      // Fallback nếu chưa cấu hình APPS_SCRIPT_URL
-      closeModal('downloadModal');
-      window.open(_asset.asset_link, '_blank');
     }
 
-  } catch (err) {
-    closeModal('downloadModal');
-    showToast('Lỗi: ' + err.message, 't-error');
-  } finally {
-    btn.textContent = '⬇️ Mở & Tải trên Drive';
-    btn.disabled    = false;
-  }
-}
+    // Fallback nếu không lấy được fileId / chưa cấu hình APPS_SCRIPT_URL
+    window.open(_asset.asset_link, '_blank');
+    resetBtn();
 
-function skipDownload() {
-  closeModal('downloadModal');
-  showToast('Đã gửi fork! Curator sẽ xem xét trong 48h.', 't-success');
+  } catch (err) {
+    showToast('Lỗi: ' + err.message, 't-error');
+    resetBtn();
+  }
 }
 
 let bookmarked = false;

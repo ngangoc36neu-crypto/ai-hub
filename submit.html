@@ -95,19 +95,21 @@
                 </select>
               </div>
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Domain <span class="req">*</span></label>
-                <select class="form-control" id="f_domain">
-                  <option value="">Chọn domain</option>
-                  <option>Product</option><option>Growth</option><option>Engineering</option>
-                  <option>Data-AI</option><option>HR</option><option>Design</option><option>General</option>
-                </select>
+            <div class="form-group">
+              <label class="form-label">Khối chuyên môn (domain) <span class="req">*</span></label>
+              <select class="form-control" id="f_domain">
+                <option value="">Chọn khối</option>
+                <option>Marketing</option><option>Technology</option><option>Product</option>
+                <option>Creative</option><option>Data</option><option>General</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Asset này dành cho ai?</label>
+              <div id="targetChecks"
+                style="display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:12px;">
+                <!-- checkbox ngạch đổ động từ NGACH_BY_KHOI (supabase.js) -->
               </div>
-              <div class="form-group">
-                <label class="form-label">Đối tượng phù hợp</label>
-                <input type="text" class="form-control" id="f_target" placeholder="VD: Product Manager, Growth team">
-              </div>
+              <div class="form-hint">Tick các ngạch phù hợp — chọn được nhiều.</div>
             </div>
             <div class="form-group">
               <label class="form-label">Mô tả ngắn <span class="req">*</span></label>
@@ -257,7 +259,7 @@ async function submitToSupabase() {
       asset_type:     document.getElementById('f_type').value,
       domain:         document.getElementById('f_domain').value,
       description:    document.getElementById('f_desc').value.trim(),
-      target_user:    document.getElementById('f_target').value.trim(),
+      target_user:    getTargetValue(),
       how_to_use:     document.getElementById('f_how').value.trim(),
       example_output: document.getElementById('f_output').value.trim(),
       asset_link:     document.getElementById('f_link').value.trim(),
@@ -299,12 +301,34 @@ function buildPreview() {
 
 function resetForm() {
   step = 1;
-  ['f_name','f_type','f_domain','f_desc','f_target','f_how','f_output','f_link','f_tags'].forEach(id => {
+  ['f_name','f_type','f_domain','f_desc','f_how','f_output','f_link','f_tags'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
+  document.querySelectorAll('.tgt-check').forEach(c => c.checked = false);
   renderStep();
 }
 
+/* ── "Asset này dành cho ai?" — checkbox ngạch (nguồn: NGACH_BY_KHOI) ── */
+function buildTargetChecks() {
+  const box = document.getElementById('targetChecks');
+  if (!box || typeof NGACH_BY_KHOI === 'undefined') return;
+  let html = `<label style="display:flex;gap:7px;align-items:center;font-size:13px;cursor:pointer;grid-column:1/-1;font-weight:700;">
+    <input type="checkbox" class="tgt-check" value="${TARGET_ALL}"> ${TARGET_ALL}</label>`;
+  KHOI_LIST.forEach(khoi => {
+    NGACH_BY_KHOI[khoi].forEach(ng => {
+      const val = `${khoi} — ${ng}`;
+      html += `<label style="display:flex;gap:7px;align-items:center;font-size:13px;cursor:pointer;">
+        <input type="checkbox" class="tgt-check" value="${val}"> ${val}</label>`;
+    });
+  });
+  box.innerHTML = html;
+}
+
+function getTargetValue() {
+  return [...document.querySelectorAll('.tgt-check:checked')].map(c => c.value).join(', ');
+}
+
+buildTargetChecks();
 renderStep();
 </script>
 </body>
