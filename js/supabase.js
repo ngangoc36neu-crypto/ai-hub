@@ -14,6 +14,24 @@ const SUPABASE_KEY = 'sb_publishable_5Y_cXwgxziFm4cymOgGynQ_3pqkdwtO';
 const LIMIT_STAR_PER_MONTH = 10;
 const LIMIT_FORK_PER_MONTH = 5;
 
+/* ===== PHÂN LOẠI CHUYÊN MÔN (v2.3 — theo EmpTrack công ty) =====
+   2 tầng: Khối (6) dùng cho team/domain/badge/reward,
+           Ngạch (chi tiết) dùng cho "Asset này dành cho ai?"
+   Đây là NGUỒN DUY NHẤT — library.html, submit.html đều đọc từ đây.
+   ===== */
+const KHOI_LIST = ['Marketing', 'Technology', 'Product', 'Creative', 'Data', 'General'];
+
+const NGACH_BY_KHOI = {
+  'Marketing':  ['Marketing Performance', 'ASO/AppStore Optimizer'],
+  'Technology': ['Android Developer', 'Backend Developer', 'Unity Developer', 'QA/Tester', 'DevOps', 'AI Engineer'],
+  'Product':    ['Product Owner', 'UI/UX Designer', '2D Artist', '3D Artist'],
+  'Creative':   ['Graphic Designer', 'Video Editor'],
+  'Data':       ['Data Engineer', 'Data Scientist', 'Data Analyst'],
+  'General':    ['Accountant', 'Project', 'Business Development', 'Employee Engagement', 'Employee Branding', 'Assistant', 'Recruitment', 'Legal']
+};
+
+const TARGET_ALL = 'Tất cả mọi người';
+
 /* ===== BASE FETCH ===== */
 async function sbFetch(path, opts = {}) {
   const headers = {
@@ -325,11 +343,47 @@ async function dbGetForksByUser(userId) {
   )) || [];
 }
 
+/* ===== DOWNLOAD REMINDERS (UI) =====
+   Nhắc fork sau khi tải: mốc 7 / 14 / 21 ngày (3 lần), sau đó dừng.
+   Dừng sớm ngay khi user đã fork asset đó (lượt fork không bị từ chối).
+   Tính toán thuần phía client từ downloaded_at — không cần ghi DB.
+   ===== */
+async function dbGetDownloadReminders(userId) {
+  if (!userId) return [];
+  try {
+    const [downloads, myForks] = await Promise.all([
+      sbFetch(`/asset_downloads?user_id=eq.${userId}&select=id,asset_id,downloaded_at,assets(asset_name)`),
+      sbFetch(`/forks_log?user_id=eq.${userId}&status=neq.rejected&select=original_asset_id`)
+    ]);
+    const forkedIds = new Set((myForks || []).map(f => f.original_asset_id));
+    const seenAssets = new Set(); // tải 1 asset nhiều lần → chỉ nhắc 1 lần
+    const out = [];
+
+    (downloads || []).forEach(d => {
+      if (forkedIds.has(d.asset_id) || seenAssets.has(d.asset_id)) return;
+      const days = Math.floor((Date.now() - new Date(d.downloaded_at).getTime()) / 86400000);
+      const nth  = Math.floor(days / 7);     // lần nhắc: 1 (7d), 2 (14d), 3 (21d)
+      if (nth < 1 || nth > 3) return;        // chưa tới hạn / đã quá 3 lần → dừng
+      seenAssets.add(d.asset_id);
+      out.push({
+        id:       `dlremind-${d.id}-${nth}`,
+        type:     'remind',
+        title:    `Bạn đã dùng "${d.assets?.asset_name || ('Asset #' + d.asset_id)}" chưa? Hãy fork cho mình nhé!`,
+        sub:      `Bạn đã tải asset này ${days} ngày trước · Nhắc lần ${nth}/3`,
+        time:     new Date(new Date(d.downloaded_at).getTime() + nth * 7 * 86400000).toISOString(),
+        asset_id: d.asset_id
+      });
+    });
+    return out;
+  } catch (_) { return []; }
+}
+
 /* ===== NOTIFICATIONS (profile + bell) =====
    Tổng hợp notifications cho 1 user:
    - Asset của họ được duyệt / từ chối
    - Có người star asset của họ (approved)
    - Có người fork asset của họ (approved)
+   - Nhắc fork asset đã tải xuống (7 ngày/lần, tối đa 3 lần)
    ===== */
 async function dbGetNotificationsForUser(userId) {
   // Lấy tất cả assets của user (để biết danh sách id)
@@ -351,43 +405,113 @@ async function dbGetNotificationsForUser(userId) {
       asset_id: a.id
     }));
 
-  if (!myAssets.length) return assetNotifs;
+  // Nhắc fork asset đã tải (chạy cả khi user chưa có asset nào)
+  const remindNotifs = await dbGetDownloadReminders(userId);
 
-  const myAssetIds = myAssets.map(a => a.id).join(',');
-
-  // Stars trên assets của user (đã approved)
+  // Stars/Forks trên assets của user (đã approved)
   let starNotifs = [], forkNotifs = [];
-  try {
-    const starRows = await sbFetch(
-      `/stars_log?asset_id=in.(${myAssetIds})&status=eq.approved&select=*,users(full_name,team)&order=created_at.desc&limit=30`
-    ) || [];
-    starNotifs = starRows.map(s => ({
-      id:       `star-${s.id}`,
-      type:     'star',
-      title:    `${s.users?.full_name || s.user_email || 'Ai đó'} đã star asset của bạn`,
-      sub:      s.reason ? `"${s.reason}"` : '',
-      time:     s.created_at,
-      asset_id: s.asset_id
-    }));
-  } catch (_) {}
+  if (myAssets.length) {
+    const myAssetIds = myAssets.map(a => a.id).join(',');
+    try {
+      const starRows = await sbFetch(
+        `/stars_log?asset_id=in.(${myAssetIds})&status=eq.approved&select=*,users(full_name,team)&order=created_at.desc&limit=30`
+      ) || [];
+      starNotifs = starRows.map(s => ({
+        id:       `star-${s.id}`,
+        type:     'star',
+        title:    `${s.users?.full_name || s.user_email || 'Ai đó'} đã star asset của bạn`,
+        sub:      s.reason ? `"${s.reason}"` : '',
+        time:     s.created_at,
+        asset_id: s.asset_id
+      }));
+    } catch (_) {}
 
-  // Forks trên assets của user (đã approved)
-  try {
-    const forkRows = await sbFetch(
-      `/forks_log?original_asset_id=in.(${myAssetIds})&status=eq.approved&select=*,users(full_name,team)&order=created_at.desc&limit=30`
-    ) || [];
-    forkNotifs = forkRows.map(f => ({
-      id:       `fork-${f.id}`,
-      type:     'fork',
-      title:    `${f.users?.full_name || f.user_email || 'Ai đó'} đã fork asset của bạn`,
-      sub:      f.fork_description ? `Use case: ${f.fork_description}` : '',
-      time:     f.created_at,
-      asset_id: f.original_asset_id
-    }));
-  } catch (_) {}
+    try {
+      const forkRows = await sbFetch(
+        `/forks_log?original_asset_id=in.(${myAssetIds})&status=eq.approved&select=*,users(full_name,team)&order=created_at.desc&limit=30`
+      ) || [];
+      forkNotifs = forkRows.map(f => ({
+        id:       `fork-${f.id}`,
+        type:     'fork',
+        title:    `${f.users?.full_name || f.user_email || 'Ai đó'} đã fork asset của bạn`,
+        sub:      f.fork_description ? `Use case: ${f.fork_description}` : '',
+        time:     f.created_at,
+        asset_id: f.original_asset_id
+      }));
+    } catch (_) {}
+  }
 
   // Gộp + sort theo thời gian mới nhất
-  return [...assetNotifs, ...starNotifs, ...forkNotifs]
+  return [...assetNotifs, ...remindNotifs, ...starNotifs, ...forkNotifs]
     .sort((a, b) => new Date(b.time) - new Date(a.time))
     .slice(0, 30);
+}
+
+/* ===== REVIEW HISTORY (curator.html — tab Lịch sử duyệt) =====
+   Gộp 3 nguồn: assets + stars_log + forks_log đã được xử lý
+   (reviewed_at ghi lại lúc curator bấm Duyệt/Từ chối).
+   Asset duyệt trước migration: fallback verified_at.
+   days = null → "Tất cả" (không lọc thời gian, tối đa 200 dòng/nguồn).
+   ===== */
+async function dbGetReviewHistory(days = 7) {
+  const LIMIT = 200;
+  const since = days ? new Date(Date.now() - days * 86400000).toISOString() : null;
+
+  // Bộ lọc thời gian — bỏ qua khi xem "Tất cả"
+  const assetFilter = since ? `&or=(reviewed_at.gte.${since},verified_at.gte.${since})` : '';
+  const logFilter   = since ? `&reviewed_at=gte.${since}` : '';
+
+  // KHÔNG nuốt lỗi ở đây — để curator.html bắt được và báo rõ
+  // (VD: cột reviewed_at chưa tồn tại vì chưa chạy migration SQL)
+  const [assets, stars, forks] = await Promise.all([
+    sbFetch(
+      `/assets?status=in.(verified,rejected)${assetFilter}` +
+      `&select=id,asset_name,asset_type,owner_name,status,reviewed_by,reviewed_at,verified_at` +
+      `&order=reviewed_at.desc.nullslast&limit=${LIMIT}`
+    ),
+    sbFetch(
+      `/stars_log?status=in.(approved,rejected)${logFilter}&reviewed_at=not.is.null` +
+      `&select=id,status,reviewed_at,reviewed_by,users(full_name),assets(asset_name)` +
+      `&order=reviewed_at.desc&limit=${LIMIT}`
+    ),
+    sbFetch(
+      `/forks_log?status=in.(approved,rejected)${logFilter}&reviewed_at=not.is.null` +
+      `&select=id,status,reviewed_at,reviewed_by,users(full_name),assets(asset_name)` +
+      `&order=reviewed_at.desc&limit=${LIMIT}`
+    )
+  ]);
+
+  const items = [];
+  (assets || []).forEach(a => items.push({
+    kind:      'asset',
+    time:      a.reviewed_at || a.verified_at,
+    name:      a.asset_name,
+    assetType: a.asset_type,
+    submitter: a.owner_name || '—',
+    decision:  a.status === 'verified' ? 'approved' : 'rejected',
+    curator:   a.reviewed_by || '—'
+  }));
+  (stars || []).forEach(s => items.push({
+    kind:      'star',
+    time:      s.reviewed_at,
+    name:      `Star: ${s.assets?.asset_name || '—'}`,
+    assetType: '',
+    submitter: s.users?.full_name || '—',
+    decision:  s.status,
+    curator:   s.reviewed_by || '—'
+  }));
+  (forks || []).forEach(f => items.push({
+    kind:      'fork',
+    time:      f.reviewed_at,
+    name:      `Fork: ${f.assets?.asset_name || '—'}`,
+    assetType: '',
+    submitter: f.users?.full_name || '—',
+    decision:  f.status,
+    curator:   f.reviewed_by || '—'
+  }));
+
+  return items
+    .filter(i => i.time)
+    .sort((a, b) => new Date(b.time) - new Date(a.time))
+    .slice(0, LIMIT);
 }

@@ -346,7 +346,8 @@ function _renderNotifList(notifs, lastRead) {
     approved: { cls: 'approved', html: '✓' },
     rejected: { cls: 'rejected', html: '✕' },
     star:     { cls: 'star',     html: '★' },
-    fork:     { cls: 'fork',     html: '⑂' }
+    fork:     { cls: 'fork',     html: '⑂' },
+    remind:   { cls: 'star',     html: '⏰' }   // nhắc fork asset đã tải
   };
   el.innerHTML = notifs.slice(0, 20).map(n => {
     const isUnread = new Date(n.time).getTime() > lastRead;
@@ -428,7 +429,6 @@ function detectGamingFlags(item, type, userStarCountMap) {
 
   if (type === 'fork') {
     const desc    = (item.fork_description || '').trim();
-    const changes = (item.changes_made    || '').trim();
     const userTeam  = item.users?.team  || '';
     const assetTeam = item.assets?.team || '';
     const knownTeams = userTeam && assetTeam && userTeam !== '?' && assetTeam !== '?';
@@ -440,15 +440,11 @@ function detectGamingFlags(item, type, userStarCountMap) {
     else if (desc.length < 20)
       flags.push({ level: 'high',   text: `Use case quá ngắn (${desc.length} ký tự)` });
 
-    /* 2. Không mô tả thay đổi */
-    if (changes.length === 0)
-      flags.push({ level: 'high',   text: 'Không mô tả thay đổi so với bản gốc' });
-    else if (changes.length < 15)
-      flags.push({ level: 'medium', text: `Thay đổi mô tả quá sơ sài (${changes.length} ký tự)` });
+    /* 2. changes_made đã bỏ khỏi form fork (không bắt buộc nữa) → KHÔNG flag */
 
-    /* 3. Thiếu output link */
+    /* 3. Không có output link — không bắt buộc, chỉ nhắc curator để ý */
     if (!item.output_link)
-      flags.push({ level: 'high',   text: 'Thiếu output link (bắt buộc)' });
+      flags.push({ level: 'medium', text: 'Không đính kèm output link' });
 
     /* 4. Cùng team (reward = 0 nhưng ít nghiêm trọng hơn) */
     if (knownTeams && !isCross)
