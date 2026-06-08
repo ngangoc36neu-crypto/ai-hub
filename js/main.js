@@ -7,7 +7,7 @@
 /* ===== APPS SCRIPT WEB APP URL =====
    Dán URL từ Apps Script → Deploy → Manage deployments vào đây
    ===== */
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbygM0Gb_DCNG4qn9E--S-XPt1GNjQ4BGy3Lg-V8Kupp828au1qRelcNKP0sciznQpIBtg/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIyzycY1-toGDcA6awrXSZ2MCyuSqOmG5MvkhQrcSyFM1-k--5J_HrtjQmdnUuIuWa4A/exec';
 
 /* ===== ICON HELPERS ===== */
 const STAR_ICON = `<span style="color:var(--amber);">★</span>`;
