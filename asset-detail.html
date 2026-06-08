@@ -237,6 +237,16 @@ const params  = new URLSearchParams(window.location.search);
 const assetId = parseInt(params.get('id')) || 1;
 let _asset    = null; // giữ reference để submitStar/Fork dùng
 
+/* Bỏ tiền tố "Khối — " trước mỗi ngạch khi hiển thị đối tượng
+   "General — Assistant, General — Recruitment" → "Assistant, Recruitment" */
+function stripKhoi(t) {
+  if (!t) return '';
+  return String(t).split(',').map(x => {
+    const p = x.trim().split(/\s[—–-]\s/);
+    return (p.length > 1 ? p.slice(1).join(' - ') : p[0]).trim();
+  }).join(', ');
+}
+
 function renderHeader(a, starCount, forkCount) {
   document.getElementById('pageTitle').textContent = a.name;
   document.title = `${a.name} — Apero AI Hub`;
@@ -281,13 +291,13 @@ function renderHeader(a, starCount, forkCount) {
           </div>
         </div>
         <div style="font-size:13px;color:var(--text-2);">Ngày tạo: ${a.created}</div>
-        <div style="font-size:13px;color:var(--text-2);">Dùng cho: ${a.target_user}</div>
+        <div style="font-size:13px;color:var(--text-2);">Dùng cho: ${stripKhoi(a.target_user)}</div>
       </div>
     </div>`;
 
   document.getElementById('assetInfo').innerHTML = `
     <div class="info-row"><div class="info-label">Mô tả</div><div class="info-val">${a.desc}</div></div>
-    <div class="info-row"><div class="info-label">Đối tượng</div><div class="info-val">${a.target_user}</div></div>
+    <div class="info-row"><div class="info-label">Đối tượng</div><div class="info-val">${stripKhoi(a.target_user)}</div></div>
     <div class="info-row"><div class="info-label">Cách dùng</div><div class="info-val" style="white-space:pre-line;">${a.how_to_use}</div></div>
     <div class="info-row"><div class="info-label">Ví dụ output</div><div class="info-val">
       <div style="background:var(--glass);border:1px solid var(--glass-border);padding:10px 12px;border-radius:var(--r-sm);font-style:italic;color:var(--text-2);">"${a.example_output}"</div>
@@ -534,11 +544,42 @@ async function downloadAsset() {
 }
 
 let bookmarked = false;
-function toggleBookmark() {
-  bookmarked = !bookmarked;
-  document.getElementById('bookmarkBtn').innerHTML = bookmarked ? '🔖 Đã lưu' : '🔖 Lưu lại';
-  showToast(bookmarked ? 'Đã thêm vào Bookmarks.' : 'Đã bỏ khỏi Bookmarks.');
+async function toggleBookmark() {
+  const btn = document.getElementById('bookmarkBtn');
+  btn.disabled = true;
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) {
+      showToast('Không xác định được người dùng. Hãy đăng nhập lại.', 't-error');
+      return;
+    }
+    if (!bookmarked) {
+      await dbInsertBookmark(userId, assetId);
+      bookmarked = true;
+      showToast('Đã thêm vào Bookmarks.');
+    } else {
+      await dbDeleteBookmark(userId, assetId);
+      bookmarked = false;
+      showToast('Đã bỏ khỏi Bookmarks.');
+    }
+    btn.innerHTML = bookmarked ? '🔖 Đã lưu' : '🔖 Lưu lại';
+  } catch (err) {
+    console.error('toggleBookmark error:', err);
+    showToast('Lỗi khi lưu bookmark. Thử lại nhé.', 't-error');
+  } finally {
+    btn.disabled = false;
+  }
 }
+
+/* Tải trạng thái bookmark khi mở trang (để nút hiện đúng "Đã lưu") */
+(async function loadBookmarkState() {
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) return;
+    bookmarked = await dbHasBookmark(userId, assetId);
+    document.getElementById('bookmarkBtn').innerHTML = bookmarked ? '🔖 Đã lưu' : '🔖 Lưu lại';
+  } catch (_) {}
+})();
 </script>
 </body>
 </html>

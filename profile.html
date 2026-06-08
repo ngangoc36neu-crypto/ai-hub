@@ -72,7 +72,7 @@
             Đã tải xuống <span class="tab-count" id="cnt-downloads">0</span>
           </button>
           <button class="tab-btn" data-tab="t-bookmarks" onclick="switchTab('profileTabs','t-bookmarks')">
-            Bookmarks
+            Bookmarks <span class="tab-count" id="cnt-bookmarks">0</span>
           </button>
           <button class="tab-btn" data-tab="t-reward" onclick="switchTab('profileTabs','t-reward')">
             Reward
@@ -160,28 +160,34 @@
           <div class="alert alert-info mb-16">
             <div>Bookmark là hành động lưu để xem lại — <strong>không tính điểm, không qua Curator</strong>.</div>
           </div>
-          <div style="padding:20px;color:var(--text-2);text-align:center;">
-            Tính năng bookmark sẽ có trong phiên bản tiếp theo.
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Asset</th>
+                    <th>Loại</th>
+                    <th>Ngày lưu</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="bookmarksBody">
+                  <tr><td colspan="4" style="text-align:center;color:var(--text-2);padding:16px;">Đang tải...</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
         <!-- Tab: Reward -->
         <div class="tab-content" id="t-reward">
-          <div class="grid-2" style="gap:16px;">
-            <div class="card">
-              <div class="card-hd"><span class="card-title">Tổng reward tích lũy</span></div>
-              <div class="card-bd" style="text-align:center;padding:36px 20px;">
-                <div style="font-size:44px;font-weight:900;letter-spacing:-2px;" id="totalRewardAmt">0₫</div>
-                <div style="color:var(--text-2);margin-top:8px;font-size:13px;">Ước tính · chờ Hub Owner xác nhận</div>
-                <div class="alert alert-warn" style="margin-top:20px;text-align:left;">
-                  <div>Đây là số tiền <strong>ước tính</strong>. Reward chính thức sẽ được Hub Owner xác nhận định kỳ.</div>
-                </div>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-hd"><span class="card-title">Chi tiết</span></div>
-              <div class="card-bd" id="rewardDetail">
-                <div style="color:var(--text-2);padding:8px 0;">Đang tải...</div>
+          <div class="card">
+            <div class="card-hd"><span class="card-title">Tổng reward tích lũy</span></div>
+            <div class="card-bd" style="text-align:center;padding:36px 20px;">
+              <div style="font-size:44px;font-weight:900;letter-spacing:-2px;" id="totalRewardAmt">0₫</div>
+              <div style="color:var(--text-2);margin-top:8px;font-size:13px;">Ước tính · chờ Hub Owner xác nhận</div>
+              <div class="alert alert-warn" style="margin-top:20px;text-align:left;">
+                <div>Đây là số tiền <strong>ước tính</strong>. Reward chính thức sẽ được Hub Owner xác nhận định kỳ.</div>
               </div>
             </div>
           </div>
@@ -245,11 +251,12 @@
 
   try {
     /* ── Tải song song 4 nguồn dữ liệu ── */
-    const [myAssets, myStars, myForks, myDownloads] = await Promise.all([
+    const [myAssets, myStars, myForks, myDownloads, myBookmarks] = await Promise.all([
       dbGetAssetsByUser(u.id),
       dbGetStarsByUser(u.id),
       dbGetForksByUser(u.id),
-      dbGetDownloadsByUser(u.id).catch(() => [])
+      dbGetDownloadsByUser(u.id).catch(() => []),
+      dbGetBookmarksByUser(u.id).catch(() => [])
     ]);
 
     const myAssetsM = myAssets.map(mapAsset);
@@ -272,6 +279,7 @@
     document.getElementById('cnt-starred').textContent    = starsGiven;
     document.getElementById('cnt-forked').textContent     = myForks.length;
     document.getElementById('cnt-downloads').textContent  = myDownloads.length;
+    document.getElementById('cnt-bookmarks').textContent  = myBookmarks.length;
 
     /* ── Tab: Đã submit ── */
     document.getElementById('submittedGrid').innerHTML = myAssetsM.length
@@ -309,7 +317,7 @@
             ? '<span class="badge b-rejected">Từ chối</span>'
             : '<span class="badge b-draft">Chờ duyệt</span>';
           return `<tr>
-            <td><a href="asset-detail.html?id=${s.asset_id}" style="font-weight:600;color:var(--black);text-decoration:underline;">${assetName}</a></td>
+            <td><a href="asset-detail.html?id=${s.asset_id}" style="font-weight:600;color:var(--text-1);text-decoration:underline;">${assetName}</a></td>
             <td>${assetType ? `<span class="badge ${getTypeBadge(assetType)}">${assetType}</span>` : '—'}</td>
             <td style="max-width:240px;color:var(--text-2);">${s.reason ? `"${s.reason}"` : '<span style="opacity:0.4;">—</span>'}</td>
             <td>${badge}</td>
@@ -329,7 +337,7 @@
             ? '<span class="badge b-rejected">Từ chối</span>'
             : '<span class="badge b-draft">Chờ duyệt</span>';
           return `<tr>
-            <td><a href="asset-detail.html?id=${f.original_asset_id}" style="font-weight:600;color:var(--black);text-decoration:underline;">${assetName}</a></td>
+            <td><a href="asset-detail.html?id=${f.original_asset_id}" style="font-weight:600;color:var(--text-1);text-decoration:underline;">${assetName}</a></td>
             <td style="max-width:200px;color:var(--text-2);">${f.fork_description ? `"${f.fork_description}"` : '<span style="opacity:0.4;">—</span>'}</td>
             <td>${f.output_link ? `<a href="${f.output_link}" target="_blank" style="color:var(--blue);text-decoration:underline;">Xem</a>` : '<span style="opacity:0.4;">—</span>'}</td>
             <td>${badge}</td>
@@ -345,7 +353,7 @@
           const assetName = asset.asset_name || `Asset #${d.asset_id}`;
           const hasOutput = !!d.output_url;
           return `<tr>
-            <td><a href="asset-detail.html?id=${d.asset_id}" style="font-weight:600;color:var(--black);text-decoration:underline;">${assetName}</a></td>
+            <td><a href="asset-detail.html?id=${d.asset_id}" style="font-weight:600;color:var(--text-1);text-decoration:underline;">${assetName}</a></td>
             <td><span class="badge b-gray">${asset.asset_type || '—'}</span></td>
             <td style="color:var(--text-2);">${timeAgo(d.downloaded_at)}</td>
             <td>${hasOutput
@@ -360,39 +368,24 @@
         }).join('')
       : '<tr><td colspan="5" style="text-align:center;color:var(--text-2);padding:24px;">Bạn chưa tải xuống asset nào.</td></tr>';
 
-    /* ── Tab: Reward ── */
-    const starsXT  = myStars.filter(s => s.is_valid && s.is_cross_team);
-    const starsHT  = myStars.filter(s => s.is_valid && !s.is_cross_team);
-    const forksXT  = myForks.filter(f => f.is_valid && f.is_cross_team);
-    const forksHT  = myForks.filter(f => f.is_valid && !f.is_cross_team);
-    const rwStarsXT = starsXT.reduce((s, x) => s + (x.reward_amount || 0), 0);
-    const rwForksXT = forksXT.reduce((s, x) => s + (x.reward_amount || 0), 0);
+    /* ── Tab: Bookmarks ── */
+    document.getElementById('bookmarksBody').innerHTML = myBookmarks.length
+      ? myBookmarks.map(b => {
+          const asset     = b.assets || {};
+          const assetName = asset.asset_name || `Asset #${b.asset_id}`;
+          return `<tr>
+            <td><a href="asset-detail.html?id=${b.asset_id}" style="font-weight:600;color:var(--text-1);text-decoration:underline;">${assetName}</a></td>
+            <td><span class="badge b-gray">${asset.asset_type || '—'}</span></td>
+            <td style="color:var(--text-2);">${timeAgo(b.created_at)}</td>
+            <td>
+              <button class="btn btn-ghost btn-sm" onclick="removeBookmark(${b.asset_id}, this)">🗑️ Bỏ lưu</button>
+            </td>
+          </tr>`;
+        }).join('')
+      : '<tr><td colspan="4" style="text-align:center;color:var(--text-2);padding:24px;">Chưa có bookmark nào. Vào 1 asset rồi bấm 🔖 Lưu lại.</td></tr>';
 
+    /* ── Tab: Reward ── */
     document.getElementById('totalRewardAmt').textContent = totalReward.toLocaleString('vi-VN') + '₫';
-    document.getElementById('rewardDetail').innerHTML = `
-      <div class="info-row">
-        <div class="info-label">Stars cross-team</div>
-        <div class="info-val">${starsXT.length} × 200.000₫ = <strong>${rwStarsXT.toLocaleString('vi-VN')}₫</strong></div>
-      </div>
-      <div class="info-row">
-        <div class="info-label">Stars cùng team</div>
-        <div class="info-val">${starsHT.length} × 0₫ = <strong>0₫</strong></div>
-      </div>
-      <div class="info-row">
-        <div class="info-label">Forks cross-team</div>
-        <div class="info-val">${forksXT.length} × 500.000₫ = <strong>${rwForksXT.toLocaleString('vi-VN')}₫</strong></div>
-      </div>
-      <div class="info-row">
-        <div class="info-label">Forks cùng team</div>
-        <div class="info-val">${forksHT.length} × 0₫ = <strong>0₫</strong></div>
-      </div>
-      <div class="divider"></div>
-      <div class="info-row">
-        <div class="info-label">Tổng ước tính</div>
-        <div class="info-val" style="font-weight:800;font-size:16px;">${totalReward.toLocaleString('vi-VN')}₫</div>
-      </div>
-      <div style="font-size:11px;color:var(--text-3);margin-top:8px;">Chờ Hub Owner xác nhận chính thức</div>
-    `;
 
   } catch (err) {
     console.error('initProfile error:', err);
@@ -405,6 +398,28 @@ function fmtMoney(n) {
   if (!n) return '0₫';
   if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0','') + 'M₫';
   return n.toLocaleString('vi-VN') + '₫';
+}
+
+/* ── Bỏ 1 bookmark ── */
+async function removeBookmark(assetId, btn) {
+  btn.disabled = true;
+  try {
+    const userId = await getCurrentUserId();
+    await dbDeleteBookmark(userId, assetId);
+    const tr = btn.closest('tr');
+    if (tr) tr.remove();
+    const cnt = document.getElementById('cnt-bookmarks');
+    cnt.textContent = Math.max(0, (parseInt(cnt.textContent) || 1) - 1);
+    const body = document.getElementById('bookmarksBody');
+    if (!body.querySelector('tr')) {
+      body.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-2);padding:24px;">Chưa có bookmark nào. Vào 1 asset rồi bấm 🔖 Lưu lại.</td></tr>';
+    }
+    showToast('Đã bỏ khỏi Bookmarks.', 't-success');
+  } catch (err) {
+    console.error('removeBookmark error:', err);
+    showToast('Lỗi khi bỏ bookmark. Thử lại nhé.', 't-error');
+    btn.disabled = false;
+  }
 }
 
 /* ── Gửi output sau khi tải xuống ── */
