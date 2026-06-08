@@ -281,6 +281,42 @@ async function dbGetAllDownloads() {
   )) || [];
 }
 
+/* ===== BOOKMARKS (lưu để xem lại — không tính điểm, không qua Curator) ===== */
+async function dbHasBookmark(userId, assetId) {
+  if (!userId) return false;
+  const rows = await sbFetch(
+    `/bookmarks?user_id=eq.${userId}&asset_id=eq.${assetId}&select=id&limit=1`
+  ).catch(() => []);
+  return (rows || []).length > 0;
+}
+
+async function dbInsertBookmark(userId, assetId) {
+  const payload = {
+    user_id:    userId,
+    asset_id:   assetId,
+    user_email: CURRENT_USER?.email || null
+  };
+  // ignore-duplicates: bấm nhanh 2 lần cũng không lỗi 409
+  return sbFetch('/bookmarks', {
+    method:  'POST',
+    headers: { 'Prefer': 'resolution=ignore-duplicates' },
+    body:    JSON.stringify(payload)
+  });
+}
+
+async function dbDeleteBookmark(userId, assetId) {
+  return sbFetch(`/bookmarks?user_id=eq.${userId}&asset_id=eq.${assetId}`, {
+    method: 'DELETE'
+  });
+}
+
+async function dbGetBookmarksByUser(userId) {
+  if (!userId) return [];
+  return (await sbFetch(
+    `/bookmarks?user_id=eq.${userId}&select=*,assets(asset_name,asset_type,domain)&order=created_at.desc`
+  )) || [];
+}
+
 /* ===== USERS ===== */
 async function dbGetUsers() {
   return (await sbFetch('/users?select=*&order=full_name.asc')) || [];
