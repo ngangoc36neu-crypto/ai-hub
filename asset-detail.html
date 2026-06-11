@@ -255,9 +255,9 @@ function stripKhoi(t) {
 function renderHeader(a, starCount, forkCount) {
   document.getElementById('pageTitle').textContent = a.name;
   document.title = `${a.name} — Apero AI Hub`;
-  // v3.5: nhãn nút "Mở file" — có subfolder thì mở thấy CẢ file asset + HDSD
+  // v3.5: nhãn nút "Mở file" — có subfolder thì mở thấy CẢ file asset + showcase
   document.getElementById('driveLink').textContent =
-    a.folder_link ? 'Mở file trên Drive (asset + HDSD)' : 'Mở file trên Drive';
+    a.folder_link ? 'Mở file trên Drive (Asset & Showcase)' : 'Mở file trên Drive';
   document.getElementById('statStars').textContent   = starCount;
   document.getElementById('statForks').textContent   = forkCount;
   document.getElementById('statDownloads').textContent = a.downloads || 0;
@@ -311,7 +311,7 @@ function renderHeader(a, starCount, forkCount) {
       <div style="background:var(--glass);border:1px solid var(--glass-border);padding:10px 12px;border-radius:var(--r-sm);font-style:italic;color:var(--text-2);">"${a.example_output}"</div>
     </div></div>` : ''}
     ${a.guide_link ? `<div class="info-row"><div class="info-label">File showcase</div><div class="info-val">
-      <a href="${a.guide_link}" target="_blank" style="color:var(--blue);font-weight:600;">📄 Mở file showcase</a>
+      <a href="javascript:void(0)" onclick="openGuideOnDrive()" style="color:var(--blue);font-weight:600;">📄 Mở file showcase</a>
     </div></div>` : ''}`;
 }
 
@@ -571,19 +571,48 @@ async function grantDriveAccess() {
 }
 
 /* v3.5 nút "Mở file trên Drive":
-   - Có subfolder → cấp quyền folder rồi mở folder (thấy CẢ file asset + HDSD).
-   - Không có → mở thẳng file asset như cũ. */
+   - Có subfolder → cấp quyền XEM folder rồi mở folder (thấy CẢ file asset + showcase).
+   - Không có (asset cũ) → cấp quyền XEM file asset lẻ rồi mở.
+   grantDriveAccess() tự xử lý cả 2 trường hợp (folder/file) → luôn cấp quyền trước khi mở. */
 async function openOnDrive() {
   if (!_asset) return;
   const target = _asset.folder_link || (_asset.asset_link && _asset.asset_link !== '#' ? _asset.asset_link : null);
   if (!target) { showToast('Asset này chưa có file trên Drive.', 't-error'); return; }
 
-  if (_asset.folder_link) {
-    showToast('Đang cấp quyền truy cập...', 't-success');
+  if (typeof APPS_SCRIPT_URL !== 'undefined' && APPS_SCRIPT_URL && CURRENT_USER?.email) {
+    showToast('Đang cấp quyền xem...', 't-success');
     await grantDriveAccess();
     setTimeout(() => window.open(target, '_blank'), 1500);
   } else {
     window.open(target, '_blank');
+  }
+}
+
+/* v3.8 link "Mở file showcase" (guide_link) — cũng phải cấp quyền XEM trước khi mở,
+   nếu không file Restricted sẽ ra trang "Yêu cầu quyền truy cập".
+   - Có subfolder → share cả folder (cascade tới file showcase).
+   - Không có subfolder → share riêng đúng file showcase (guide_link). */
+async function openGuideOnDrive() {
+  if (!_asset || !_asset.guide_link) return;
+  if (typeof APPS_SCRIPT_URL !== 'undefined' && APPS_SCRIPT_URL && CURRENT_USER?.email) {
+    showToast('Đang cấp quyền xem...', 't-success');
+    if (_asset.folder_link) {
+      await grantDriveAccess();
+    } else {
+      const gid = extractDriveFileId(_asset.guide_link);
+      if (gid) {
+        try {
+          await fetch(APPS_SCRIPT_URL, {
+            method: 'POST', mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ event: 'shareFile', fileId: gid, userEmail: CURRENT_USER.email })
+          });
+        } catch (_) { /* cors — Apps Script vẫn chạy */ }
+      }
+    }
+    setTimeout(() => window.open(_asset.guide_link, '_blank'), 1500);
+  } else {
+    window.open(_asset.guide_link, '_blank');
   }
 }
 
