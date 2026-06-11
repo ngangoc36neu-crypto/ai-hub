@@ -91,6 +91,7 @@ function mapAsset(row) {
     asset_link:     row.asset_link      || '#',
     guide_link:     row.guide_link      || '',   // v3.5: file HDSD/showcase
     folder_link:    row.folder_link     || '',   // v3.5: subfolder Drive (mở thấy cả 2 file)
+    download_link:  row.download_link    || '',   // v3.8: bản sao TẢI ĐƯỢC (gốc chỉ-xem)
     asset_content:  row.asset_content   || '',
     reviewer_note:  row.reviewer_note   || '',
     reviewed_by:    row.reviewed_by     || '',
