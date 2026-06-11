@@ -497,8 +497,12 @@ function extractDriveFileId(url) {
    và được nhắc fork sau 7 ngày (tối đa 3 lần). */
 async function downloadAsset() {
   if (!_asset) return;
-  if (!_asset.asset_link || _asset.asset_link === '#') {
-    showToast('Asset này không có file đính kèm.', 't-error');
+  // v3.8 Hướng 2: TẢI BẢN SAO (download_link) — file gốc chỉ-xem-không-tải.
+  // Fallback file gốc (asset_link) cho asset cũ chưa có bản tải.
+  const dlId = _asset.download_link ? extractDriveFileId(_asset.download_link) : null;
+  const targetId = dlId || extractDriveFileId(_asset.asset_link || '');
+  if (!targetId) {
+    showToast('Asset này chưa có file để tải.', 't-error');
     return;
   }
   const btn = document.getElementById('downloadBtn');
@@ -515,30 +519,29 @@ async function downloadAsset() {
       user_id:  userId
     }).catch(() => {});
 
-    // 2. Lấy file ID từ link Drive
-    const fileId = extractDriveFileId(_asset.asset_link);
-
-    if (fileId && typeof APPS_SCRIPT_URL !== 'undefined' && APPS_SCRIPT_URL && CURRENT_USER?.email) {
-      // 3. Cấp quyền cho đúng email người tải. Asset có subfolder → share CẢ folder
-      //    (cascade file chính + HDSD); không có → share file lẻ như cũ.
-      await grantDriveAccess();
+    if (typeof APPS_SCRIPT_URL !== 'undefined' && APPS_SCRIPT_URL && CURRENT_USER?.email) {
+      // 2. Cấp quyền XEM bản sao TẢI ĐƯỢC cho đúng email người tải (không đụng file gốc)
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method: 'POST', mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event: 'shareFile', fileId: targetId, userEmail: CURRENT_USER.email })
+        });
+      } catch (_) { /* cors — Apps Script vẫn chạy */ }
 
       showToast('Đang cấp quyền cho ' + CURRENT_USER.email + '...', 't-success');
 
-      // 4. Đợi Apps Script share xong (~3s) rồi trigger tải
-      //    File chỉ share riêng cho email người tải → trình duyệt cần
-      //    đăng nhập Google đúng account @apero.vn mới tải được
+      // 3. Đợi Apps Script share xong (~3s) rồi trigger tải bản sao
       setTimeout(() => {
-        window.open(`https://drive.google.com/uc?export=download&id=${fileId}`, '_blank');
+        window.open(`https://drive.google.com/uc?export=download&id=${targetId}`, '_blank');
         showToast('File đang tải! Nếu Drive báo cần quyền, hãy đăng nhập Google bằng ' + CURRENT_USER.email, 't-success');
         resetBtn();
       }, 3000);
       return; // resetBtn chạy trong setTimeout
-
     }
 
-    // Fallback nếu không lấy được fileId / chưa cấu hình APPS_SCRIPT_URL
-    window.open(_asset.folder_link || _asset.asset_link, '_blank');
+    // Fallback nếu chưa cấu hình APPS_SCRIPT_URL
+    window.open(`https://drive.google.com/uc?export=download&id=${targetId}`, '_blank');
     resetBtn();
 
   } catch (err) {
