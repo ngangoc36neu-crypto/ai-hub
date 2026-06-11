@@ -12,6 +12,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIyzycY1-toGDc
 /* ===== ICON HELPERS ===== */
 const STAR_ICON = `<span style="color:var(--amber);">★</span>`;
 const FORK_ICON = `<svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:middle;opacity:0.75"><path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h1.5v2.128a2.251 2.251 0 1 0 1.5 0V8.5h1.5a2.25 2.25 0 0 0 2.25-2.25v-.878a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878zm3.75 7.378a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm3-8.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0z"/></svg>`;
+const DOWNLOAD_ICON = `<svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:middle;opacity:0.75"><path d="M8 1a.75.75 0 0 1 .75.75v6.69l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 0 1 1.06-1.06l2.22 2.22V1.75A.75.75 0 0 1 8 1zM2.5 11.5a.75.75 0 0 1 .75.75v1.25h9.5v-1.25a.75.75 0 0 1 1.5 0v1.5a1.25 1.25 0 0 1-1.25 1.25H3.25A1.25 1.25 0 0 1 2 13.5v-1.5a.75.75 0 0 1 .5-.75z"/></svg>`;
 
 /* ============================================
    AUTH SYSTEM

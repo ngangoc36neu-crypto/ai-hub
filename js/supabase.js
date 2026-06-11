@@ -82,12 +82,15 @@ function mapAsset(row) {
     team:           row.team            || '',
     stars:          row.stars_count     || 0,   // trigger tự update
     forks:          row.forks_count     || 0,   // trigger tự update
+    downloads:      row.downloads_count || 0,   // trigger tự update (v3.7)
     status:        (row.status          || 'pending').toLowerCase(),
     created:        row.created_at ? new Date(row.created_at).toLocaleDateString('vi-VN') : '',
     how_to_use:     row.how_to_use      || '',
     target_user:    row.target_user     || '',
     example_output: row.example_output  || '',
     asset_link:     row.asset_link      || '#',
+    guide_link:     row.guide_link      || '',   // v3.5: file HDSD/showcase
+    folder_link:    row.folder_link     || '',   // v3.5: subfolder Drive (mở thấy cả 2 file)
     asset_content:  row.asset_content   || '',
     reviewer_note:  row.reviewer_note   || '',
     reviewed_by:    row.reviewed_by     || '',
