@@ -79,9 +79,9 @@
                   <button class="btn btn-primary btn-lg" id="downloadBtn" style="justify-content:center;" onclick="downloadAsset()">
                     ⬇️ Tải xuống
                   </button>
-                  <a id="driveLink" href="#" target="_blank" class="btn btn-outline btn-lg" style="justify-content:center;">
+                  <button id="driveLink" class="btn btn-outline btn-lg" style="justify-content:center;" onclick="openOnDrive()">
                     Mở file trên Drive
-                  </a>
+                  </button>
                   <button class="btn btn-outline btn-lg" style="justify-content:center;" onclick="openModal('starModal')">
                     <span style="color:var(--amber);font-size:16px;line-height:1;">★</span> Star asset này
                   </button>
@@ -102,6 +102,11 @@
                     <div style="text-align:center;flex:1;padding:12px 0;">
                       <div style="font-size:32px;font-weight:800;letter-spacing:-1px;color:var(--blue);" id="statForks">0</div>
                       <div style="font-size:12px;color:var(--text-2);margin-top:4px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:4px;"><svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h1.5v2.128a2.251 2.251 0 1 0 1.5 0V8.5h1.5a2.25 2.25 0 0 0 2.25-2.25v-.878a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878zm3.75 7.378a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm3-8.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0z"/></svg> Forks</div>
+                    </div>
+                    <div style="width:1px;background:var(--border);"></div>
+                    <div style="text-align:center;flex:1;padding:12px 0;">
+                      <div style="font-size:32px;font-weight:800;letter-spacing:-1px;color:var(--green,#16a34a);" id="statDownloads">0</div>
+                      <div style="font-size:12px;color:var(--text-2);margin-top:4px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:4px;"><svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a.75.75 0 0 1 .75.75v6.69l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 0 1 1.06-1.06l2.22 2.22V1.75A.75.75 0 0 1 8 1zM2.5 11.5a.75.75 0 0 1 .75.75v1.25h9.5v-1.25a.75.75 0 0 1 1.5 0v1.5a1.25 1.25 0 0 1-1.25 1.25H3.25A1.25 1.25 0 0 1 2 13.5v-1.5a.75.75 0 0 1 .5-.75z"/></svg> Lượt tải</div>
                     </div>
                   </div>
                 </div>
@@ -250,9 +255,12 @@ function stripKhoi(t) {
 function renderHeader(a, starCount, forkCount) {
   document.getElementById('pageTitle').textContent = a.name;
   document.title = `${a.name} — Apero AI Hub`;
-  document.getElementById('driveLink').href = a.asset_link;
+  // v3.5: nhãn nút "Mở file" — có subfolder thì mở thấy CẢ file asset + HDSD
+  document.getElementById('driveLink').textContent =
+    a.folder_link ? 'Mở file trên Drive (asset + HDSD)' : 'Mở file trên Drive';
   document.getElementById('statStars').textContent   = starCount;
   document.getElementById('statForks').textContent   = forkCount;
+  document.getElementById('statDownloads').textContent = a.downloads || 0;
   document.getElementById('starTabCount').textContent = starCount;
   document.getElementById('forkTabCount').textContent = forkCount;
 
@@ -298,10 +306,13 @@ function renderHeader(a, starCount, forkCount) {
   document.getElementById('assetInfo').innerHTML = `
     <div class="info-row"><div class="info-label">Mô tả</div><div class="info-val">${a.desc}</div></div>
     <div class="info-row"><div class="info-label">Đối tượng</div><div class="info-val">${stripKhoi(a.target_user)}</div></div>
-    <div class="info-row"><div class="info-label">Cách dùng</div><div class="info-val" style="white-space:pre-line;">${a.how_to_use}</div></div>
-    <div class="info-row"><div class="info-label">Ví dụ output</div><div class="info-val">
+    ${a.how_to_use ? `<div class="info-row"><div class="info-label">Cách dùng</div><div class="info-val" style="white-space:pre-line;">${a.how_to_use}</div></div>` : ''}
+    ${a.example_output ? `<div class="info-row"><div class="info-label">Ví dụ output</div><div class="info-val">
       <div style="background:var(--glass);border:1px solid var(--glass-border);padding:10px 12px;border-radius:var(--r-sm);font-style:italic;color:var(--text-2);">"${a.example_output}"</div>
-    </div></div>`;
+    </div></div>` : ''}
+    ${a.guide_link ? `<div class="info-row"><div class="info-label">File showcase</div><div class="info-val">
+      <a href="${a.guide_link}" target="_blank" style="color:var(--blue);font-weight:600;">📄 Mở file showcase</a>
+    </div></div>` : ''}`;
 }
 
 function renderStarList(rows) {
@@ -464,9 +475,12 @@ async function submitFork() {
 
 /* ===== DOWNLOAD TRACKING ===== */
 
-// Lấy Drive file ID từ nhiều dạng URL
+// Lấy Drive file/folder ID từ nhiều dạng URL
 function extractDriveFileId(url) {
   if (!url) return null;
+  // /folders/{id} (folder) — v3.5
+  const mf = url.match(/\/folders\/([a-zA-Z0-9_-]{10,})/);
+  if (mf) return mf[1];
   // /file/d/{id}/ hoặc /document/d/{id}/
   const m1 = url.match(/\/d\/([a-zA-Z0-9_-]{10,})/);
   if (m1) return m1[1];
@@ -505,19 +519,9 @@ async function downloadAsset() {
     const fileId = extractDriveFileId(_asset.asset_link);
 
     if (fileId && typeof APPS_SCRIPT_URL !== 'undefined' && APPS_SCRIPT_URL && CURRENT_USER?.email) {
-      // 3. Gọi Apps Script share file cho đúng email người tải (fire & forget)
-      try {
-        await fetch(APPS_SCRIPT_URL, {
-          method:  'POST',
-          mode:    'no-cors', // bắt buộc do cross-origin
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({
-            event:     'shareFile',
-            fileId:    fileId,
-            userEmail: CURRENT_USER.email
-          })
-        });
-      } catch (_) { /* bỏ qua lỗi cors — Apps Script vẫn chạy */ }
+      // 3. Cấp quyền cho đúng email người tải. Asset có subfolder → share CẢ folder
+      //    (cascade file chính + HDSD); không có → share file lẻ như cũ.
+      await grantDriveAccess();
 
       showToast('Đang cấp quyền cho ' + CURRENT_USER.email + '...', 't-success');
 
@@ -534,12 +538,52 @@ async function downloadAsset() {
     }
 
     // Fallback nếu không lấy được fileId / chưa cấu hình APPS_SCRIPT_URL
-    window.open(_asset.asset_link, '_blank');
+    window.open(_asset.folder_link || _asset.asset_link, '_blank');
     resetBtn();
 
   } catch (err) {
     showToast('Lỗi: ' + err.message, 't-error');
     resetBtn();
+  }
+}
+
+/* v3.5: cấp quyền XEM trên Drive cho người đang đăng nhập.
+   - Asset có subfolder (folder_link) → share NGUYÊN folder (cascade file chính + HDSD).
+   - Không có → share file chính lẻ (legacy). Fire & forget (no-cors). */
+async function grantDriveAccess() {
+  if (typeof APPS_SCRIPT_URL === 'undefined' || !APPS_SCRIPT_URL || !CURRENT_USER?.email) return;
+  let payload = null;
+  const folderId = _asset.folder_link ? extractDriveFileId(_asset.folder_link) : null;
+  if (folderId) {
+    payload = { event: 'shareFolder', folderId, userEmail: CURRENT_USER.email };
+  } else {
+    const fileId = extractDriveFileId(_asset.asset_link);
+    if (fileId) payload = { event: 'shareFile', fileId, userEmail: CURRENT_USER.email };
+  }
+  if (!payload) return;
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch (_) { /* cors — Apps Script vẫn chạy */ }
+}
+
+/* v3.5 nút "Mở file trên Drive":
+   - Có subfolder → cấp quyền folder rồi mở folder (thấy CẢ file asset + HDSD).
+   - Không có → mở thẳng file asset như cũ. */
+async function openOnDrive() {
+  if (!_asset) return;
+  const target = _asset.folder_link || (_asset.asset_link && _asset.asset_link !== '#' ? _asset.asset_link : null);
+  if (!target) { showToast('Asset này chưa có file trên Drive.', 't-error'); return; }
+
+  if (_asset.folder_link) {
+    showToast('Đang cấp quyền truy cập...', 't-success');
+    await grantDriveAccess();
+    setTimeout(() => window.open(target, '_blank'), 1500);
+  } else {
+    window.open(target, '_blank');
   }
 }
 

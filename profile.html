@@ -303,7 +303,7 @@
               </div>
             </div>
           </a>`).join('')
-      : '<div style="padding:32px;color:var(--text-2);text-align:center;">Bạn chưa submit asset nào.<br><a href="submit.html" style="color:var(--blue);text-decoration:underline;margin-top:8px;display:inline-block;">Submit ngay →</a></div>';
+      : '<div style="padding:32px;color:var(--text-2);text-align:center;">Bạn chưa submit asset nào.<br><a href="#" onclick="openFormModal();return false;" style="color:var(--blue);text-decoration:underline;margin-top:8px;display:inline-block;">Submit ngay →</a></div>';
 
     /* ── Tab: Đã star ── */
     document.getElementById('starredBody').innerHTML = myStars.length

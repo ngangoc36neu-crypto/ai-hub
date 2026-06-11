@@ -212,9 +212,10 @@ async function confirmReject() {
   try {
     if (type === 'asset') {
       await dbUpdateAsset(id, { status: 'rejected', reviewer_note: reason, ...reviewStamp });
-      // Email → asset owner
+      // Email → asset owner + Apps Script chuyển file vào folder "3. Từ chối"
+      // (gửi cả khi thiếu email — vẫn cần assetId để xếp file Drive)
       const email = await dbGetOwnerEmailByAssetId(id);
-      if (email) callEmailWebhook({ event: 'asset_rejected', recipientEmail: email, assetName: name, reason });
+      callEmailWebhook({ event: 'asset_rejected', recipientEmail: email || '', assetName: name, reason, assetId: id });
     } else if (type === 'star') {
       await dbUpdateStar(id, { status: 'rejected', is_valid: false, reward_amount: 0, ...reviewStamp });
     } else if (type === 'fork') {
@@ -275,7 +276,7 @@ async function approveStar(supabaseId, isCrossTeam, name, elId) {
       status: 'approved', is_valid: true, reward_amount: reward,
       reviewed_at: new Date().toISOString(), reviewed_by: CURRENT_USER.email
     });
-    markItemDone(elId, true, `Approved${isCrossTeam ? ' · Reward 200.000₫' : ' · Cùng team, reward 0₫'}`);
+    markItemDone(elId, true, `Đã duyệt${isCrossTeam ? ' · Reward 200.000₫' : ' · Cùng team, reward 0₫'}`);
     showToast(`Star "${name}" đã được duyệt.`, 't-success');
     updateTabCounts();
     loadReviewHistory(); // cập nhật tab Lịch sử duyệt ngay
@@ -315,7 +316,7 @@ async function approveFork(supabaseId, isCrossTeam, name, elId) {
       status: 'approved', is_valid: true, reward_amount: reward,
       reviewed_at: new Date().toISOString(), reviewed_by: CURRENT_USER.email
     });
-    markItemDone(elId, true, `Approved${isCrossTeam ? ' · Reward 500.000₫' : ' · Cùng team, reward 0₫'}`);
+    markItemDone(elId, true, `Đã duyệt${isCrossTeam ? ' · Reward 500.000₫' : ' · Cùng team, reward 0₫'}`);
     showToast(`Fork "${name}" đã được duyệt.`, 't-success');
     updateTabCounts();
     loadReviewHistory(); // cập nhật tab Lịch sử duyệt ngay
@@ -329,7 +330,8 @@ async function approveFork(supabaseId, isCrossTeam, name, elId) {
         reward,
         userName: forkData.users?.full_name || name,
         useCase:  forkData.fork_description || '',
-        assetId:  forkData.original_asset_id
+        assetId:  forkData.original_asset_id,
+        forkId:   supabaseId   // v3.5: để Apps Script copy output về Drive Hub
       });
     }
   } catch (err) { showToast('Lỗi: ' + err.message, 't-error'); }
@@ -383,7 +385,10 @@ function renderAssetQueue(assets) {
       </div>
       <div class="q-item-reason">${a.description || ''}</div>
       <div class="q-item-ft">
-        ${a.asset_link ? `<a href="${a.asset_link}" target="_blank" class="btn btn-ghost btn-sm">Xem file Drive</a>` : ''}
+        ${a.folder_link
+          ? `<a href="${a.folder_link}" target="_blank" class="btn btn-ghost btn-sm">Xem trên Drive (asset + HDSD)</a>`
+          : (a.asset_link ? `<a href="${a.asset_link}" target="_blank" class="btn btn-ghost btn-sm">Xem file Drive</a>` : '')}
+        ${(!a.folder_link && a.guide_link) ? `<a href="${a.guide_link}" target="_blank" class="btn btn-ghost btn-sm">Xem HDSD</a>` : ''}
         <button class="btn btn-danger btn-sm" onclick="openReject('asset', ${a.id}, '${(a.asset_name||'').replace(/'/g,"\\'")}', '${elId}')">Từ chối</button>
         <button class="btn btn-success btn-sm" onclick="approveAsset(${a.id}, '${(a.asset_name||'').replace(/'/g,"\\'")}', '${elId}')">Duyệt</button>
       </div>
@@ -693,7 +698,7 @@ async function loadReviewHistory() {
         fork:  '<span class="badge t-tool"   style="font-size:11px;">Fork asset</span>'
       }[i.kind] || '<span class="badge b-gray" style="font-size:11px;">—</span>';
       const decisionBadge = i.decision === 'approved'
-        ? `<span class="badge b-verified">${i.kind === 'asset' ? 'Duyệt' : 'Approve'}</span>`
+        ? '<span class="badge b-verified">Duyệt</span>'
         : '<span class="badge b-rejected">Từ chối</span>';
       // reviewed_by là email → hiển thị phần trước @ cho gọn
       const curator = (i.curator && i.curator !== '—') ? i.curator.split('@')[0] : '—';
